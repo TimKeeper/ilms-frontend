@@ -1,0 +1,28 @@
+{
+  "status": {
+    "title": "Status Monitoring",
+    "radar": "Radar Device Status",
+    "identifier": "Identifier Status"
+  },
+  "config": {
+    "title": "Configuration",
+    "radar": "Radar Device Config",
+    "identifier": "Identifier Config",
+    "station": "Station List",
+    "ladle": "Ladle Config",
+    "carriage": "Carriage Config",
+    "alarm": "Alarm Config"
+  },
+  "report": {
+    "title": "Report Analysis",
+    "radarRecognition": "Radar Recognition Report",
+    "identifierLifespan": "Identifier Lifespan Report",
+    "rawData": "Raw Data Report"
+  },
+  "track": {
+    "title": "Track Monitoring",
+    "trajectory": "Trajectory Tracking",
+    "checkpoint": "Checkpoint",
+    "recognitionRate": "Recognition Rate"
+  }
+}
