@@ -21,7 +21,7 @@ defineOptions({
 });
 
 const props = withDefaults(defineProps<Props>(), {
-  toolbarList: () => ['color', 'language', 'layout', 'theme'],
+  toolbarList: () => ['color', 'layout', 'theme'],
 });
 
 const showColor = computed(() => props.toolbarList.includes('color'));
