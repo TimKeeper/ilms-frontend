@@ -11,6 +11,7 @@ export interface RadarCreateParams {
 export interface RadarUpdateParams {
   host: string;
   port: number;
+  address: number;
   antenna1WorkstationId?: number;
   antenna2WorkstationId?: number;
 }
