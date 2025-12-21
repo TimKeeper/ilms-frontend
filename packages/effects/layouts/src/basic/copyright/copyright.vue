@@ -12,9 +12,9 @@ defineOptions({
 });
 
 withDefaults(defineProps<Props>(), {
-  companyName: 'Vben Admin',
+  companyName: '安徽锐核电子科技有限公司',
   companySiteLink: '',
-  date: '2024',
+  date: '2025',
   icp: '',
   icpLink: '',
 });
