@@ -1,20 +1,5 @@
 import { setTimezoneHandler } from '@vben/stores';
 
-import { getTimezoneApi, getTimezoneOptionsApi, setTimezoneApi } from '#/api';
-
-/**
- * 初始化时区处理，通过API保存时区设置
- */
 export function initTimezone() {
-  setTimezoneHandler({
-    getTimezone() {
-      return getTimezoneApi();
-    },
-    setTimezone(timezone: string) {
-      return setTimezoneApi(timezone);
-    },
-    getTimezoneOptions() {
-      return getTimezoneOptionsApi();
-    },
-  });
+  // 不调用后端API，使用默认的本地时区处理
 }
