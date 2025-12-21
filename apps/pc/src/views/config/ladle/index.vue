@@ -7,7 +7,6 @@ import { ref } from 'vue';
 import { Page } from '@vben/common-ui';
 
 import { Button, Drawer, message, Modal, Space } from 'ant-design-vue';
-import { z } from 'zod';
 
 import { useVbenForm } from '#/adapter/form';
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
@@ -106,7 +105,7 @@ const [EditForm, editFormApi] = useVbenForm({
       },
       fieldName: 'ironName',
       label: '铁包名称',
-      rules: z.string().min(1, { message: '请输入铁包名称' }),
+      rules: 'required',
     },
     {
       component: 'InputNumber',

@@ -7,7 +7,6 @@ import { ref } from 'vue';
 import { Page } from '@vben/common-ui';
 
 import { Button, Drawer, message, Modal, Space, Tag } from 'ant-design-vue';
-import { z } from 'zod';
 
 import { useVbenForm } from '#/adapter/form';
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
@@ -161,7 +160,7 @@ const [EditForm, editFormApi] = useVbenForm({
       },
       fieldName: 'host',
       label: '雷达IP',
-      rules: z.string().min(1, { message: '请输入雷达IP' }),
+      rules: 'required',
     },
     {
       component: 'InputNumber',
@@ -173,7 +172,7 @@ const [EditForm, editFormApi] = useVbenForm({
       },
       fieldName: 'port',
       label: '端口',
-      rules: z.number().min(1).max(65_535),
+      rules: 'required',
     },
     {
       component: 'InputNumber',
@@ -184,7 +183,7 @@ const [EditForm, editFormApi] = useVbenForm({
       },
       fieldName: 'address',
       label: '地址',
-      rules: z.number().min(1, { message: '请输入地址' }),
+      rules: 'required',
     },
     {
       component: 'InputNumber',
