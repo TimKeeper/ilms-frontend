@@ -9,9 +9,7 @@
     "codeSentTo": "验证码已发送至{0}",
     "profile": "个人中心"
   },
-  "dashboard": {
-    "title": "概览",
-    "analytics": "分析页",
-    "workspace": "工作台"
+  "home": {
+    "title": "首页"
   }
 }

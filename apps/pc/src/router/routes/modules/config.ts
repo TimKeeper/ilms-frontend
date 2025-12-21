@@ -26,7 +26,7 @@ const routes: RouteRecordRaw[] = [
         path: '/config/identifier',
         component: () => import('#/views/config/identifier/index.vue'),
         meta: {
-          icon: 'lucide:chip',
+          icon: 'lucide:tag',
           title: $t('ilms.config.identifier'),
         },
       },
