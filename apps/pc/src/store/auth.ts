@@ -11,7 +11,7 @@ import { notification } from 'ant-design-vue';
 import CryptoJS from 'crypto-js';
 import { defineStore } from 'pinia';
 
-import { getAccessCodesApi, loginApi, logoutApi } from '#/api';
+import { loginApi, logoutApi } from '#/api';
 import { $t } from '#/locales';
 
 export const useAuthStore = defineStore('auth', () => {
@@ -61,13 +61,7 @@ export const useAuthStore = defineStore('auth', () => {
 
         userStore.setUserInfo(userInfo);
 
-        // 获取用户权限码
-        try {
-          const accessCodes = await getAccessCodesApi();
-          accessStore.setAccessCodes(accessCodes);
-        } catch {
-          accessStore.setAccessCodes([]);
-        }
+        accessStore.setAccessCodes([]);
 
         if (accessStore.loginExpired) {
           accessStore.setLoginExpired(false);
