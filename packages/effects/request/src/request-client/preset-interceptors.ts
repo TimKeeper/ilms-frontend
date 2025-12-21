@@ -7,17 +7,16 @@ import { isFunction } from '@vben/utils';
 import axios from 'axios';
 
 export const defaultResponseInterceptor = ({
-  codeField = 'code',
+  codeField = 'status',
   dataField = 'data',
+  msgField = 'resMsg',
   successCode = 0,
 }: {
-  /** 响应数据中代表访问结果的字段名 */
-  codeField: string;
-  /** 响应数据中装载实际数据的字段名，或者提供一个函数从响应数据中解析需要返回的数据 */
-  dataField: ((response: any) => any) | string;
-  /** 当codeField所指定的字段值与successCode相同时，代表接口访问成功。如果提供一个函数，则返回true代表接口访问成功 */
-  successCode: ((code: any) => boolean) | number | string;
-}): ResponseInterceptorConfig => {
+  codeField?: string;
+  dataField?: ((response: any) => any) | string;
+  msgField?: string;
+  successCode?: ((code: any) => boolean) | number | string;
+} = {}): ResponseInterceptorConfig => {
   return {
     fulfilled: (response) => {
       const { config, data: responseData, status } = response;
@@ -29,15 +28,25 @@ export const defaultResponseInterceptor = ({
       if (status >= 200 && status < 400) {
         if (config.responseReturn === 'body') {
           return responseData;
-        } else if (
-          isFunction(successCode)
-            ? successCode(responseData[codeField])
-            : responseData[codeField] === successCode
-        ) {
+        }
+
+        const businessCode = responseData[codeField];
+        const isSuccess = isFunction(successCode)
+          ? successCode(businessCode)
+          : businessCode === successCode;
+
+        if (isSuccess) {
           return isFunction(dataField)
             ? dataField(responseData)
             : responseData[dataField];
         }
+
+        const errorMsg = responseData[msgField] || '未知错误';
+        throw Object.assign({}, response, {
+          response,
+          businessError: true,
+          businessMessage: errorMsg,
+        });
       }
       throw Object.assign({}, response, { response });
     },
@@ -115,6 +124,11 @@ export const errorMessageResponseInterceptor = (
   return {
     rejected: (error: any) => {
       if (axios.isCancel(error)) {
+        return Promise.reject(error);
+      }
+
+      if (error?.businessError && error?.businessMessage) {
+        makeErrorMessage?.(error.businessMessage, error);
         return Promise.reject(error);
       }
 
