@@ -1,7 +1,7 @@
 {
   "folders": [
     {
-      "name": "@vben/pc",
+      "name": "@ilms-frontend/pc",
       "path": "apps/pc",
     },
     {
