@@ -201,7 +201,7 @@ onBeforeMount(() => {
         :avatar
         :menus
         :text="userStore.userInfo?.realName"
-        description="ann.vben@gmail.com"
+        description="安徽锐核电子科技有限公司"
         tag-text="Pro"
         trigger="both"
         @logout="handleLogout"

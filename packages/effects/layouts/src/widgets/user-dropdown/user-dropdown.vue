@@ -14,7 +14,6 @@ import { isWindowsOs } from '@vben/utils';
 
 import { useVbenModal } from '@vben-core/popup-ui';
 import {
-  Badge,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -23,7 +22,6 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
   VbenAvatar,
-  VbenIcon,
 } from '@vben-core/shadcn-ui';
 
 import { useMagicKeys, whenever } from '@vueuse/core';
@@ -208,31 +206,15 @@ if (enableShortcutKey.value) {
           />
           <div class="ml-2 w-full">
             <div
-              v-if="tagText || text || $slots.tagText"
               class="text-foreground mb-1 flex items-center text-sm font-medium"
             >
               {{ text }}
-              <slot name="tagText">
-                <Badge v-if="tagText" class="ml-2 text-green-400">
-                  {{ tagText }}
-                </Badge>
-              </slot>
             </div>
             <div class="text-muted-foreground text-xs font-normal">
               {{ description }}
             </div>
           </div>
         </DropdownMenuLabel>
-        <DropdownMenuSeparator v-if="menus?.length" />
-        <DropdownMenuItem
-          v-for="menu in menus"
-          :key="menu.text"
-          class="mx-1 flex cursor-pointer items-center rounded-sm py-1 leading-8"
-          @click="menu.handler"
-        >
-          <VbenIcon :icon="menu.icon" class="mr-2 size-4" />
-          {{ menu.text }}
-        </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem
           v-if="preferences.widget.lockScreen"
@@ -245,7 +227,6 @@ if (enableShortcutKey.value) {
             {{ altView }} L
           </DropdownMenuShortcut>
         </DropdownMenuItem>
-        <DropdownMenuSeparator v-if="preferences.widget.lockScreen" />
         <DropdownMenuItem
           class="mx-1 flex cursor-pointer items-center rounded-sm py-1 leading-8"
           @click="handleLogout"
