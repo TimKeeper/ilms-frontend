@@ -3,6 +3,7 @@ import type { VbenFormSchema } from '@vben/common-ui';
 import type { Recordable } from '@vben/types';
 
 import { computed } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 
 import { AuthenticationLogin, z } from '@vben/common-ui';
 import { $t } from '@vben/locales';
@@ -12,6 +13,8 @@ import { useAuthStore } from '#/store';
 defineOptions({ name: 'Login' });
 
 const authStore = useAuthStore();
+const route = useRoute();
+const router = useRouter();
 
 const formSchema = computed((): VbenFormSchema[] => {
   return [
@@ -37,7 +40,14 @@ const formSchema = computed((): VbenFormSchema[] => {
 });
 
 async function onSubmit(params: Recordable<any>) {
-  authStore.authLogin(params);
+  await authStore.authLogin(params, async () => {
+    // 登录成功后，检查是否有 redirect 参数
+    const redirect = route.query.redirect as string;
+    if (redirect) {
+      // 解码并跳转到原页面
+      await router.replace(decodeURIComponent(redirect));
+    }
+  });
 }
 </script>
 

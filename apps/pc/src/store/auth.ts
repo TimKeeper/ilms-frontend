@@ -11,7 +11,7 @@ import { notification } from 'ant-design-vue';
 import CryptoJS from 'crypto-js';
 import { defineStore } from 'pinia';
 
-import { loginApi, logoutApi } from '#/api';
+import { loginApi } from '#/api';
 import { $t } from '#/locales';
 
 export const useAuthStore = defineStore('auth', () => {
@@ -39,7 +39,9 @@ export const useAuthStore = defineStore('auth', () => {
       // 对密码进行MD5加密
       const loginParams = {
         ...params,
-        password: params.password ? CryptoJS.MD5(params.password).toString() : '',
+        password: params.password
+          ? CryptoJS.MD5(params.password).toString()
+          : '',
       };
 
       const loginResult = await loginApi(loginParams);
@@ -91,12 +93,7 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   async function logout(redirect: boolean = true) {
-    try {
-      await logoutApi();
-    } catch {
-      // 不做任何处理
-    }
-
+    // 清除所有本地状态
     resetAllStores();
     accessStore.setLoginExpired(false);
 
