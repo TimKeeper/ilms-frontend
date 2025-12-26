@@ -31,15 +31,6 @@ const routes: RouteRecordRaw[] = [
         },
       },
       {
-        name: 'IdentifierConfig',
-        path: '/config/identifier',
-        component: () => import('#/views/config/identifier/index.vue'),
-        meta: {
-          icon: 'lucide:tag',
-          title: $t('ilms.config.identifier'),
-        },
-      },
-      {
         name: 'LadleConfig',
         path: '/config/ladle',
         component: () => import('#/views/config/ladle/index.vue'),
