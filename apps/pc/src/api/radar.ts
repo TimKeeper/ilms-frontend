@@ -1,26 +1,26 @@
 import { requestClient } from '#/api/request';
 
 export interface RadarCreateParams {
-  host: string;
-  port: number;
-  address: number;
-  antenna1WorkstationId?: number;
-  antenna2WorkstationId?: number;
+  radarHost: string;
+  radarPort: number;
+  radarAddress: number;
+  radarAntenna1StationId?: number;
+  radarAntenna2StationId?: number;
 }
 
 export interface RadarUpdateParams {
-  host: string;
-  port: number;
-  address: number;
-  antenna1WorkstationId?: number;
-  antenna2WorkstationId?: number;
+  radarHost: string;
+  radarPort: number;
+  radarAddress: number;
+  radarAntenna1StationId?: number;
+  radarAntenna2StationId?: number;
 }
 
 export interface RadarListParams {
-  host?: string;
-  workstationName?: string;
-  workstationIndex?: number;
-  workstationProcess?: number;
+  radarHost?: string;
+  stationLabel?: string;
+  stationCode?: string;
+  processOrder?: number;
   page: number;
   pageSize: number;
 }
@@ -30,14 +30,14 @@ export interface RadarItem {
   radarHost: string;
   radarPort: number;
   radarAddress: number;
-  radarAntenna1WorkstationId?: number | null;
-  radarAntenna1WorkstationName?: string | null;
-  radarAntenna1WorkstationIndex?: number | null;
-  radarAntenna1WorkstationProcess?: number | null;
-  radarAntenna2WorkstationId?: number | null;
-  radarAntenna2WorkstationName?: string | null;
-  radarAntenna2WorkstationIndex?: number | null;
-  radarAntenna2WorkstationProcess?: number | null;
+  radarAntenna1StationId?: null | number;
+  radarAntenna1StationLabel?: null | string;
+  radarAntenna1StationCode?: null | string;
+  radarAntenna1ProcessOrder?: null | number;
+  radarAntenna2StationId?: null | number;
+  radarAntenna2StationLabel?: null | string;
+  radarAntenna2StationCode?: null | string;
+  radarAntenna2ProcessOrder?: null | number;
   radarStatus: number;
   inputTime: number;
   updateTime: number;

@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import type { VbenFormProps } from '#/adapter/form';
 import type { VxeGridProps } from '#/adapter/vxe-table';
+import type { IronItem } from '#/api';
 
 import { ref } from 'vue';
 
@@ -14,7 +15,6 @@ import {
   createIronApi,
   deleteIronApi,
   getIronListApi,
-  type IronItem,
   updateIronApi,
 } from '#/api';
 

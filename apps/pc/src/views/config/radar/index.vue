@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import type { VbenFormProps } from '#/adapter/form';
 import type { VxeGridProps } from '#/adapter/vxe-table';
+import type { RadarItem } from '#/api';
 
 import { ref } from 'vue';
 
@@ -14,7 +15,6 @@ import {
   createRadarApi,
   deleteRadarApi,
   getRadarListApi,
-  type RadarItem,
   updateRadarApi,
 } from '#/api';
 
@@ -30,7 +30,7 @@ const formOptions: VbenFormProps = {
       componentProps: {
         placeholder: '雷达IP',
       },
-      fieldName: 'host',
+      fieldName: 'radarHost',
       label: '雷达IP',
     },
     {
@@ -38,26 +38,25 @@ const formOptions: VbenFormProps = {
       componentProps: {
         placeholder: '工位名称',
       },
-      fieldName: 'workstationName',
+      fieldName: 'stationLabel',
       label: '工位名称',
     },
     {
-      component: 'InputNumber',
+      component: 'Input',
       componentProps: {
-        min: 1,
         placeholder: '工位代号',
       },
-      fieldName: 'workstationIndex',
+      fieldName: 'stationCode',
       label: '工位代号',
     },
     {
       component: 'InputNumber',
       componentProps: {
         min: 1,
-        placeholder: '工序',
+        placeholder: '工序顺序',
       },
-      fieldName: 'workstationProcess',
-      label: '工序',
+      fieldName: 'processOrder',
+      label: '工序顺序',
     },
   ],
   showCollapseButton: true,
@@ -96,12 +95,12 @@ const gridOptions: VxeGridProps<RadarItem> = {
     { field: 'radarPort', title: '端口', width: 100 },
     { field: 'radarAddress', title: '地址', width: 100 },
     {
-      field: 'radarAntenna1WorkstationName',
+      field: 'radarAntenna1StationLabel',
       title: '天线1工位',
       width: 120,
     },
     {
-      field: 'radarAntenna2WorkstationName',
+      field: 'radarAntenna2StationLabel',
       title: '天线2工位',
       width: 120,
     },
@@ -126,10 +125,10 @@ const gridOptions: VxeGridProps<RadarItem> = {
         return await getRadarListApi({
           page: page.currentPage,
           pageSize: page.pageSize,
-          host: formValues?.host || undefined,
-          workstationName: formValues?.workstationName || undefined,
-          workstationIndex: formValues?.workstationIndex,
-          workstationProcess: formValues?.workstationProcess,
+          radarHost: formValues?.radarHost || undefined,
+          stationLabel: formValues?.stationLabel || undefined,
+          stationCode: formValues?.stationCode || undefined,
+          processOrder: formValues?.processOrder,
         });
       },
     },
@@ -158,7 +157,7 @@ const [EditForm, editFormApi] = useVbenForm({
       componentProps: {
         placeholder: '请输入雷达IP',
       },
-      fieldName: 'host',
+      fieldName: 'radarHost',
       label: '雷达IP',
       rules: 'required',
     },
@@ -170,7 +169,7 @@ const [EditForm, editFormApi] = useVbenForm({
         min: 1,
         placeholder: '请输入端口',
       },
-      fieldName: 'port',
+      fieldName: 'radarPort',
       label: '端口',
       rules: 'required',
     },
@@ -181,7 +180,7 @@ const [EditForm, editFormApi] = useVbenForm({
         min: 1,
         placeholder: '请输入地址',
       },
-      fieldName: 'address',
+      fieldName: 'radarAddress',
       label: '地址',
       rules: 'required',
     },
@@ -192,7 +191,7 @@ const [EditForm, editFormApi] = useVbenForm({
         min: 1,
         placeholder: '请输入天线1工位ID',
       },
-      fieldName: 'antenna1WorkstationId',
+      fieldName: 'radarAntenna1StationId',
       label: '天线1工位ID',
     },
     {
@@ -202,7 +201,7 @@ const [EditForm, editFormApi] = useVbenForm({
         min: 1,
         placeholder: '请输入天线2工位ID',
       },
-      fieldName: 'antenna2WorkstationId',
+      fieldName: 'radarAntenna2StationId',
       label: '天线2工位ID',
     },
   ],
@@ -220,11 +219,11 @@ const handleEdit = (record: RadarItem) => {
   isEditMode.value = true;
   editingRecord.value = record;
   editFormApi.setValues({
-    address: record.radarAddress,
-    antenna1WorkstationId: record.radarAntenna1WorkstationId || undefined,
-    antenna2WorkstationId: record.radarAntenna2WorkstationId || undefined,
-    host: record.radarHost,
-    port: record.radarPort,
+    radarAddress: record.radarAddress,
+    radarAntenna1StationId: record.radarAntenna1StationId || undefined,
+    radarAntenna2StationId: record.radarAntenna2StationId || undefined,
+    radarHost: record.radarHost,
+    radarPort: record.radarPort,
   });
   drawerVisible.value = true;
 };
@@ -252,20 +251,20 @@ const handleSubmit = async () => {
 
     if (isEditMode.value && editingRecord.value) {
       await updateRadarApi(editingRecord.value.id, {
-        address: values.address,
-        antenna1WorkstationId: values.antenna1WorkstationId,
-        antenna2WorkstationId: values.antenna2WorkstationId,
-        host: values.host,
-        port: values.port,
+        radarAddress: values.radarAddress,
+        radarAntenna1StationId: values.radarAntenna1StationId,
+        radarAntenna2StationId: values.radarAntenna2StationId,
+        radarHost: values.radarHost,
+        radarPort: values.radarPort,
       });
       message.success('更新成功');
     } else {
       await createRadarApi({
-        address: values.address,
-        antenna1WorkstationId: values.antenna1WorkstationId,
-        antenna2WorkstationId: values.antenna2WorkstationId,
-        host: values.host,
-        port: values.port,
+        radarAddress: values.radarAddress,
+        radarAntenna1StationId: values.radarAntenna1StationId,
+        radarAntenna2StationId: values.radarAntenna2StationId,
+        radarHost: values.radarHost,
+        radarPort: values.radarPort,
       });
       message.success('添加成功');
     }

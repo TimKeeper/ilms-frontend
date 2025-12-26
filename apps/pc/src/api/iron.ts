@@ -21,8 +21,8 @@ export interface IronListParams {
 
 export interface IronItem {
   id: number;
-  tagSn1?: number | null;
-  tagSn2?: number | null;
+  tagSn1?: null | number;
+  tagSn2?: null | number;
   ironName: string;
   inputTime: number;
   updateTime: number;

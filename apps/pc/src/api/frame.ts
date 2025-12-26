@@ -25,10 +25,10 @@ export interface FrameListParams {
 
 export interface FrameItem {
   id: number;
-  tagSn1?: number | null;
-  tagSn2?: number | null;
-  tagSn3?: number | null;
-  tagSn4?: number | null;
+  tagSn1?: null | number;
+  tagSn2?: null | number;
+  tagSn3?: null | number;
+  tagSn4?: null | number;
   frameName: string;
   inputTime: number;
   updateTime: number;

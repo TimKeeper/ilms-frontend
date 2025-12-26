@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import type { VbenFormProps } from '#/adapter/form';
 import type { VxeGridProps } from '#/adapter/vxe-table';
+import type { FrameItem } from '#/api';
 
 import { ref } from 'vue';
 
@@ -13,7 +14,6 @@ import { useVbenVxeGrid } from '#/adapter/vxe-table';
 import {
   createFrameApi,
   deleteFrameApi,
-  type FrameItem,
   getFrameListApi,
   updateFrameApi,
 } from '#/api';
