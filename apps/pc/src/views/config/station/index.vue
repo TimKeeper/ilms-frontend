@@ -3,7 +3,17 @@ import { onMounted, ref } from 'vue';
 
 import { Page } from '@vben/common-ui';
 
-import { Button, Card, message, Modal, Space } from 'ant-design-vue';
+import {
+  Button,
+  Card,
+  Form,
+  Input,
+  message,
+  Modal,
+  Space,
+  Tooltip,
+} from 'ant-design-vue';
+import dagre from 'dagre';
 
 import {
   getStationFlowConfigApi,
@@ -85,6 +95,81 @@ const selectedId = ref<null | number>(null);
 const svgRef = ref<null | SVGSVGElement>(null);
 const loading = ref(false);
 
+// --- 工位编辑弹窗状态 ---
+const stationModalVisible = ref(false);
+const editingStation = ref<null | Station>(null);
+const stationFormData = ref({
+  code: '',
+  label: '',
+});
+
+// --- 工序编辑弹窗状态 ---
+const processModalVisible = ref(false);
+const editingProcess = ref<null | ProcessGroup>(null);
+const processFormData = ref({
+  label: '',
+});
+
+// --- 双击编辑工序 ---
+const handleProcessDblClick = (e: MouseEvent, process: ProcessGroup) => {
+  e.stopPropagation();
+  editingProcess.value = process;
+  processFormData.value = {
+    label: process.label,
+  };
+  processModalVisible.value = true;
+};
+
+// --- 提交工序编辑 ---
+const handleProcessSubmit = () => {
+  if (!editingProcess.value) return;
+
+  const trimmedLabel = processFormData.value.label.trim();
+
+  // 验证名称不能为空
+  if (!trimmedLabel) {
+    message.warning('工序名称不能为空');
+    return;
+  }
+
+  // 验证名称唯一性（排除当前编辑的工序）
+  const labelExists = processes.value.some(
+    (p) => p.id !== editingProcess.value?.id && p.label === trimmedLabel,
+  );
+  if (labelExists) {
+    message.warning('工序名称已存在，请使用其他名称');
+    return;
+  }
+
+  // 更新工序信息
+  processes.value = processes.value.map((p) =>
+    p.id === editingProcess.value?.id
+      ? {
+          ...p,
+          label: trimmedLabel,
+        }
+      : p,
+  );
+
+  processModalVisible.value = false;
+  editingProcess.value = null;
+  message.success('工序更新成功');
+};
+
+// --- 取消工序编辑 ---
+const handleProcessCancel = () => {
+  processModalVisible.value = false;
+  editingProcess.value = null;
+};
+
+// --- 画布缩放和平移状态 ---
+const scale = ref(1); // 缩放比例
+const translateX = ref(0); // X轴平移
+const translateY = ref(0); // Y轴平移
+const isPanning = ref(false); // 是否正在平移
+const panStartX = ref(0); // 平移开始时的X坐标
+const panStartY = ref(0); // 平移开始时的Y坐标
+
 // --- SVG 坐标转换 ---
 const getMousePos = (e: MouseEvent): { x: number; y: number } => {
   if (!svgRef.value) return { x: 0, y: 0 };
@@ -132,15 +217,56 @@ const handleMouseMove = (e: MouseEvent) => {
 
   if (dragging.value) {
     if (dragging.value.type === 'station') {
-      stations.value = stations.value.map((s) =>
-        s.id === dragging.value?.id
-          ? {
-              ...s,
-              x: pos.x - dragging.value.offsetX,
-              y: pos.y - dragging.value.offsetY,
-            }
-          : s,
-      );
+      // 查找工位所属的工序
+      const station = stations.value.find((s) => s.id === dragging.value?.id);
+      if (station) {
+        const parentProcess = processes.value.find(
+          (p) => p.id === station.processId,
+        );
+
+        if (parentProcess) {
+          const STATION_WIDTH = 100;
+          const STATION_HEIGHT = 40;
+          const HEADER_HEIGHT = 30; // 工序标题高度
+
+          // 计算边界
+          const minX = parentProcess.x;
+          const maxX = parentProcess.x + parentProcess.width - STATION_WIDTH;
+          const minY = parentProcess.y + HEADER_HEIGHT;
+          const maxY = parentProcess.y + parentProcess.height - STATION_HEIGHT;
+
+          // 计算新位置并限制在边界内
+          const newX = Math.max(
+            minX,
+            Math.min(maxX, pos.x - dragging.value.offsetX),
+          );
+          const newY = Math.max(
+            minY,
+            Math.min(maxY, pos.y - dragging.value.offsetY),
+          );
+
+          stations.value = stations.value.map((s) =>
+            s.id === dragging.value?.id
+              ? {
+                  ...s,
+                  x: newX,
+                  y: newY,
+                }
+              : s,
+          );
+        } else {
+          // 如果没有父工序，允许自由移动
+          stations.value = stations.value.map((s) =>
+            s.id === dragging.value?.id
+              ? {
+                  ...s,
+                  x: pos.x - dragging.value.offsetX,
+                  y: pos.y - dragging.value.offsetY,
+                }
+              : s,
+          );
+        }
+      }
     } else if (dragging.value.type === 'process') {
       processes.value = processes.value.map((p) => {
         if (p.id === dragging.value?.id) {
@@ -189,23 +315,33 @@ const handleStationMouseUp = (e: MouseEvent, targetStation: Station) => {
       message.success('连线创建成功');
     }
   }
+  // 清除所有状态，包括拖拽状态
   connecting.value = null;
+  dragging.value = null;
 };
 
 // --- 添加工序 ---
 const addProcess = () => {
-  const id = Date.now();
   const maxOrder = Math.max(0, ...processes.value.map((p) => p.order || 0));
+  // 使用负数作为临时ID，避免与现有ID冲突，后端会生成真实ID
+  const tempId = -Date.now();
+
+  // 生成唯一的工序名称（使用时间戳后4位）
+  const uniqueSuffix = Date.now().toString().slice(-4);
+  const uniqueLabel = `新工序 ${uniqueSuffix}`;
   processes.value.push({
     height: 200,
-    id,
-    label: '新工序',
+    id: tempId,
+    label: uniqueLabel,
     order: maxOrder + 1,
     width: 250,
     x: 100,
     y: 100,
   });
   message.success('工序添加成功');
+
+  // 自动触发布局（不显示成功消息）
+  performAutoLayout(false);
 };
 
 // --- 添加工位 ---
@@ -213,23 +349,108 @@ const addStation = (processId: number) => {
   const proc = processes.value.find((p) => p.id === processId);
   if (!proc) return;
 
-  const id = Date.now();
-  // 获取该工序下的工位数量，生成新的代号
-  const stationsInProcess = stations.value.filter(
-    (s) => s.processId === processId,
-  );
-  const newCode = String(stationsInProcess.length + 1);
+  // 使用负数作为临时ID，避免与现有ID冲突，后端会生成真实ID
+  const tempId = -Date.now();
+
+  // 生成唯一的工位名称和代号（使用时间戳后4位）
+  const uniqueSuffix = Date.now().toString().slice(-4);
+  let uniqueLabel = `新工位 ${uniqueSuffix}`;
+  let uniqueCode = uniqueSuffix;
+
+  // 确保名称唯一
+  while (stations.value.some((s) => s.label === uniqueLabel)) {
+    const newSuffix = Date.now().toString().slice(-4);
+    uniqueLabel = `新工位 ${newSuffix}`;
+  }
+
+  // 确保代号唯一
+  while (stations.value.some((s) => s.code === uniqueCode)) {
+    uniqueCode = Date.now().toString().slice(-4);
+  }
 
   stations.value.push({
-    code: newCode,
-    id,
-    label: '新工位',
+    code: uniqueCode,
+    id: tempId,
+    label: uniqueLabel,
     processId,
     type: 0,
     x: proc.x + 20,
     y: proc.y + 40,
   });
   message.success('工位添加成功');
+
+  // 自动触发布局（不显示成功消息）
+  performAutoLayout(false);
+};
+
+// --- 双击编辑工位 ---
+const handleStationDblClick = (e: MouseEvent, station: Station) => {
+  e.stopPropagation();
+  editingStation.value = station;
+  stationFormData.value = {
+    code: station.code || '',
+    label: station.label,
+  };
+  stationModalVisible.value = true;
+};
+
+// --- 提交工位编辑 ---
+const handleStationSubmit = () => {
+  if (!editingStation.value) return;
+
+  const trimmedLabel = stationFormData.value.label.trim();
+  const trimmedCode = stationFormData.value.code.trim();
+
+  // 验证名称不能为空
+  if (!trimmedLabel) {
+    message.warning('工位名称不能为空');
+    return;
+  }
+
+  // 验证代号不能为空
+  if (!trimmedCode) {
+    message.warning('工位代号不能为空');
+    return;
+  }
+
+  // 验证名称唯一性（排除当前编辑的工位）
+  const labelExists = stations.value.some(
+    (s) => s.id !== editingStation.value?.id && s.label === trimmedLabel,
+  );
+  if (labelExists) {
+    message.warning('工位名称已存在，请使用其他名称');
+    return;
+  }
+
+  // 验证代号唯一性（排除当前编辑的工位）
+  const codeExists = stations.value.some(
+    (s) => s.id !== editingStation.value?.id && s.code === trimmedCode,
+  );
+  if (codeExists) {
+    message.warning('工位代号已存在，请使用其他代号');
+    return;
+  }
+
+  // 更新工位信息
+  stations.value = stations.value.map((s) =>
+    s.id === editingStation.value?.id
+      ? {
+          ...s,
+          code: trimmedCode,
+          label: trimmedLabel,
+        }
+      : s,
+  );
+
+  stationModalVisible.value = false;
+  editingStation.value = null;
+  message.success('工位更新成功');
+};
+
+// --- 取消工位编辑 ---
+const handleStationCancel = () => {
+  stationModalVisible.value = false;
+  editingStation.value = null;
 };
 
 // --- 删除选中 ---
@@ -294,9 +515,13 @@ const loadData = async () => {
       }
 
       message.success('数据加载成功');
+
+      // 数据加载完成后自动触发布局（不显示成功消息）
+      if (processes.value.length > 0) {
+        performAutoLayout(false);
+      }
     }
   } catch (error) {
-    message.error('数据加载失败');
     console.error('加载失败:', error);
   } finally {
     loading.value = false;
@@ -326,31 +551,42 @@ const saveData = async () => {
         from: stationMap.get(link.from) || '',
         to: stationMap.get(link.to) || '',
       })),
-      processes: processes.value.map((p) => ({
-        color: p.color,
-        height: p.height,
-        id: p.id,
-        label: p.label,
-        order: p.order || 0,
-        width: p.width,
-        x: p.x,
-        y: p.y,
-      })),
-      stations: stations.value.map((s) => ({
-        code: s.code || '',
-        id: s.id,
-        label: s.label,
-        process: processMap.get(s.processId) || '',
-        type: s.type || 0,
-        x: s.x,
-        y: s.y,
-      })),
+      processes: processes.value.map((p) => {
+        const processData: any = {
+          color: p.color,
+          height: p.height,
+          label: p.label,
+          order: p.order || 0,
+          width: p.width,
+          x: p.x,
+          y: p.y,
+        };
+        // 只有正数ID才是后端已生成的，负数ID是新增项，不发送id字段
+        if (p.id > 0) {
+          processData.id = p.id;
+        }
+        return processData;
+      }),
+      stations: stations.value.map((s) => {
+        const stationData: any = {
+          code: s.code || '',
+          label: s.label,
+          process: processMap.get(s.processId) || '',
+          type: 1, // 硬编码为1
+          x: s.x,
+          y: s.y,
+        };
+        // 只有正数ID才是后端已生成的，负数ID是新增项，不发送id字段
+        if (s.id > 0) {
+          stationData.id = s.id;
+        }
+        return stationData;
+      }),
     };
 
     await saveStationFlowConfigApi(saveParams);
     message.success('数据保存成功');
   } catch (error) {
-    message.error('数据保存失败');
     console.error('保存失败:', error);
   } finally {
     loading.value = false;
@@ -381,6 +617,225 @@ const deleteLink = (link: Link) => {
   );
   message.success('连线已删除');
 };
+
+// --- 自动布局 ---
+const performAutoLayout = (showMessage = true) => {
+  if (processes.value.length === 0) {
+    if (showMessage) {
+      message.warning('没有可布局的工序');
+    }
+    return;
+  }
+
+  // 1. 宏观布局：水平排列工序（按order排序）
+  const sortedProcesses = [...processes.value].toSorted(
+    (a, b) => (a.order || 0) - (b.order || 0),
+  );
+
+  const PROCESS_GAP = 80; // 工序之间的间距
+  const TOP_MARGIN = 50; // 顶部边距
+  const PROCESS_PADDING = 20; // 工序内边距
+  const STATION_WIDTH = 100;
+  const STATION_HEIGHT = 40;
+  const STATION_VERTICAL_GAP = 30; // 工位之间的垂直间距
+
+  let currentX = 50; // 起始X坐标
+
+  // 为每个工序创建独立的Dagre图
+  sortedProcesses.forEach((proc) => {
+    const processStations = stations.value.filter(
+      (s) => s.processId === proc.id,
+    );
+
+    if (processStations.length === 0) {
+      // 如果工序内没有工位，保持工序默认大小并移动到下一个位置
+      processes.value = processes.value.map((p) =>
+        p.id === proc.id ? { ...p, x: currentX, y: TOP_MARGIN } : p,
+      );
+      currentX += proc.width + PROCESS_GAP;
+      return;
+    }
+
+    // 2. 微观布局：使用Dagre计算工位在工序内的位置
+    const g = new dagre.graphlib.Graph();
+    g.setGraph({
+      rankdir: 'LR', // 从左到右排列
+      nodesep: 30, // 同层节点间距
+      ranksep: 80, // 层级间距
+    });
+    g.setDefaultEdgeLabel(() => ({}));
+
+    // 添加当前工序内的所有工位作为节点
+    processStations.forEach((station) => {
+      g.setNode(station.id.toString(), {
+        height: STATION_HEIGHT,
+        width: STATION_WIDTH,
+      });
+    });
+
+    // 添加连线（仅限当前工序内的连线）
+    links.value.forEach((link) => {
+      const fromStation = processStations.find((s) => s.id === link.from);
+      const toStation = processStations.find((s) => s.id === link.to);
+      // 只添加两端都在当前工序内的连线
+      if (fromStation && toStation) {
+        g.setEdge(link.from.toString(), link.to.toString());
+      }
+    });
+
+    // 运行Dagre布局算法
+    dagre.layout(g);
+
+    // 3. 计算工序所需的实际高度和宽度
+    let minX = Number.POSITIVE_INFINITY;
+    let maxX = Number.NEGATIVE_INFINITY;
+    let minY = Number.POSITIVE_INFINITY;
+    let maxY = Number.NEGATIVE_INFINITY;
+
+    processStations.forEach((station) => {
+      const node = g.node(station.id.toString());
+      if (node) {
+        minX = Math.min(minX, node.x - STATION_WIDTH / 2);
+        maxX = Math.max(maxX, node.x + STATION_WIDTH / 2);
+        minY = Math.min(minY, node.y - STATION_HEIGHT / 2);
+        maxY = Math.max(maxY, node.y + STATION_HEIGHT / 2);
+      }
+    });
+
+    // 计算工序内容的实际尺寸
+    const contentWidth = maxX - minX;
+    const contentHeight = maxY - minY;
+
+    // 工序尺寸 = 内容尺寸 + 内边距 + 标题高度
+    const processWidth = Math.max(
+      proc.width,
+      contentWidth + PROCESS_PADDING * 2,
+    );
+    const processHeight = contentHeight + PROCESS_PADDING * 2 + 30; // 30为标题高度
+
+    // 4. 更新工序位置和尺寸
+    processes.value = processes.value.map((p) =>
+      p.id === proc.id
+        ? {
+            ...p,
+            height: processHeight,
+            width: processWidth,
+            x: currentX,
+            y: TOP_MARGIN,
+          }
+        : p,
+    );
+
+    // 5. 更新工位位置（相对于工序的位置）
+    processStations.forEach((station) => {
+      const node = g.node(station.id.toString());
+      if (node) {
+        // 计算工位在工序内的相对位置
+        const relativeX = node.x - minX;
+        const relativeY = node.y - minY;
+
+        // 计算工位的绝对位置（工序位置 + 内边距 + 相对位置）
+        // X轴：居中对齐
+        const centerOffset = (processWidth - contentWidth) / 2;
+        const absoluteX =
+          currentX + centerOffset + relativeX - STATION_WIDTH / 2;
+
+        // Y轴：Dagre计算的位置 + 工序Y + 标题高度 + 内边距
+        const absoluteY =
+          TOP_MARGIN + 30 + PROCESS_PADDING + relativeY - STATION_HEIGHT / 2;
+
+        stations.value = stations.value.map((s) =>
+          s.id === station.id
+            ? {
+                ...s,
+                x: absoluteX,
+                y: absoluteY,
+              }
+            : s,
+        );
+      }
+    });
+
+    // 移动到下一个工序的X位置
+    currentX += processWidth + PROCESS_GAP;
+  });
+
+  // 处理孤立工位（没有所属工序或工序不存在的工位）
+  const orphanStations = stations.value.filter((station) => {
+    return !processes.value.some((proc) => proc.id === station.processId);
+  });
+
+  if (orphanStations.length > 0) {
+    // 将孤立工位排列在最右侧
+    orphanStations.forEach((station, index) => {
+      stations.value = stations.value.map((s) =>
+        s.id === station.id
+          ? {
+              ...s,
+              x: currentX,
+              y:
+                TOP_MARGIN +
+                50 +
+                index * (STATION_HEIGHT + STATION_VERTICAL_GAP),
+            }
+          : s,
+      );
+    });
+  }
+
+  if (showMessage) {
+    message.success('自动布局完成');
+  }
+};
+
+// --- 画布缩放控制 ---
+const zoomIn = () => {
+  scale.value = Math.min(scale.value * 1.2, 3); // 最大放大到3倍
+};
+
+const zoomOut = () => {
+  scale.value = Math.max(scale.value / 1.2, 0.3); // 最小缩小到0.3倍
+};
+
+const resetZoom = () => {
+  scale.value = 1;
+  translateX.value = 0;
+  translateY.value = 0;
+};
+
+// --- 画布平移控制 ---
+const handleCanvasMouseDown = (e: MouseEvent) => {
+  // 只有在按住空格键或中键时才启用平移
+  if (
+    (e.button === 1 || e.button === 0) && // 中键或左键 + 没有其他拖拽操作
+    !dragging.value &&
+    !connecting.value
+  ) {
+    isPanning.value = true;
+    panStartX.value = e.clientX - translateX.value;
+    panStartY.value = e.clientY - translateY.value;
+    e.preventDefault();
+  }
+};
+
+const handleCanvasMouseMove = (e: MouseEvent) => {
+  if (isPanning.value) {
+    translateX.value = e.clientX - panStartX.value;
+    translateY.value = e.clientY - panStartY.value;
+    e.preventDefault();
+  }
+};
+
+const handleCanvasMouseUp = () => {
+  isPanning.value = false;
+};
+
+// --- 画布滚轮缩放 ---
+const handleWheel = (e: WheelEvent) => {
+  e.preventDefault();
+  const delta = e.deltaY > 0 ? 0.9 : 1.1;
+  scale.value = Math.max(0.3, Math.min(3, scale.value * delta));
+};
 </script>
 
 <template>
@@ -391,12 +846,60 @@ const deleteLink = (link: Link) => {
   >
     <template #extra>
       <Space>
+        <!-- 操作提示 -->
+        <Tooltip placement="bottomRight">
+          <template #title>
+            <div class="text-xs">
+              <p class="mb-2 font-bold">操作说明：</p>
+              <ul class="ml-4 list-disc space-y-1">
+                <li>双击工序名称可编辑工序</li>
+                <li>拖拽工序标题区域可移动整个工序及工位</li>
+                <li>点击工序右上角 "+" 添加新工位</li>
+                <li>双击工位可编辑工位名称和代号</li>
+                <li>从工位右侧蓝点拖拽至另一工位可连线</li>
+                <li>双击连线可删除</li>
+                <li>选中元素后点击 "删除选中" 即可移除</li>
+              </ul>
+            </div>
+          </template>
+          <Button :disabled="loading">
+            <template #icon>
+              <span class="text-base">?</span>
+            </template>
+          </Button>
+        </Tooltip>
+
         <Button type="primary" :disabled="loading" @click="addProcess">
           添加工序
+        </Button>
+        <Button
+          type="default"
+          :disabled="loading"
+          @click="() => performAutoLayout()"
+        >
+          自动布局
         </Button>
         <Button danger :disabled="loading" @click="deleteSelected">
           删除选中
         </Button>
+
+        <!-- 缩放控制 -->
+        <Space.Compact>
+          <Button :disabled="loading" @click="zoomOut" title="缩小">
+            <template #icon>
+              <span class="text-base">-</span>
+            </template>
+          </Button>
+          <Button :disabled="loading" @click="resetZoom" title="重置缩放">
+            {{ Math.round(scale * 100) }}%
+          </Button>
+          <Button :disabled="loading" @click="zoomIn" title="放大">
+            <template #icon>
+              <span class="text-base">+</span>
+            </template>
+          </Button>
+        </Space.Compact>
+
         <Button :loading="loading" type="primary" @click="saveData">
           保存数据
         </Button>
@@ -411,10 +914,23 @@ const deleteLink = (link: Link) => {
     >
       <svg
         ref="svgRef"
-        class="flex-1 cursor-crosshair"
-        @mouseleave="handleMouseUp"
-        @mousemove="handleMouseMove"
-        @mouseup="handleMouseUp"
+        class="flex-1"
+        :class="isPanning ? 'cursor-grabbing' : 'cursor-crosshair'"
+        @mousedown="handleCanvasMouseDown"
+        @mouseleave="handleCanvasMouseUp"
+        @mousemove="
+          (e) => {
+            handleCanvasMouseMove(e);
+            handleMouseMove(e);
+          }
+        "
+        @mouseup="
+          () => {
+            handleCanvasMouseUp();
+            handleMouseUp();
+          }
+        "
+        @wheel="handleWheel"
       >
         <defs>
           <!-- 箭头标记 -->
@@ -448,141 +964,274 @@ const deleteLink = (link: Link) => {
         <!-- 网格背景 -->
         <rect fill="url(#grid)" height="100%" width="100%" />
 
-        <!-- 1. 渲染工序容器 -->
-        <g v-for="proc in processes" :key="proc.id">
-          <rect
-            :fill="selectedId === proc.id ? '#eff6ff' : '#f8fafc'"
-            :height="proc.height"
-            :stroke="selectedId === proc.id ? '#3b82f6' : '#cbd5e1'"
-            :width="proc.width"
-            :x="proc.x"
-            :y="proc.y"
-            class="cursor-move"
-            rx="8"
-            stroke-dasharray="5,5"
-            stroke-width="2"
-            @mousedown="(e) => handleMouseDown(e, 'process', proc)"
-          />
-          <text
-            :x="proc.x + 10"
-            :y="proc.y - 10"
-            class="select-none text-xs font-bold uppercase tracking-wider"
-            fill="#64748b"
-          >
-            工序: {{ proc.label }}
-          </text>
-
-          <!-- 添加工位按钮 -->
-          <foreignObject
-            :height="24"
-            :width="24"
-            :x="proc.x + proc.width - 30"
-            :y="proc.y + 5"
-          >
-            <button
-              class="flex h-6 w-6 items-center justify-center rounded-full bg-blue-100 text-blue-600 transition hover:bg-blue-200"
-              title="添加工位"
-              @click="addStation(proc.id)"
-            >
-              +
-            </button>
-          </foreignObject>
-        </g>
-
-        <!-- 2. 渲染连线 -->
-        <g v-for="(link, idx) in links" :key="idx">
-          <path
-            :d="getLinkPath(link)"
-            class="cursor-pointer transition-all hover:stroke-[3]"
-            fill="none"
-            marker-end="url(#arrowhead)"
-            stroke="#3b82f6"
-            stroke-width="2"
-            @dblclick="deleteLink(link)"
-          />
-        </g>
-
-        <!-- 3. 正在创建的连线 -->
-        <line
-          v-if="connecting"
-          :x1="connecting.startX"
-          :x2="connecting.currentX"
-          :y1="connecting.startY"
-          :y2="connecting.currentY"
-          stroke="#94a3b8"
-          stroke-dasharray="4"
-          stroke-width="2"
-        />
-
-        <!-- 4. 渲染工位节点 -->
+        <!-- 应用缩放和平移变换的主容器 -->
         <g
-          v-for="station in stations"
-          :key="station.id"
-          class="cursor-move"
-          @mousedown="(e) => handleMouseDown(e, 'station', station)"
-          @mouseup="(e) => handleStationMouseUp(e, station)"
+          :transform="`translate(${translateX}, ${translateY}) scale(${scale})`"
         >
-          <rect
-            :fill="selectedId === station.id ? '#dbeafe' : 'white'"
-            :height="40"
-            :stroke="selectedId === station.id ? '#3b82f6' : '#64748b'"
-            :width="100"
-            :x="station.x"
-            :y="station.y"
-            class="drop-shadow-sm"
-            rx="4"
+          <!-- 1. 渲染工序容器 -->
+          <g v-for="proc in processes" :key="proc.id" class="process-group">
+            <!-- 工序容器阴影 -->
+            <rect
+              :height="proc.height"
+              :width="proc.width"
+              :x="proc.x + 2"
+              :y="proc.y + 2"
+              fill="#00000010"
+              rx="8"
+            />
+            <!-- 工序容器主体 -->
+            <rect
+              :fill="selectedId === proc.id ? '#dbeafe' : '#fafafa'"
+              :height="proc.height"
+              :stroke="selectedId === proc.id ? '#2563eb' : '#d1d5db'"
+              :width="proc.width"
+              :x="proc.x"
+              :y="proc.y"
+              class="process-rect cursor-move transition-all"
+              filter="url(#shadow)"
+              rx="8"
+              stroke-dasharray="8,4"
+              stroke-width="2"
+              @mousedown="(e) => handleMouseDown(e, 'process', proc)"
+            />
+
+            <!-- 工序名称 -->
+            <foreignObject
+              :height="30"
+              :width="proc.width - 70"
+              :x="proc.x + 10"
+              :y="proc.y"
+            >
+              <div
+                class="flex h-full cursor-pointer items-center px-2"
+                @dblclick="(e) => handleProcessDblClick(e, proc)"
+              >
+                <span
+                  class="overflow-hidden text-ellipsis whitespace-nowrap text-sm font-semibold"
+                  :style="{
+                    color: selectedId === proc.id ? '#2563eb' : '#374151',
+                  }"
+                  :title="proc.label"
+                >
+                  {{ proc.label }}
+                </span>
+              </div>
+            </foreignObject>
+
+            <!-- 添加工位按钮 -->
+            <foreignObject
+              :height="28"
+              :width="28"
+              :x="proc.x + proc.width - 34"
+              :y="proc.y + 4"
+            >
+              <button
+                class="flex h-7 w-7 items-center justify-center rounded-full bg-blue-500 text-sm font-bold text-white shadow-md transition-all hover:scale-110 hover:bg-blue-600 hover:shadow-lg active:scale-95"
+                title="添加工位"
+                @click="addStation(proc.id)"
+              >
+                +
+              </button>
+            </foreignObject>
+          </g>
+
+          <!-- 2. 渲染连线 -->
+          <g v-for="(link, idx) in links" :key="idx">
+            <path
+              :d="getLinkPath(link)"
+              class="cursor-pointer transition-all hover:stroke-[3]"
+              fill="none"
+              marker-end="url(#arrowhead)"
+              stroke="#3b82f6"
+              stroke-width="2"
+              @dblclick="deleteLink(link)"
+            />
+          </g>
+
+          <!-- 3. 正在创建的连线 -->
+          <line
+            v-if="connecting"
+            :x1="connecting.startX"
+            :x2="connecting.currentX"
+            :y1="connecting.startY"
+            :y2="connecting.currentY"
+            stroke="#94a3b8"
+            stroke-dasharray="4"
             stroke-width="2"
           />
-          <text
-            :x="station.x + 50"
-            :y="station.y + 25"
-            class="select-none text-xs font-medium"
-            fill="#374151"
-            text-anchor="middle"
+
+          <!-- 4. 渲染工位节点 -->
+          <g
+            v-for="station in stations"
+            :key="station.id"
+            class="station-node cursor-move"
+            @mousedown="(e) => handleMouseDown(e, 'station', station)"
+            @mouseup="(e) => handleStationMouseUp(e, station)"
           >
-            {{ station.label }}
-          </text>
+            <!-- 工位阴影 -->
+            <rect
+              :height="40"
+              :width="100"
+              :x="station.x + 2"
+              :y="station.y + 2"
+              fill="#00000015"
+              rx="6"
+            />
+            <!-- 工位主体 -->
+            <rect
+              :fill="selectedId === station.id ? '#dbeafe' : '#ffffff'"
+              :height="40"
+              :stroke="selectedId === station.id ? '#2563eb' : '#6b7280'"
+              :width="100"
+              :x="station.x"
+              :y="station.y"
+              class="station-rect transition-all"
+              rx="6"
+              stroke-width="2.5"
+            />
+            <!-- 工位顶部装饰条 -->
+            <rect
+              :fill="selectedId === station.id ? '#3b82f6' : '#9ca3af'"
+              :height="4"
+              :width="100"
+              :x="station.x"
+              :y="station.y"
+              rx="6"
+            />
 
-          <!-- 右侧连接点 (Source) -->
-          <circle
-            :cx="station.x + 100"
-            :cy="station.y + 20"
-            :r="5"
-            class="hover:r-7 cursor-crosshair transition-all"
-            fill="#3b82f6"
-            @mousedown.stop="(e) => handleLinkStart(e, station)"
-          />
+            <!-- 工位信息显示 - 名称和代号 -->
+            <foreignObject
+              :height="32"
+              :width="94"
+              :x="station.x + 3"
+              :y="station.y + 8"
+            >
+              <div
+                class="station-info flex h-full w-full cursor-pointer flex-col items-center justify-center px-1"
+                @dblclick="(e) => handleStationDblClick(e, station)"
+              >
+                <!-- 工位名称 -->
+                <div
+                  class="w-full overflow-hidden text-ellipsis whitespace-nowrap text-center text-xs font-semibold leading-tight"
+                  :style="{
+                    color: selectedId === station.id ? '#1e40af' : '#374151',
+                  }"
+                  :title="station.label"
+                >
+                  {{ station.label }}
+                </div>
+                <!-- 工位代号 -->
+                <div
+                  class="w-full overflow-hidden text-ellipsis whitespace-nowrap text-center text-[10px] leading-tight"
+                  :style="{
+                    color: selectedId === station.id ? '#60a5fa' : '#9ca3af',
+                  }"
+                  :title="station.code"
+                >
+                  {{ station.code || '-' }}
+                </div>
+              </div>
+            </foreignObject>
 
-          <!-- 左侧连接点 (Target) -->
-          <circle
-            :cx="station.x"
-            :cy="station.y + 20"
-            :r="5"
-            class="hover:fill-blue-400"
-            fill="#9ca3af"
-          />
+            <!-- 右侧连接点 (Source) - 输出端 -->
+            <g class="connection-point">
+              <circle
+                :cx="station.x + 100"
+                :cy="station.y + 20"
+                :r="6"
+                class="cursor-crosshair transition-all"
+                fill="#3b82f6"
+                @mousedown.stop="(e) => handleLinkStart(e, station)"
+              />
+              <circle
+                :cx="station.x + 100"
+                :cy="station.y + 20"
+                :r="3"
+                fill="white"
+                opacity="0.6"
+                pointer-events="none"
+              />
+            </g>
+
+            <!-- 左侧连接点 (Target) - 输入端 -->
+            <g class="connection-point">
+              <circle
+                :cx="station.x"
+                :cy="station.y + 20"
+                :r="6"
+                class="transition-all"
+                fill="#6b7280"
+              />
+              <circle
+                :cx="station.x"
+                :cy="station.y + 20"
+                :r="3"
+                fill="white"
+                opacity="0.6"
+                pointer-events="none"
+              />
+            </g>
+          </g>
         </g>
       </svg>
-
-      <!-- 操作提示 -->
-      <div
-        class="pointer-events-none absolute bottom-4 left-4 rounded-lg border bg-white/90 p-3 text-xs text-gray-600 shadow-md"
-      >
-        <p class="mb-2 font-bold">操作说明：</p>
-        <ul class="ml-4 list-disc space-y-1">
-          <li>拖拽工序标题区域可移动整个工序及工位</li>
-          <li>点击工序右上角 "+" 添加新工位</li>
-          <li>从工位右侧蓝点拖拽至另一工位可连线</li>
-          <li>双击连线可删除</li>
-          <li>选中元素后点击顶部 "删除选中" 即可移除</li>
-        </ul>
-      </div>
     </Card>
+
+    <!-- 工位编辑弹窗 -->
+    <Modal
+      v-model:open="stationModalVisible"
+      title="编辑工位"
+      :mask-closable="false"
+      @ok="handleStationSubmit"
+      @cancel="handleStationCancel"
+    >
+      <Form :label-col="{ span: 6 }" :wrapper-col="{ span: 18 }">
+        <Form.Item label="工位名称" required>
+          <Input
+            v-model:value="stationFormData.label"
+            placeholder="请输入工位名称"
+            @press-enter="handleStationSubmit"
+          />
+        </Form.Item>
+        <Form.Item label="工位代号" required>
+          <Input
+            v-model:value="stationFormData.code"
+            placeholder="请输入工位代号"
+            @press-enter="handleStationSubmit"
+          />
+        </Form.Item>
+      </Form>
+    </Modal>
+
+    <!-- 工序编辑弹窗 -->
+    <Modal
+      v-model:open="processModalVisible"
+      title="编辑工序"
+      :mask-closable="false"
+      @ok="handleProcessSubmit"
+      @cancel="handleProcessCancel"
+    >
+      <Form :label-col="{ span: 6 }" :wrapper-col="{ span: 18 }">
+        <Form.Item label="工序名称" required>
+          <Input
+            v-model:value="processFormData.label"
+            placeholder="请输入工序名称"
+            @press-enter="handleProcessSubmit"
+          />
+        </Form.Item>
+      </Form>
+    </Modal>
   </Page>
 </template>
 
 <style scoped>
-svg text {
+/* 工序标题不响应鼠标事件 */
+svg text.process-label {
   pointer-events: none;
+}
+
+/* 工位信息可以响应双击事件 */
+.station-info {
+  pointer-events: auto;
+  user-select: none;
 }
 </style>

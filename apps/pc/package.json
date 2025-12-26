@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@tanstack/vue-query": "catalog:",
+    "@types/dagre": "^0.7.53",
     "@vben-core/menu-ui": "workspace:*",
     "@vben/access": "workspace:*",
     "@vben/common-ui": "workspace:*",
@@ -38,6 +39,7 @@
     "@vueuse/core": "catalog:",
     "ant-design-vue": "catalog:",
     "crypto-js": "^4.2.0",
+    "dagre": "^0.8.5",
     "dayjs": "catalog:",
     "json-bigint": "catalog:",
     "pinia": "catalog:",

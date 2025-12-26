@@ -13,6 +13,15 @@ const routes: RouteRecordRaw[] = [
     path: '/config',
     children: [
       {
+        name: 'StationConfig',
+        path: '/config/station',
+        component: () => import('#/views/config/station/index.vue'),
+        meta: {
+          icon: 'lucide:map-pin',
+          title: $t('ilms.config.station'),
+        },
+      },
+      {
         name: 'RadarConfig',
         path: '/config/radar',
         component: () => import('#/views/config/radar/index.vue'),
@@ -28,15 +37,6 @@ const routes: RouteRecordRaw[] = [
         meta: {
           icon: 'lucide:tag',
           title: $t('ilms.config.identifier'),
-        },
-      },
-      {
-        name: 'StationConfig',
-        path: '/config/station',
-        component: () => import('#/views/config/station/index.vue'),
-        meta: {
-          icon: 'lucide:map-pin',
-          title: $t('ilms.config.station'),
         },
       },
       {
