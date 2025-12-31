@@ -54,12 +54,12 @@ const gridOptions: VxeGridProps<FrameItem> = {
   },
   columns: [
     { title: '序号', type: 'seq', width: 50 },
-    { field: 'id', title: 'ID', width: 80 },
-    { field: 'frameName', title: '车架名称', width: 150 },
-    { field: 'tagSn1', title: '标识器ID1', width: 100 },
-    { field: 'tagSn2', title: '标识器ID2', width: 100 },
-    { field: 'tagSn3', title: '标识器ID3', width: 100 },
-    { field: 'tagSn4', title: '标识器ID4', width: 100 },
+    { field: 'id', minWidth: 80, title: 'ID' },
+    { field: 'frameName', minWidth: 180, title: '车架名称' },
+    { field: 'tagSn1', minWidth: 120, title: '标识器ID1' },
+    { field: 'tagSn2', minWidth: 120, title: '标识器ID2' },
+    { field: 'tagSn3', minWidth: 120, title: '标识器ID3' },
+    { field: 'tagSn4', minWidth: 120, title: '标识器ID4' },
     {
       fixed: 'right',
       slots: { default: 'action' },
@@ -67,7 +67,7 @@ const gridOptions: VxeGridProps<FrameItem> = {
       width: 200,
     },
   ],
-  height: 'auto',
+  height: '100%',
   pagerConfig: {},
   proxyConfig: {
     ajax: {

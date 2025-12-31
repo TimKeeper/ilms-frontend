@@ -39,66 +39,58 @@ const warningCount = computed(
 // Table columns definition
 const columns: ColumnsType<RadarInfo> = [
   {
-    title: 'ID',
     dataIndex: 'id',
     key: 'id',
-    width: 80,
+    title: 'ID',
   },
   {
-    title: '雷达IP',
     dataIndex: 'radarHost',
     key: 'radarHost',
-    width: 150,
+    title: '雷达IP',
   },
   {
-    title: '端口',
     dataIndex: 'radarPort',
     key: 'radarPort',
-    width: 100,
+    title: '端口',
   },
   {
-    title: '地址',
     dataIndex: 'radarAddress',
     key: 'radarAddress',
-    width: 100,
+    title: '地址',
   },
   {
-    title: '天线1工位',
     dataIndex: 'radarAntenna1StationLabel',
     key: 'radarAntenna1StationLabel',
-    width: 120,
+    title: '天线1工位',
   },
   {
-    title: '天线1工位代号',
     dataIndex: 'radarAntenna1StationCode',
     key: 'radarAntenna1StationCode',
-    width: 120,
+    title: '天线1工位代号',
   },
   {
-    title: '天线2工位',
     dataIndex: 'radarAntenna2StationLabel',
     key: 'radarAntenna2StationLabel',
-    width: 120,
+    title: '天线2工位',
   },
   {
-    title: '天线2工位代号',
     dataIndex: 'radarAntenna2StationCode',
     key: 'radarAntenna2StationCode',
+    title: '天线2工位代号',
+  },
+  {
+    dataIndex: 'radarStatus',
+    fixed: 'right',
+    key: 'radarStatus',
+    title: '状态',
     width: 120,
   },
   {
-    title: '状态',
-    dataIndex: 'radarStatus',
-    key: 'radarStatus',
-    width: 100,
-    fixed: 'right',
-  },
-  {
-    title: '更新时间',
     dataIndex: 'updateTime',
-    key: 'updateTime',
-    width: 180,
     fixed: 'right',
+    key: 'updateTime',
+    title: '更新时间',
+    width: 200,
   },
 ];
 
@@ -219,7 +211,6 @@ onUnmounted(() => {
         :data-source="radars"
         :row-key="(record: RadarInfo) => record.id"
         :pagination="{ pageSize: 10 }"
-        :scroll="{ x: 1200 }"
       >
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'radarStatus'">

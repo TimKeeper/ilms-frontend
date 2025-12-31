@@ -90,25 +90,25 @@ const gridOptions: VxeGridProps<RadarItem> = {
   },
   columns: [
     { title: '序号', type: 'seq', width: 50 },
-    { field: 'id', title: 'ID', width: 80 },
-    { field: 'radarHost', title: '雷达IP', width: 150 },
-    { field: 'radarPort', title: '端口', width: 100 },
-    { field: 'radarAddress', title: '地址', width: 100 },
+    { field: 'id', minWidth: 80, title: 'ID' },
+    { field: 'radarHost', minWidth: 150, title: '雷达IP' },
+    { field: 'radarPort', minWidth: 100, title: '端口' },
+    { field: 'radarAddress', minWidth: 100, title: '地址' },
     {
       field: 'radarAntenna1StationLabel',
+      minWidth: 180,
       title: '天线1工位',
-      width: 120,
     },
     {
       field: 'radarAntenna2StationLabel',
+      minWidth: 180,
       title: '天线2工位',
-      width: 120,
     },
     {
       field: 'radarStatus',
+      minWidth: 100,
       slots: { default: 'status' },
       title: '状态',
-      width: 100,
     },
     {
       fixed: 'right',
