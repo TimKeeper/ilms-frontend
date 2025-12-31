@@ -51,9 +51,10 @@ const formOptions: VbenFormProps = {
 const gridOptions: VxeGridProps<FrameItem> = {
   checkboxConfig: {
     highlight: true,
+    reserve: true,
   },
   columns: [
-    { title: '序号', type: 'seq', width: 50 },
+    { type: 'checkbox', width: 50 },
     { field: 'id', minWidth: 80, title: 'ID' },
     { field: 'frameName', minWidth: 180, title: '车架名称' },
     { field: 'tagSn1', minWidth: 120, title: '标识器ID1' },
@@ -189,6 +190,29 @@ const handleDelete = (record: FrameItem) => {
   });
 };
 
+const handleBatchDelete = () => {
+  const selectedRecords = gridApi.grid.getCheckboxRecords();
+  if (selectedRecords.length === 0) {
+    message.warning('请至少选择一条数据');
+    return;
+  }
+
+  Modal.confirm({
+    content: `确定要删除选中的 ${selectedRecords.length} 条车架数据吗？`,
+    title: '确认批量删除',
+    async onOk() {
+      try {
+        const ids = selectedRecords.map((record) => record.id);
+        await deleteFrameApi(ids);
+        message.success('批量删除成功');
+        gridApi.grid.commitProxy('query');
+      } catch (error: any) {
+        message.error(error.message || '批量删除失败');
+      }
+    },
+  });
+};
+
 const handleSubmit = async () => {
   try {
     await editFormApi.validate();
@@ -232,7 +256,12 @@ const handleCancel = () => {
   <Page auto-content-height>
     <Grid>
       <template #toolbar_buttons>
-        <Button type="primary" @click="handleAdd">新增车架</Button>
+        <Space>
+          <Button type="primary" @click="handleAdd">新增车架</Button>
+          <Button danger type="primary" @click="handleBatchDelete">
+            批量删除
+          </Button>
+        </Space>
       </template>
 
       <template #action="{ row }">

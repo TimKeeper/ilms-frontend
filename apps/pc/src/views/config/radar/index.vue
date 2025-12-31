@@ -87,9 +87,10 @@ const getStatusColor = (status: number) => {
 const gridOptions: VxeGridProps<RadarItem> = {
   checkboxConfig: {
     highlight: true,
+    reserve: true,
   },
   columns: [
-    { title: '序号', type: 'seq', width: 50 },
+    { type: 'checkbox', width: 50 },
     { field: 'id', minWidth: 80, title: 'ID' },
     { field: 'radarHost', minWidth: 150, title: '雷达IP' },
     { field: 'radarPort', minWidth: 100, title: '端口' },
@@ -117,7 +118,7 @@ const gridOptions: VxeGridProps<RadarItem> = {
       width: 200,
     },
   ],
-  height: 'auto',
+  height: '100%',
   pagerConfig: {},
   proxyConfig: {
     ajax: {
@@ -244,6 +245,29 @@ const handleDelete = (record: RadarItem) => {
   });
 };
 
+const handleBatchDelete = () => {
+  const selectedRecords = gridApi.grid.getCheckboxRecords();
+  if (selectedRecords.length === 0) {
+    message.warning('请至少选择一条数据');
+    return;
+  }
+
+  Modal.confirm({
+    content: `确定要删除选中的 ${selectedRecords.length} 条雷达数据吗？`,
+    title: '确认批量删除',
+    async onOk() {
+      try {
+        const ids = selectedRecords.map((record) => record.id);
+        await deleteRadarApi(ids);
+        message.success('批量删除成功');
+        gridApi.grid.commitProxy('query');
+      } catch (error: any) {
+        message.error(error.message || '批量删除失败');
+      }
+    },
+  });
+};
+
 const handleSubmit = async () => {
   try {
     await editFormApi.validate();
@@ -287,7 +311,12 @@ const handleCancel = () => {
   <Page auto-content-height>
     <Grid>
       <template #toolbar_buttons>
-        <Button type="primary" @click="handleAdd">新增雷达</Button>
+        <Space>
+          <Button type="primary" @click="handleAdd">新增雷达</Button>
+          <Button danger type="primary" @click="handleBatchDelete">
+            批量删除
+          </Button>
+        </Space>
       </template>
 
       <template #status="{ row }">
