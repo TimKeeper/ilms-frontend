@@ -89,6 +89,9 @@ const gridOptions: VxeGridProps<RadarItem> = {
     highlight: true,
     reserve: true,
   },
+  rowConfig: {
+    keyField: 'id',
+  },
   columns: [
     { type: 'checkbox', width: 50 },
     { field: 'id', minWidth: 80, title: 'ID' },
