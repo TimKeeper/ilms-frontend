@@ -1,9 +1,9 @@
 <script lang="ts" setup>
 import type { ColumnsType } from 'ant-design-vue/es/table';
 
-import type { RadarInfo } from '#/composables/useRadarSocket';
+import type { RadarInfo } from '#/services/websocket';
 
-import { computed, onMounted, onUnmounted, ref } from 'vue';
+import { computed, ref } from 'vue';
 
 import { Page } from '@vben/common-ui';
 
@@ -11,27 +11,13 @@ import { Badge, Card, Col, Row, Statistic, Table, Tag } from 'ant-design-vue';
 
 import AlarmHistoryModal from '#/components/AlarmHistoryModal.vue';
 import AlarmTicker from '#/components/AlarmTicker.vue';
-import { RadarStatus, useRadarSocket } from '#/composables/useRadarSocket';
+import { RadarStatus, websocketService } from '#/services/websocket';
 
-// Build WebSocket URL
-const getWebSocketUrl = () => {
-  const envUrl = import.meta.env.VITE_GLOB_WS_URL || '/ws';
-
-  // If it's a relative path, construct full WebSocket URL
-  if (envUrl.startsWith('/')) {
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const host = window.location.host;
-    return `${protocol}//${host}${envUrl}`;
-  }
-
-  return envUrl;
-};
-
-const WS_URL = getWebSocketUrl();
-
-// Initialize WebSocket connection
-const { radars, isConnected, isReconnecting, connectionError, connect } =
-  useRadarSocket(WS_URL);
+// Use global WebSocket service
+const radars = websocketService.radars;
+const isConnected = websocketService.isConnected;
+const isReconnecting = websocketService.isReconnecting;
+const connectionError = websocketService.connectionError;
 
 // Computed statistics
 const totalCount = computed(() => radars.value.length);
@@ -156,16 +142,6 @@ const isAlarmHistoryOpen = ref(false);
 const handleOpenAlarmHistory = () => {
   isAlarmHistoryOpen.value = true;
 };
-
-// Connect on mount
-onMounted(() => {
-  connect();
-});
-
-// Cleanup on unmount
-onUnmounted(() => {
-  // WebSocket cleanup is handled by the composable
-});
 </script>
 
 <template>
