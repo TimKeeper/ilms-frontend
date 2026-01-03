@@ -55,41 +55,51 @@ const columns: ColumnsType<RadarInfo> = [
     dataIndex: 'id',
     key: 'id',
     title: 'ID',
+    width: 80,
   },
   {
     dataIndex: 'radarHost',
     key: 'radarHost',
     title: '雷达IP',
+    width: 180,
   },
   {
     dataIndex: 'radarPort',
     key: 'radarPort',
     title: '端口',
+    width: 100,
   },
   {
     dataIndex: 'radarAddress',
     key: 'radarAddress',
     title: '地址',
+    width: 100,
   },
   {
     dataIndex: 'radarAntenna1StationLabel',
+    ellipsis: true,
     key: 'radarAntenna1StationLabel',
     title: '天线1工位',
+    width: 160,
   },
   {
     dataIndex: 'radarAntenna1StationCode',
     key: 'radarAntenna1StationCode',
     title: '天线1工位代号',
+    width: 180,
   },
   {
     dataIndex: 'radarAntenna2StationLabel',
+    ellipsis: true,
     key: 'radarAntenna2StationLabel',
     title: '天线2工位',
+    width: 160,
   },
   {
     dataIndex: 'radarAntenna2StationCode',
     key: 'radarAntenna2StationCode',
     title: '天线2工位代号',
+    width: 180,
   },
   {
     dataIndex: 'radarStatus',
@@ -150,10 +160,26 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <Page
-    title="雷达设备状态监控"
-    description="实时监控雷达设备运行状态、信号强度、识别精度等关键指标"
-  >
+  <Page title="雷达设备状态监控">
+    <template #description>
+      <div class="flex items-center gap-4">
+        <span>实时监控雷达设备运行状态、信号强度、识别精度等关键指标</span>
+        <Badge
+          :status="isConnected ? 'success' : 'error'"
+          :text="
+            isConnected
+              ? 'WebSocket 已连接'
+              : isReconnecting
+                ? 'WebSocket 重连中...'
+                : 'WebSocket 未连接'
+          "
+        />
+        <span v-if="connectionError" class="text-sm text-red-500">
+          {{ connectionError }}
+        </span>
+      </div>
+    </template>
+
     <!-- 统计卡片 -->
     <div class="mb-4">
       <Row :gutter="16">
@@ -196,34 +222,14 @@ onUnmounted(() => {
       </Row>
     </div>
 
-    <!-- WebSocket 连接状态 -->
-    <div class="mb-4">
-      <Card size="small">
-        <div class="flex items-center">
-          <Badge
-            :status="isConnected ? 'success' : 'error'"
-            :text="
-              isConnected
-                ? 'WebSocket 已连接'
-                : isReconnecting
-                  ? 'WebSocket 重连中...'
-                  : 'WebSocket 未连接'
-            "
-          />
-          <span v-if="connectionError" class="ml-3 text-sm text-red-500">
-            {{ connectionError }}
-          </span>
-        </div>
-      </Card>
-    </div>
-
     <!-- 设备列表 -->
-    <Card title="雷达设备列表" :bordered="false">
+    <Card title="雷达设备列表" :bordered="false" class="radar-table-card">
       <Table
         :columns="columns"
         :data-source="radars"
         :row-key="(record: RadarInfo) => record.id"
-        :pagination="{ pageSize: 10 }"
+        :pagination="false"
+        :scroll="{ x: 1460, y: 'calc(100vh - 480px)' }"
       >
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'radarStatus'">

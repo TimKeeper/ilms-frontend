@@ -29,19 +29,33 @@ export interface RadarInfo {
   updateTime: string; // Date string
 }
 
-interface WebSocketMessage {
+// 服务端响应的标准结构体
+interface WebSocketResponse {
+  status: number; // 响应状态码
+  resMsg: string; // 响应状态描述
   type:
     | 'ALARM'
     | 'ALL_RADAR_STATUS'
     | 'HEARTBEAT'
-    | 'REGISTER'
+    | 'RESPONSE'
     | 'UPDATE_RADAR_STATUS';
-  sender?: string;
-  token?: string;
-  data?: any;
-  radars?: RadarInfo[];
-  radar?: RadarInfo;
-  message?: string;
+  data: any; // 响应体对象，随type不同而不同
+  timestamp: string; // 响应时间戳
+}
+
+// 客户端请求结构体
+interface WebSocketRequest {
+  type: 'HEARTBEAT' | 'REGISTER';
+  sender: string;
+  token: string;
+}
+
+// 告警数据结构
+interface AlarmData {
+  id: string; // 告警id
+  type: string; // 告警类型：radar（雷达告警）/tag（标签告警）
+  message: string; // 告警信息
+  time: number; // 告警时间戳（毫秒）
 }
 
 /**
@@ -83,7 +97,7 @@ export function useRadarSocket(wsUrl: string) {
   /**
    * Send a message to WebSocket
    */
-  const sendMessage = (message: WebSocketMessage) => {
+  const sendMessage = (message: WebSocketRequest) => {
     if (ws && ws.readyState === WebSocket.OPEN) {
       ws.send(JSON.stringify(message));
     }
@@ -138,51 +152,60 @@ export function useRadarSocket(wsUrl: string) {
    */
   const handleMessage = (event: MessageEvent) => {
     try {
-      const message: WebSocketMessage = JSON.parse(event.data);
+      const response: WebSocketResponse = JSON.parse(event.data);
 
-      switch (message.type) {
+      // 检查响应状态
+      if (response.status !== 0) {
+        console.error(`[WebSocket] Server error: ${response.resMsg}`, response);
+        return;
+      }
+
+      switch (response.type) {
         case 'ALARM': {
-          // Show alarm notification
-          const alarmMessage = message.message || 'Radar alarm triggered!';
+          // data 是 AlarmData 对象
+          const alarmData = response.data as AlarmData;
+          const alarmMessage = alarmData.message || 'Radar alarm triggered!';
           notification.error({
             message: '雷达报警',
-            description: alarmMessage,
+            description: `[${alarmData.type}] ${alarmMessage}`,
             duration: 5,
           });
-          console.warn('[WebSocket] ALARM received:', alarmMessage);
+          console.warn('[WebSocket] ALARM received:', alarmData);
           break;
         }
         case 'ALL_RADAR_STATUS': {
-          // Replace the entire radar list
-          if (message.radars) {
-            radars.value = message.radars;
+          // data 是 RadarInfo[] 数组
+          const radarList = response.data as RadarInfo[];
+          if (Array.isArray(radarList)) {
+            radars.value = radarList;
           }
           break;
         }
-        case 'HEARTBEAT': {
-          // Server heartbeat response (optional)
+        case 'RESPONSE': {
+          // REGISTER 和 HEARTBEAT 的响应
+          // 一般情况下无需关注
           break;
         }
         case 'UPDATE_RADAR_STATUS': {
-          // Update a single radar by ID
-          if (message.radar) {
-            const index = radars.value.findIndex(
-              (r) => r.id === message.radar?.id,
-            );
+          // data 是单个 RadarInfo 对象
+          const radarInfo = response.data as RadarInfo;
+          if (radarInfo && radarInfo.id) {
+            const index = radars.value.findIndex((r) => r.id === radarInfo.id);
             if (index === -1) {
               // If radar not found, add it
-              radars.value.push(message.radar);
+              radars.value.push(radarInfo);
             } else {
+              // Update existing radar
               radars.value[index] = {
                 ...radars.value[index],
-                ...message.radar,
+                ...radarInfo,
               };
             }
           }
           break;
         }
         default: {
-          console.warn('[WebSocket] Unknown message type:', message.type);
+          console.warn('[WebSocket] Unknown message type:', response.type);
         }
       }
     } catch (error) {
