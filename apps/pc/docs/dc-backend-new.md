@@ -15,7 +15,8 @@ search: true
 code_clipboard: true
 highlight_theme: darkula
 headingLevel: 2
-generator: '@tarslib/widdershins v4.0.30'
+generator: "@tarslib/widdershins v4.0.30"
+
 ---
 
 # dc-backend-api
@@ -41,11 +42,11 @@ POST /api/iam/v1/login
 
 ### 请求参数
 
-| 名称       | 位置 | 类型   | 必选 | 中文名 | 说明                  |
-| ---------- | ---- | ------ | ---- | ------ | --------------------- |
-| body       | body | object | 否   |        | none                  |
-| » username | body | string | 是   | 用户名 | none                  |
-| » password | body | string | 是   | 密码   | MD5加密（默认123456） |
+|名称|位置|类型|必选|中文名|说明|
+|---|---|---|---|---|---|
+|body|body|object| 否 ||none|
+|» username|body|string| 是 | 用户名|none|
+|» password|body|string| 是 | 密码|MD5加密（默认123456）|
 
 > 返回示例
 
@@ -89,24 +90,24 @@ POST /api/iam/v1/login
 
 ### 返回结果
 
-| 状态码 | 状态码含义 | 说明 | 数据模型 |
-| --- | --- | --- | --- |
-| 200 | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | none | Inline |
+|状态码|状态码含义|说明|数据模型|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|none|Inline|
 
 ### 返回数据结构
 
 状态码 **200**
 
-| 名称               | 类型    | 必选  | 约束 | 中文名       | 说明       |
-| ------------------ | ------- | ----- | ---- | ------------ | ---------- |
-| » status           | integer | true  | none | 状态码       | 0-代表成功 |
-| » resMsg           | string  | true  | none | 状态描述     | none       |
-| » data             | object  | false | none | 登录用户信息 | none       |
-| »» id              | integer | true  | none | 用户id       | none       |
-| »» username        | string  | true  | none | 用户名       | none       |
-| »» showName        | string  | true  | none | 展示名称     | none       |
-| »» token           | string  | true  | none | 登录token    | none       |
-| »» tokenExpiration | integer | true  | none | token有效期  | none       |
+|名称|类型|必选|约束|中文名|说明|
+|---|---|---|---|---|---|
+|» status|integer|true|none|状态码|0-代表成功|
+|» resMsg|string|true|none|状态描述|none|
+|» data|object|false|none|登录用户信息|none|
+|»» id|integer|true|none|用户id|none|
+|»» username|string|true|none|用户名|none|
+|»» showName|string|true|none|展示名称|none|
+|»» token|string|true|none|登录token|none|
+|»» tokenExpiration|integer|true|none|token有效期|none|
 
 ## PUT 修改密码
 
@@ -123,12 +124,12 @@ PUT /api/iam/v1/changePwd
 
 ### 请求参数
 
-| 名称          | 位置   | 类型   | 必选 | 中文名 | 说明              |
-| ------------- | ------ | ------ | ---- | ------ | ----------------- |
-| token         | header | string | 否   |        | 登录时给定的token |
-| body          | body   | object | 否   |        | none              |
-| » oldPassword | body   | string | 是   | 老密码 | MD5加密           |
-| » newPassword | body   | string | 是   | 新密码 | MD5加密           |
+|名称|位置|类型|必选|中文名|说明|
+|---|---|---|---|---|---|
+|token|header|string| 否 ||登录时给定的token|
+|body|body|object| 否 ||none|
+|» oldPassword|body|string| 是 | 老密码|MD5加密|
+|» newPassword|body|string| 是 | 新密码|MD5加密|
 
 > 返回示例
 
@@ -166,19 +167,19 @@ PUT /api/iam/v1/changePwd
 
 ### 返回结果
 
-| 状态码 | 状态码含义 | 说明 | 数据模型 |
-| --- | --- | --- | --- |
-| 200 | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | none | Inline |
+|状态码|状态码含义|说明|数据模型|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|none|Inline|
 
 ### 返回数据结构
 
 状态码 **200**
 
-| 名称     | 类型    | 必选  | 约束 | 中文名   | 说明       |
-| -------- | ------- | ----- | ---- | -------- | ---------- |
-| » status | integer | true  | none | 状态码   | 0-代表成功 |
-| » resMsg | string  | true  | none | 状态描述 | none       |
-| » data   | object  | false | none |          | none       |
+|名称|类型|必选|约束|中文名|说明|
+|---|---|---|---|---|---|
+|» status|integer|true|none|状态码|0-代表成功|
+|» resMsg|string|true|none|状态描述|none|
+|» data|object|false|none||none|
 
 ## GET 测试
 
@@ -186,9 +187,9 @@ GET /api/iam/v1/info
 
 ### 请求参数
 
-| 名称  | 位置   | 类型   | 必选 | 中文名 | 说明 |
-| ----- | ------ | ------ | ---- | ------ | ---- |
-| token | header | string | 否   |        | none |
+|名称|位置|类型|必选|中文名|说明|
+|---|---|---|---|---|---|
+|token|header|string| 否 ||none|
 
 > 返回示例
 
@@ -232,24 +233,24 @@ GET /api/iam/v1/info
 
 ### 返回结果
 
-| 状态码 | 状态码含义 | 说明 | 数据模型 |
-| --- | --- | --- | --- |
-| 200 | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | none | Inline |
+|状态码|状态码含义|说明|数据模型|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|none|Inline|
 
 ### 返回数据结构
 
 状态码 **200**
 
-| 名称               | 类型    | 必选  | 约束 | 中文名       | 说明       |
-| ------------------ | ------- | ----- | ---- | ------------ | ---------- |
-| » status           | integer | true  | none | 状态码       | 0-代表成功 |
-| » resMsg           | string  | true  | none | 状态描述     | none       |
-| » data             | object  | false | none | 登录用户信息 | none       |
-| »» id              | integer | true  | none | 用户id       | none       |
-| »» username        | string  | true  | none | 用户名       | none       |
-| »» showName        | string  | true  | none | 展示名称     | none       |
-| »» token           | string  | true  | none | 登录token    | none       |
-| »» tokenExpiration | integer | true  | none | token有效期  | none       |
+|名称|类型|必选|约束|中文名|说明|
+|---|---|---|---|---|---|
+|» status|integer|true|none|状态码|0-代表成功|
+|» resMsg|string|true|none|状态描述|none|
+|» data|object|false|none|登录用户信息|none|
+|»» id|integer|true|none|用户id|none|
+|»» username|string|true|none|用户名|none|
+|»» showName|string|true|none|展示名称|none|
+|»» token|string|true|none|登录token|none|
+|»» tokenExpiration|integer|true|none|token有效期|none|
 
 # station-工位
 
@@ -258,10 +259,10 @@ GET /api/iam/v1/info
 POST /api/workstation/v1/graph
 
 # 工位以网格的形式进行组图
-
-如图： ![image.png](https://api.apifox.com/api/v1/projects/7475240/resources/604121/image-preview)
-
-> 前端初始化默认画布时，可给定10（X）\* 10（Y）大小的画布用户可手动继续扩展
+如图：
+![image.png](https://api.apifox.com/api/v1/projects/7475240/resources/604121/image-preview)
+> 前端初始化默认画布时，可给定10（X）* 10（Y）大小的画布
+> 用户可手动继续扩展
 
 - workstationId：代表工序id，若传入，代表修改该工序，若不传入，代表新增该工序
 - workstationName：代表工序名称
@@ -272,8 +273,8 @@ POST /api/workstation/v1/graph
 
 # 组图后进行路径规划
 
-按照当前工位能到达的其他工位代号（workstationIndex）进行编排假设：
-
+按照当前工位能到达的其他工位代号（workstationIndex）进行编排
+假设：
 - 1能到达2，那么1的routerIndexs为[2]
 - 2能到达1、3、4，那么2的routerIndexs为[1,3,4]
 - 3能到达2、5，那么3的routerIndexs为[2,5]
@@ -299,7 +300,9 @@ POST /api/workstation/v1/graph
       "workstationType": 0,
       "workstationX": 1,
       "workstationY": 2,
-      "routerIndexs": [2]
+      "routerIndexs": [
+        2
+      ]
     },
     {
       "workstationIndex": 2,
@@ -307,7 +310,11 @@ POST /api/workstation/v1/graph
       "workstationType": 1,
       "workstationX": 2,
       "workstationY": 2,
-      "routerIndexs": [1, 3, 4]
+      "routerIndexs": [
+        1,
+        3,
+        4
+      ]
     },
     {
       "workstationIndex": 3,
@@ -315,7 +322,10 @@ POST /api/workstation/v1/graph
       "workstationType": 1,
       "workstationX": 3,
       "workstationY": 3,
-      "routerIndexs": [2, 5]
+      "routerIndexs": [
+        2,
+        5
+      ]
     },
     {
       "workstationIndex": 4,
@@ -323,7 +333,10 @@ POST /api/workstation/v1/graph
       "workstationType": 1,
       "workstationX": 3,
       "workstationY": 1,
-      "routerIndexs": [2, 5]
+      "routerIndexs": [
+        2,
+        5
+      ]
     },
     {
       "workstationIndex": 5,
@@ -331,7 +344,10 @@ POST /api/workstation/v1/graph
       "workstationType": 2,
       "workstationX": 4,
       "workstationY": 2,
-      "routerIndexs": [3, 4]
+      "routerIndexs": [
+        3,
+        4
+      ]
     }
   ]
 }
@@ -339,18 +355,18 @@ POST /api/workstation/v1/graph
 
 ### 请求参数
 
-| 名称 | 位置 | 类型 | 必选 | 中文名 | 说明 |
-| --- | --- | --- | --- | --- | --- |
-| token | header | string | 否 |  | none |
-| body | body | object | 否 |  | none |
-| » graph | body | [object] | 是 | 图谱对象数组 | none |
-| »» workstationId | body | integer | 否 | 工位id | 若有则代表更新该工位信息，若无则代表新建该工位信息 |
-| »» workstationIndex | body | integer | 是 | 工位代号 | 需前端编号传回，从左到右、从上到下依次编号 |
-| »» workstationName | body | string | 是 | 工位名称 | none |
-| »» workstationType | body | integer | 是 | 工位类型 | 0-起点工位 1-过程工位 2-终点工位 |
-| »» workstationX | body | integer | 是 | 工位横坐标 | 代表工序 |
-| »» workstationY | body | integer | 是 | 工位纵坐标 | 标定同工序下的上下顺序 |
-| »» routerIndexs | body | [integer] | 否 | 工位路由表 | 代表这个工位连通哪些其他工位，值为工位代号数组 |
+|名称|位置|类型|必选|中文名|说明|
+|---|---|---|---|---|---|
+|token|header|string| 否 ||none|
+|body|body|object| 否 ||none|
+|» graph|body|[object]| 是 | 图谱对象数组|none|
+|»» workstationId|body|integer| 否 | 工位id|若有则代表更新该工位信息，若无则代表新建该工位信息|
+|»» workstationIndex|body|integer| 是 | 工位代号|需前端编号传回，从左到右、从上到下依次编号|
+|»» workstationName|body|string| 是 | 工位名称|none|
+|»» workstationType|body|integer| 是 | 工位类型|0-起点工位 1-过程工位 2-终点工位|
+|»» workstationX|body|integer| 是 | 工位横坐标|代表工序|
+|»» workstationY|body|integer| 是 | 工位纵坐标|标定同工序下的上下顺序|
+|»» routerIndexs|body|[integer]| 否 | 工位路由表|代表这个工位连通哪些其他工位，值为工位代号数组|
 
 > 返回示例
 
@@ -380,19 +396,19 @@ POST /api/workstation/v1/graph
 
 ### 返回结果
 
-| 状态码 | 状态码含义 | 说明 | 数据模型 |
-| --- | --- | --- | --- |
-| 200 | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | none | Inline |
+|状态码|状态码含义|说明|数据模型|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|none|Inline|
 
 ### 返回数据结构
 
 状态码 **200**
 
-| 名称     | 类型    | 必选 | 约束 | 中文名   | 说明       |
-| -------- | ------- | ---- | ---- | -------- | ---------- |
-| » status | integer | true | none | 状态码   | 0-代表成功 |
-| » resMsg | string  | true | none | 状态描述 | none       |
-| » data   | object  | true | none |          | none       |
+|名称|类型|必选|约束|中文名|说明|
+|---|---|---|---|---|---|
+|» status|integer|true|none|状态码|0-代表成功|
+|» resMsg|string|true|none|状态描述|none|
+|» data|object|true|none||none|
 
 ## GET 获取工位工序图
 
@@ -400,9 +416,9 @@ GET /api/workstation/v1/graph
 
 ### 请求参数
 
-| 名称  | 位置   | 类型   | 必选 | 中文名 | 说明 |
-| ----- | ------ | ------ | ---- | ------ | ---- |
-| token | header | string | 否   |        | none |
+|名称|位置|类型|必选|中文名|说明|
+|---|---|---|---|---|---|
+|token|header|string| 否 ||none|
 
 > 返回示例
 
@@ -419,7 +435,9 @@ GET /api/workstation/v1/graph
         "workstationType": 0,
         "workstationX": 1,
         "workstationY": 2,
-        "routerIndexs": [2]
+        "routerIndexs": [
+          2
+        ]
       },
       {
         "workstationIndex": 2,
@@ -427,7 +445,11 @@ GET /api/workstation/v1/graph
         "workstationType": 1,
         "workstationX": 2,
         "workstationY": 2,
-        "routerIndexs": [1, 3, 4]
+        "routerIndexs": [
+          1,
+          3,
+          4
+        ]
       },
       {
         "workstationIndex": 3,
@@ -435,7 +457,10 @@ GET /api/workstation/v1/graph
         "workstationType": 1,
         "workstationX": 3,
         "workstationY": 3,
-        "routerIndexs": [2, 5]
+        "routerIndexs": [
+          2,
+          5
+        ]
       },
       {
         "workstationIndex": 4,
@@ -443,7 +468,10 @@ GET /api/workstation/v1/graph
         "workstationType": 1,
         "workstationX": 3,
         "workstationY": 1,
-        "routerIndexs": [2, 5]
+        "routerIndexs": [
+          2,
+          5
+        ]
       },
       {
         "workstationIndex": 5,
@@ -451,7 +479,10 @@ GET /api/workstation/v1/graph
         "workstationType": 2,
         "workstationX": 4,
         "workstationY": 2,
-        "routerIndexs": [3, 4]
+        "routerIndexs": [
+          3,
+          4
+        ]
       }
     ]
   }
@@ -468,27 +499,27 @@ GET /api/workstation/v1/graph
 
 ### 返回结果
 
-| 状态码 | 状态码含义 | 说明 | 数据模型 |
-| --- | --- | --- | --- |
-| 200 | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | none | Inline |
+|状态码|状态码含义|说明|数据模型|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|none|Inline|
 
 ### 返回数据结构
 
 状态码 **200**
 
-| 名称 | 类型 | 必选 | 约束 | 中文名 | 说明 |
-| --- | --- | --- | --- | --- | --- |
-| » status | integer | true | none |  | none |
-| » resMsg | string | true | none |  | none |
-| » data | object | false | none |  | none |
-| »» graph | [object] | true | none |  | none |
-| »»» workstationId | integer | false | none | 工位id | none |
-| »»» workstationIndex | integer | true | none | 工位代号 | none |
-| »»» workstationName | string | true | none | 工位名称 | none |
-| »»» workstationType | integer | true | none | 工位类型 | 0-起点工位 1-过程工位 2-终点工位 |
-| »»» workstationX | integer | true | none | 工位横坐标 | 代表工序 |
-| »»» workstationY | integer | true | none | 工位纵坐标 | 标定同工序下的上下顺序 |
-| »»» routerIndexs | [integer] | false | none | 工位路由表 | 代表这个工位连通哪些其他工位，值为工位代号数组 |
+|名称|类型|必选|约束|中文名|说明|
+|---|---|---|---|---|---|
+|» status|integer|true|none||none|
+|» resMsg|string|true|none||none|
+|» data|object|false|none||none|
+|»» graph|[object]|true|none||none|
+|»»» workstationId|integer|false|none|工位id|none|
+|»»» workstationIndex|integer|true|none|工位代号|none|
+|»»» workstationName|string|true|none|工位名称|none|
+|»»» workstationType|integer|true|none|工位类型|0-起点工位 1-过程工位 2-终点工位|
+|»»» workstationX|integer|true|none|工位横坐标|代表工序|
+|»»» workstationY|integer|true|none|工位纵坐标|标定同工序下的上下顺序|
+|»»» routerIndexs|[integer]|false|none|工位路由表|代表这个工位连通哪些其他工位，值为工位代号数组|
 
 ## GET 获取工位工序流程配置
 
@@ -496,9 +527,9 @@ GET /api/station/v1/flow-config
 
 ### 请求参数
 
-| 名称  | 位置   | 类型   | 必选 | 中文名 | 说明 |
-| ----- | ------ | ------ | ---- | ------ | ---- |
-| token | header | string | 否   |        | none |
+|名称|位置|类型|必选|中文名|说明|
+|---|---|---|---|---|---|
+|token|header|string| 否 ||none|
 
 > 返回示例
 
@@ -566,45 +597,45 @@ GET /api/station/v1/flow-config
 
 ### 返回结果
 
-| 状态码 | 状态码含义 | 说明 | 数据模型 |
-| --- | --- | --- | --- |
-| 200 | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | none | Inline |
+|状态码|状态码含义|说明|数据模型|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|none|Inline|
 
 ### 返回数据结构
 
 状态码 **200**
 
-| 名称 | 类型 | 必选 | 约束 | 中文名 | 说明 |
-| --- | --- | --- | --- | --- | --- |
-| » status | integer | true | none |  | none |
-| » resMsg | string | true | none |  | none |
-| » data | object | true | none |  | none |
-| »» processes | [object] | true | none |  | none |
-| »»» id | integer | true | none | 工序id | none |
-| »»» label | string | true | none | 工序名称 | none |
-| »»» x | integer | true | none |  | none |
-| »»» y | integer | true | none |  | none |
-| »»» width | integer | true | none |  | none |
-| »»» height | integer | true | none |  | none |
-| »»» order | integer | true | none | 工序顺序 | none |
-| »»» color | string | false | none |  | none |
-| »» stations | [object] | true | none |  | none |
-| »»» id | integer | true | none | 工位id | none |
-| »»» label | string | true | none | 工位名称 | none |
-| »»» processId | integer | true | none | 所属工序id | none |
-| »»» code | string | true | none | 工位代号 | none |
-| »»» x | integer | true | none |  | none |
-| »»» y | integer | true | none |  | none |
-| »»» type | integer | true | none | 工序类型 | 0-起点工位 1-过程工位 2-终点工位 |
-| »» links | [object] | true | none |  | none |
-| »»» from | integer | true | none | 起始工位id | none |
-| »»» to | integer | true | none | 目标工位id | none |
-| »» canvas | object | true | none |  | none |
-| »»» width | integer | true | none |  | none |
-| »»» height | integer | true | none |  | none |
-| »»» center | object | false | none |  | none |
-| »»»» x | integer | true | none |  | none |
-| »»»» y | integer | true | none |  | none |
+|名称|类型|必选|约束|中文名|说明|
+|---|---|---|---|---|---|
+|» status|integer|true|none||none|
+|» resMsg|string|true|none||none|
+|» data|object|true|none||none|
+|»» processes|[object]|true|none||none|
+|»»» id|integer|true|none|工序id|none|
+|»»» label|string|true|none|工序名称|none|
+|»»» x|integer|true|none||none|
+|»»» y|integer|true|none||none|
+|»»» width|integer|true|none||none|
+|»»» height|integer|true|none||none|
+|»»» order|integer|true|none|工序顺序|none|
+|»»» color|string|false|none||none|
+|»» stations|[object]|true|none||none|
+|»»» id|integer|true|none|工位id|none|
+|»»» label|string|true|none|工位名称|none|
+|»»» processId|integer|true|none|所属工序id|none|
+|»»» code|string|true|none|工位代号|none|
+|»»» x|integer|true|none||none|
+|»»» y|integer|true|none||none|
+|»»» type|integer|true|none|工序类型|0-起点工位 1-过程工位 2-终点工位|
+|»» links|[object]|true|none||none|
+|»»» from|integer|true|none|起始工位id|none|
+|»»» to|integer|true|none|目标工位id|none|
+|»» canvas|object|true|none||none|
+|»»» width|integer|true|none||none|
+|»»» height|integer|true|none||none|
+|»»» center|object|false|none||none|
+|»»»» x|integer|true|none||none|
+|»»»» y|integer|true|none||none|
 
 ## POST 维护工位工序流程配置
 
@@ -650,36 +681,36 @@ POST /api/station/v1/flow-config
 
 ### 请求参数
 
-| 名称 | 位置 | 类型 | 必选 | 中文名 | 说明 |
-| --- | --- | --- | --- | --- | --- |
-| token | header | string | 否 |  | none |
-| body | body | object | 是 |  | none |
-| » processes | body | [object] | 是 | 工序 | none |
-| »» id | body | integer | 是 | 工序id | 存在时表示修改，不存在时表示新增 |
-| »» label | body | string | 是 | 工序名称 | 唯一 |
-| »» x | body | integer | 是 |  | none |
-| »» y | body | integer | 是 |  | none |
-| »» width | body | integer | 是 |  | none |
-| »» height | body | integer | 是 |  | none |
-| »» order | body | integer | 是 | 工序序号 | none |
-| »» color | body | string | 否 |  | none |
-| » stations | body | [object] | 是 | 工位 | none |
-| »» id | body | integer | 否 | 工位ID | 存在时表示修改，不存在时表示新增 |
-| »» label | body | string | 是 | 工位名称 | 唯一 |
-| »» process | body | string | 是 | 所属工序名称 | 注意，传递工序名称，不是工序id |
-| »» code | body | string | 是 | 工位代号 | none |
-| »» x | body | integer | 是 |  | none |
-| »» y | body | integer | 是 |  | none |
-| »» type | body | integer | 是 | 工位类型 | 0-起点工位 1-过程工位 2-终点工位 |
-| » links | body | [object] | 是 | 连线 | none |
-| »» from | body | string | 是 | 起始工位名称 | 注意，传递工位名称，不是工位id |
-| »» to | body | string | 是 | 目标工位名称 | 注意，传递工位名称，不是工位id |
-| » canvas | body | object | 是 | 画布 | none |
-| »» width | body | integer | 是 |  | none |
-| »» height | body | integer | 是 |  | none |
-| »» center | body | object | 是 |  | none |
-| »»» x | body | integer | 是 |  | none |
-| »»» y | body | integer | 是 |  | none |
+|名称|位置|类型|必选|中文名|说明|
+|---|---|---|---|---|---|
+|token|header|string| 否 ||none|
+|body|body|object| 是 ||none|
+|» processes|body|[object]| 是 | 工序|none|
+|»» id|body|integer| 是 | 工序id|存在时表示修改，不存在时表示新增|
+|»» label|body|string| 是 | 工序名称|唯一|
+|»» x|body|integer| 是 ||none|
+|»» y|body|integer| 是 ||none|
+|»» width|body|integer| 是 ||none|
+|»» height|body|integer| 是 ||none|
+|»» order|body|integer| 是 | 工序序号|none|
+|»» color|body|string| 否 ||none|
+|» stations|body|[object]| 是 | 工位|none|
+|»» id|body|integer| 否 | 工位ID|存在时表示修改，不存在时表示新增|
+|»» label|body|string| 是 | 工位名称|唯一|
+|»» process|body|string| 是 | 所属工序名称|注意，传递工序名称，不是工序id|
+|»» code|body|string| 是 | 工位代号|none|
+|»» x|body|integer| 是 ||none|
+|»» y|body|integer| 是 ||none|
+|»» type|body|integer| 是 | 工位类型|0-起点工位 1-过程工位 2-终点工位|
+|» links|body|[object]| 是 | 连线|none|
+|»» from|body|string| 是 | 起始工位名称|注意，传递工位名称，不是工位id|
+|»» to|body|string| 是 | 目标工位名称|注意，传递工位名称，不是工位id|
+|» canvas|body|object| 是 | 画布|none|
+|»» width|body|integer| 是 ||none|
+|»» height|body|integer| 是 ||none|
+|»» center|body|object| 是 ||none|
+|»»» x|body|integer| 是 ||none|
+|»»» y|body|integer| 是 ||none|
 
 > 返回示例
 
@@ -709,19 +740,19 @@ POST /api/station/v1/flow-config
 
 ### 返回结果
 
-| 状态码 | 状态码含义 | 说明 | 数据模型 |
-| --- | --- | --- | --- |
-| 200 | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | none | Inline |
+|状态码|状态码含义|说明|数据模型|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|none|Inline|
 
 ### 返回数据结构
 
 状态码 **200**
 
-| 名称     | 类型    | 必选  | 约束 | 中文名 | 说明 |
-| -------- | ------- | ----- | ---- | ------ | ---- |
-| » status | integer | true  | none |        | none |
-| » resMsg | string  | true  | none |        | none |
-| » data   | object  | false | none |        | none |
+|名称|类型|必选|约束|中文名|说明|
+|---|---|---|---|---|---|
+|» status|integer|true|none||none|
+|» resMsg|string|true|none||none|
+|» data|object|false|none||none|
 
 # alarm-工位告警
 
@@ -733,15 +764,15 @@ GET /api/station/v1/alarm/list
 
 ### 请求参数
 
-| 名称 | 位置 | 类型 | 必选 | 中文名 | 说明 |
-| --- | --- | --- | --- | --- | --- |
-| label | query | string | 否 |  | 工位名称-模糊搜索 |
-| code | query | string | 否 |  | 工位代号-模糊搜索 |
-| processId | query | integer | 否 |  | 工序id-搜索 |
-| showTagStatus | query | integer | 否 |  | 标签状态展示标记 0-不展示 1-展示；传入1用于查询标识器状态的工位过滤 |
-| page | query | integer | 是 |  | none |
-| pageSize | query | integer | 是 |  | none |
-| token | header | string | 否 |  | none |
+|名称|位置|类型|必选|中文名|说明|
+|---|---|---|---|---|---|
+|label|query|string| 否 ||工位名称-模糊搜索|
+|code|query|string| 否 ||工位代号-模糊搜索|
+|processId|query|integer| 否 ||工序id-搜索|
+|showTagStatus|query|integer| 否 ||标签状态展示标记 0-不展示 1-展示；传入1用于查询标识器状态的工位过滤|
+|page|query|integer| 是 ||none|
+|pageSize|query|integer| 是 ||none|
+|token|header|string| 否 ||none|
 
 > 返回示例
 
@@ -808,34 +839,34 @@ GET /api/station/v1/alarm/list
 
 ### 返回结果
 
-| 状态码 | 状态码含义 | 说明 | 数据模型 |
-| --- | --- | --- | --- |
-| 200 | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | none | Inline |
+|状态码|状态码含义|说明|数据模型|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|none|Inline|
 
 ### 返回数据结构
 
 状态码 **200**
 
-| 名称 | 类型 | 必选 | 约束 | 中文名 | 说明 |
-| --- | --- | --- | --- | --- | --- |
-| » status | integer | true | none |  | none |
-| » resMsg | string | true | none |  | none |
-| » data | object | false | none |  | none |
-| »» total | integer | true | none |  | none |
-| »» items | [object] | true | none |  | none |
-| »»» id | integer | true | none | 工位id | none |
-| »»» label | string | true | none | 工位名称 | none |
-| »»» code | string | true | none | 工位代号 | none |
-| »»» processId | integer | true | none | 所属工序id | none |
-| »»» x | integer | true | none |  | none |
-| »»» y | integer | true | none |  | none |
-| »»» type | integer | true | none | 工位类型 | 0-起点工位 1-过程工位 2-终点工位 |
-| »»» alarmStatus | integer | true | none | 滚动报警开关 | 0-关 1-开 |
-| »»» alarmA | integer | true | none | 预警值A | none |
-| »»» alarmB | integer | true | none | 预警值B | none |
-| »»» alarmC | integer | true | none | 预警值C | none |
-| »»» showTagStatus | integer | true | none | 标签器状态展示开关 | 0-关 1-开 |
-| »»» inputTime | integer | true | none |  | none |
+|名称|类型|必选|约束|中文名|说明|
+|---|---|---|---|---|---|
+|» status|integer|true|none||none|
+|» resMsg|string|true|none||none|
+|» data|object|false|none||none|
+|»» total|integer|true|none||none|
+|»» items|[object]|true|none||none|
+|»»» id|integer|true|none|工位id|none|
+|»»» label|string|true|none|工位名称|none|
+|»»» code|string|true|none|工位代号|none|
+|»»» processId|integer|true|none|所属工序id|none|
+|»»» x|integer|true|none||none|
+|»»» y|integer|true|none||none|
+|»»» type|integer|true|none|工位类型|0-起点工位 1-过程工位 2-终点工位|
+|»»» alarmStatus|integer|true|none|滚动报警开关|0-关 1-开|
+|»»» alarmA|integer|true|none|预警值A|none|
+|»»» alarmB|integer|true|none|预警值B|none|
+|»»» alarmC|integer|true|none|预警值C|none|
+|»»» showTagStatus|integer|true|none|标签器状态展示开关|0-关 1-开|
+|»»» inputTime|integer|true|none||none|
 
 ## PUT 修改工位告警信息
 
@@ -855,16 +886,16 @@ PUT /api/station/v1/alarm/{id}
 
 ### 请求参数
 
-| 名称 | 位置 | 类型 | 必选 | 中文名 | 说明 |
-| --- | --- | --- | --- | --- | --- |
-| id | path | integer | 是 |  | 工位id |
-| token | header | string | 否 |  | none |
-| body | body | object | 否 |  | none |
-| » alarmStatus | body | integer | 是 | 滚动报警开关 | 0-关 1-开，默认关 |
-| » alarmA | body | integer | 是 | 预警值A | 要求大于等于该数值，默认0 |
-| » alarmB | body | integer | 是 | 预警值B | 要求大于等于该数值，小于预警值A，默认0 |
-| » alarmC | body | integer | 是 | 预警值C | 要求大于等于该数值，小于预警值B，默认0 |
-| » showTagStatus | body | integer | 是 | 标签器状态展示开关 | 0-关 1开 |
+|名称|位置|类型|必选|中文名|说明|
+|---|---|---|---|---|---|
+|id|path|integer| 是 ||工位id|
+|token|header|string| 否 ||none|
+|body|body|object| 否 ||none|
+|» alarmStatus|body|integer| 是 | 滚动报警开关|0-关 1-开，默认关|
+|» alarmA|body|integer| 是 | 预警值A|要求大于等于该数值，默认0|
+|» alarmB|body|integer| 是 | 预警值B|要求大于等于该数值，小于预警值A，默认0|
+|» alarmC|body|integer| 是 | 预警值C|要求大于等于该数值，小于预警值B，默认0|
+|» showTagStatus|body|integer| 是 | 标签器状态展示开关|0-关 1开|
 
 > 返回示例
 
@@ -886,19 +917,19 @@ PUT /api/station/v1/alarm/{id}
 
 ### 返回结果
 
-| 状态码 | 状态码含义 | 说明 | 数据模型 |
-| --- | --- | --- | --- |
-| 200 | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | none | Inline |
+|状态码|状态码含义|说明|数据模型|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|none|Inline|
 
 ### 返回数据结构
 
 状态码 **200**
 
-| 名称     | 类型    | 必选  | 约束 | 中文名 | 说明 |
-| -------- | ------- | ----- | ---- | ------ | ---- |
-| » status | integer | true  | none |        | none |
-| » resMsg | string  | true  | none |        | none |
-| » data   | object  | false | none |        | none |
+|名称|类型|必选|约束|中文名|说明|
+|---|---|---|---|---|---|
+|» status|integer|true|none||none|
+|» resMsg|string|true|none||none|
+|» data|object|false|none||none|
 
 # radar-雷达
 
@@ -920,15 +951,15 @@ POST /api/radar/v1/create
 
 ### 请求参数
 
-| 名称 | 位置 | 类型 | 必选 | 中文名 | 说明 |
-| --- | --- | --- | --- | --- | --- |
-| token | header | string | 否 |  | none |
-| body | body | object | 否 |  | none |
-| » radarHost | body | string | 是 | 雷达ip | none |
-| » radarPort | body | integer | 是 | 雷达端口 | none |
-| » radarAddress | body | integer | 是 | 雷达地址 | DTU绑定地址 |
-| » radarAntenna1StationId | body | integer | 否 | 天线1工位id | none |
-| » radarAntenna2StationId | body | integer | 否 | 天线2工位id | none |
+|名称|位置|类型|必选|中文名|说明|
+|---|---|---|---|---|---|
+|token|header|string| 否 ||none|
+|body|body|object| 否 ||none|
+|» radarHost|body|string| 是 | 雷达ip|none|
+|» radarPort|body|integer| 是 | 雷达端口|none|
+|» radarAddress|body|integer| 是 | 雷达地址|DTU绑定地址|
+|» radarAntenna1StationId|body|integer| 否 | 天线1工位id|none|
+|» radarAntenna2StationId|body|integer| 否 | 天线2工位id|none|
 
 > 返回示例
 
@@ -958,19 +989,19 @@ POST /api/radar/v1/create
 
 ### 返回结果
 
-| 状态码 | 状态码含义 | 说明 | 数据模型 |
-| --- | --- | --- | --- |
-| 200 | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | none | Inline |
+|状态码|状态码含义|说明|数据模型|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|none|Inline|
 
 ### 返回数据结构
 
 状态码 **200**
 
-| 名称     | 类型    | 必选  | 约束 | 中文名   | 说明     |
-| -------- | ------- | ----- | ---- | -------- | -------- |
-| » status | integer | true  | none | 状态码   | none     |
-| » resMsg | string  | true  | none | 状态描述 | none     |
-| » data   | object  | false | none | 数据对象 | 这里为空 |
+|名称|类型|必选|约束|中文名|说明|
+|---|---|---|---|---|---|
+|» status|integer|true|none|状态码|none|
+|» resMsg|string|true|none|状态描述|none|
+|» data|object|false|none|数据对象|这里为空|
 
 ## GET 获取雷达列表
 
@@ -978,15 +1009,15 @@ GET /api/radar/v1/list
 
 ### 请求参数
 
-| 名称 | 位置 | 类型 | 必选 | 中文名 | 说明 |
-| --- | --- | --- | --- | --- | --- |
-| radarHost | query | string | 否 |  | 雷达ip |
-| stationLabel | query | string | 否 |  | 工位名称-模糊搜索，若一个雷达两个天线绑定了两个工位，该搜索条件会同时搜索这两个天线对应的工位名称 |
-| stationCode | query | string | 否 |  | 工位代号-搜索，若一个雷达两个天线绑定了两个工位，该搜索条件会同时搜索这两个天线对应的工位代号 |
-| processOrder | query | integer | 否 |  | 工序顺序-搜索，若一个雷达两个天线绑定了两个工位，该搜索条件会同时搜索这两个天线对应的工序 |
-| page | query | integer | 是 |  | none |
-| pageSize | query | integer | 是 |  | none |
-| token | header | string | 否 |  | none |
+|名称|位置|类型|必选|中文名|说明|
+|---|---|---|---|---|---|
+|radarHost|query|string| 否 ||雷达ip|
+|stationLabel|query|string| 否 ||工位名称-模糊搜索，若一个雷达两个天线绑定了两个工位，该搜索条件会同时搜索这两个天线对应的工位名称|
+|stationCode|query|string| 否 ||工位代号-搜索，若一个雷达两个天线绑定了两个工位，该搜索条件会同时搜索这两个天线对应的工位代号|
+|processOrder|query|integer| 否 ||工序顺序-搜索，若一个雷达两个天线绑定了两个工位，该搜索条件会同时搜索这两个天线对应的工序|
+|page|query|integer| 是 ||none|
+|pageSize|query|integer| 是 ||none|
+|token|header|string| 否 ||none|
 
 > 返回示例
 
@@ -1049,36 +1080,36 @@ GET /api/radar/v1/list
 
 ### 返回结果
 
-| 状态码 | 状态码含义 | 说明 | 数据模型 |
-| --- | --- | --- | --- |
-| 200 | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | none | Inline |
+|状态码|状态码含义|说明|数据模型|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|none|Inline|
 
 ### 返回数据结构
 
 状态码 **200**
 
-| 名称 | 类型 | 必选 | 约束 | 中文名 | 说明 |
-| --- | --- | --- | --- | --- | --- |
-| » status | integer | true | none |  | none |
-| » resMsg | string | true | none |  | none |
-| » data | object | false | none |  | none |
-| »» total | integer | true | none | 数据总量 | none |
-| »» items | [object] | true | none | 当前页数据项 | none |
-| »»» id | integer | true | none | 雷达id | none |
-| »»» radarHost | string | true | none | 雷达ip | none |
-| »»» radarPort | integer | true | none | 雷达端口 | none |
-| »»» radarAddress | integer | true | none | 雷达地址 | none |
-| »»» radarAntenna1StationId | integer¦null | false | none | 雷达天线1工位id | none |
-| »»» radarAntenna1StationLabel | string¦null | false | none | 雷达天线1工位名称 | none |
-| »»» radarAntenna1StationCode | string¦null | false | none | 雷达天线1工位代号 | none |
-| »»» radarAntenna1ProcessOrder | integer¦null | false | none | 雷达天线1工位工序 | none |
-| »»» radarAntenna2StationId | integer¦null | false | none | 雷达天线2工位id | none |
-| »»» radarAntenna2StationLabel | string¦null | false | none | 雷达天线2工位名称 | none |
-| »»» radarAntenna2StationCode | string¦null | false | none | 雷达天线2工位代号 | none |
-| »»» radarAntenna2ProcessOrder | integer¦null | false | none | 雷达天线2工位工序 | none |
-| »»» radarStatus | integer | true | none | 雷达状态 | -1-offline（不会再自动重连） 0-connecting 1-online 2-warn |
-| »»» inputTime | integer | true | none | 雷达创建时间 | none |
-| »»» updateTime | integer | true | none | 雷达更新时间 | none |
+|名称|类型|必选|约束|中文名|说明|
+|---|---|---|---|---|---|
+|» status|integer|true|none||none|
+|» resMsg|string|true|none||none|
+|» data|object|false|none||none|
+|»» total|integer|true|none|数据总量|none|
+|»» items|[object]|true|none|当前页数据项|none|
+|»»» id|integer|true|none|雷达id|none|
+|»»» radarHost|string|true|none|雷达ip|none|
+|»»» radarPort|integer|true|none|雷达端口|none|
+|»»» radarAddress|integer|true|none|雷达地址|none|
+|»»» radarAntenna1StationId|integer¦null|false|none|雷达天线1工位id|none|
+|»»» radarAntenna1StationLabel|string¦null|false|none|雷达天线1工位名称|none|
+|»»» radarAntenna1StationCode|string¦null|false|none|雷达天线1工位代号|none|
+|»»» radarAntenna1ProcessOrder|integer¦null|false|none|雷达天线1工位工序|none|
+|»»» radarAntenna2StationId|integer¦null|false|none|雷达天线2工位id|none|
+|»»» radarAntenna2StationLabel|string¦null|false|none|雷达天线2工位名称|none|
+|»»» radarAntenna2StationCode|string¦null|false|none|雷达天线2工位代号|none|
+|»»» radarAntenna2ProcessOrder|integer¦null|false|none|雷达天线2工位工序|none|
+|»»» radarStatus|integer|true|none|雷达状态|-1-offline（不会再自动重连） 0-connecting 1-online 2-warn 3-readTimeout|
+|»»» inputTime|integer|true|none|雷达创建时间|none|
+|»»» updateTime|integer|true|none|雷达更新时间|none|
 
 ## PUT 修改雷达信息
 
@@ -1098,16 +1129,16 @@ PUT /api/radar/v1/{id}
 
 ### 请求参数
 
-| 名称                     | 位置   | 类型    | 必选 | 中文名      | 说明   |
-| ------------------------ | ------ | ------- | ---- | ----------- | ------ |
-| id                       | path   | integer | 是   |             | 雷达id |
-| token                    | header | string  | 否   |             | none   |
-| body                     | body   | object  | 否   |             | none   |
-| » radarHost              | body   | string  | 是   | 雷达ip      | none   |
-| » radarPort              | body   | integer | 是   | 雷达端口    | none   |
-| » radarAddress           | body   | integer | 是   | 雷达地址    | none   |
-| » radarAntenna1StationId | body   | integer | 否   | 天线1工位id | none   |
-| » radarAntenna2StationId | body   | integer | 否   | 天线2工位id | none   |
+|名称|位置|类型|必选|中文名|说明|
+|---|---|---|---|---|---|
+|id|path|integer| 是 ||雷达id|
+|token|header|string| 否 ||none|
+|body|body|object| 否 ||none|
+|» radarHost|body|string| 是 | 雷达ip|none|
+|» radarPort|body|integer| 是 | 雷达端口|none|
+|» radarAddress|body|integer| 是 | 雷达地址|none|
+|» radarAntenna1StationId|body|integer| 否 | 天线1工位id|none|
+|» radarAntenna2StationId|body|integer| 否 | 天线2工位id|none|
 
 > 返回示例
 
@@ -1137,19 +1168,19 @@ PUT /api/radar/v1/{id}
 
 ### 返回结果
 
-| 状态码 | 状态码含义 | 说明 | 数据模型 |
-| --- | --- | --- | --- |
-| 200 | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | none | Inline |
+|状态码|状态码含义|说明|数据模型|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|none|Inline|
 
 ### 返回数据结构
 
 状态码 **200**
 
-| 名称     | 类型    | 必选  | 约束 | 中文名 | 说明     |
-| -------- | ------- | ----- | ---- | ------ | -------- |
-| » status | integer | true  | none |        | none     |
-| » resMsg | string  | true  | none |        | none     |
-| » data   | object  | false | none |        | 这里为空 |
+|名称|类型|必选|约束|中文名|说明|
+|---|---|---|---|---|---|
+|» status|integer|true|none||none|
+|» resMsg|string|true|none||none|
+|» data|object|false|none||这里为空|
 
 ## DELETE 删除雷达
 
@@ -1159,17 +1190,21 @@ DELETE /api/radar/v1/delete
 
 ```json
 {
-  "ids": [1, 2, 3]
+  "ids": [
+    1,
+    2,
+    3
+  ]
 }
 ```
 
 ### 请求参数
 
-| 名称  | 位置   | 类型      | 必选 | 中文名         | 说明 |
-| ----- | ------ | --------- | ---- | -------------- | ---- |
-| token | header | string    | 否   |                | none |
-| body  | body   | object    | 否   |                | none |
-| » ids | body   | [integer] | 是   | 删除雷达id数组 | none |
+|名称|位置|类型|必选|中文名|说明|
+|---|---|---|---|---|---|
+|token|header|string| 否 ||none|
+|body|body|object| 否 ||none|
+|» ids|body|[integer]| 是 | 删除雷达id数组|none|
 
 > 返回示例
 
@@ -1191,19 +1226,19 @@ DELETE /api/radar/v1/delete
 
 ### 返回结果
 
-| 状态码 | 状态码含义 | 说明 | 数据模型 |
-| --- | --- | --- | --- |
-| 200 | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | none | Inline |
+|状态码|状态码含义|说明|数据模型|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|none|Inline|
 
 ### 返回数据结构
 
 状态码 **200**
 
-| 名称     | 类型    | 必选  | 约束 | 中文名 | 说明     |
-| -------- | ------- | ----- | ---- | ------ | -------- |
-| » status | integer | true  | none |        | none     |
-| » resMsg | string  | true  | none |        | none     |
-| » data   | object  | false | none |        | 这里为空 |
+|名称|类型|必选|约束|中文名|说明|
+|---|---|---|---|---|---|
+|» status|integer|true|none||none|
+|» resMsg|string|true|none||none|
+|» data|object|false|none||这里为空|
 
 ## GET 获取雷达识别列表-原始数据
 
@@ -1211,20 +1246,20 @@ GET /api/radar/v1/data
 
 ### 请求参数
 
-| 名称 | 位置 | 类型 | 必选 | 中文名 | 说明 |
-| --- | --- | --- | --- | --- | --- |
-| radarHost | query | string | 是 |  | 雷达ip |
-| radarPort | query | integer | 是 |  | 雷达端口 |
-| radarAddress | query | integer | 是 |  | 雷达地址 |
-| stationLabel | query | string | 否 |  | 工位名称-搜索 |
-| tagType | query | integer | 否 |  | 标识器类型，0-高温标识器（铁包）/1-常温标识器（车架） |
-| tagSn | query | integer | 否 |  | 标签器ID |
-| tagBoundName | query | string | 否 |  | 铁包号/车架号（名）-搜索 |
-| startTime | query | integer | 否 |  | 查询开始时间（毫秒时间戳） |
-| endTime | query | integer | 否 |  | 查询结束时间（毫秒时间戳） |
-| page | query | integer | 是 |  | none |
-| pageSize | query | integer | 是 |  | 最大200 |
-| token | header | string | 否 |  | none |
+|名称|位置|类型|必选|中文名|说明|
+|---|---|---|---|---|---|
+|radarHost|query|string| 是 ||雷达ip|
+|radarPort|query|integer| 是 ||雷达端口|
+|radarAddress|query|integer| 是 ||雷达地址|
+|stationLabel|query|string| 否 ||工位名称-搜索|
+|tagType|query|integer| 否 ||标识器类型，0-高温标识器（铁包）/1-常温标识器（车架）|
+|tagSn|query|integer| 否 ||标签器ID|
+|tagBoundName|query|string| 否 ||铁包号/车架号（名）-搜索|
+|startTime|query|integer| 否 ||查询开始时间（毫秒时间戳）|
+|endTime|query|integer| 否 ||查询结束时间（毫秒时间戳）|
+|page|query|integer| 是 ||none|
+|pageSize|query|integer| 是 ||最大200|
+|token|header|string| 否 ||none|
 
 > 返回示例
 
@@ -1309,41 +1344,41 @@ GET /api/radar/v1/data
 
 ### 返回结果
 
-| 状态码 | 状态码含义 | 说明 | 数据模型 |
-| --- | --- | --- | --- |
-| 200 | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | none | Inline |
+|状态码|状态码含义|说明|数据模型|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|none|Inline|
 
 ### 返回数据结构
 
 状态码 **200**
 
-| 名称 | 类型 | 必选 | 约束 | 中文名 | 说明 |
-| --- | --- | --- | --- | --- | --- |
-| » status | integer | true | none |  | none |
-| » resMsg | string | true | none |  | none |
-| » data | object | false | none |  | none |
-| »» total | integer | true | none |  | none |
-| »» items | [object] | true | none |  | none |
-| »»» id | integer | true | none | 记录id | none |
-| »»» radarHost | string | true | none | 雷达ip | none |
-| »»» radarPort | integer | true | none | 雷达端口 | none |
-| »»» radarAddress | integer | true | none | modbus中雷达地址 | none |
-| »»» stationLabel | string | false | none | 工位名称 | none |
-| »»» tagType | integer | false | none | 标签类型 | 0-高温标识器（铁包）/1-常温标识器（车架） |
-| »»» tagBoundName | string | false | none | 铁包/车架名称 | none |
-| »»» functionCode | integer | true | none | modbus中功能码 | none |
-| »»» dataLength | integer | true | none | modbus中数据长度 | none |
-| »»» tagSn | integer | true | none | modbus中标签号 | none |
-| »»» pulse1 | integer | true | none | modbus中pulse1数值 | none |
-| »»» pulse2 | integer | true | none | modbus中pulse2数值 | none |
-| »»» pulse3 | integer | true | none | modbus中pulse3数值 | none |
-| »»» pulse4 | integer | true | none | modbus中pulse4数值 | none |
-| »»» pulse5 | integer | true | none | modbus中pulse5数值 | none |
-| »»» baseLine | integer | true | none | modbus中基线数值 | none |
-| »»» pulseFrequency | integer | true | none | modbus中雷达频率 | none |
-| »»» antennaNumber | integer | true | none | modbus中天线号 | none |
-| »»» crc16 | integer | true | none | modbus中crc16校验码 | none |
-| »»» inputTime | integer | true | none | 插入时间 | none |
+|名称|类型|必选|约束|中文名|说明|
+|---|---|---|---|---|---|
+|» status|integer|true|none||none|
+|» resMsg|string|true|none||none|
+|» data|object|false|none||none|
+|»» total|integer|true|none||none|
+|»» items|[object]|true|none||none|
+|»»» id|integer|true|none|记录id|none|
+|»»» radarHost|string|true|none|雷达ip|none|
+|»»» radarPort|integer|true|none|雷达端口|none|
+|»»» radarAddress|integer|true|none|modbus中雷达地址|none|
+|»»» stationLabel|string|false|none|工位名称|none|
+|»»» tagType|integer|false|none|标签类型|0-高温标识器（铁包）/1-常温标识器（车架）|
+|»»» tagBoundName|string|false|none|铁包/车架名称|none|
+|»»» functionCode|integer|true|none|modbus中功能码|none|
+|»»» dataLength|integer|true|none|modbus中数据长度|none|
+|»»» tagSn|integer|true|none|modbus中标签号|none|
+|»»» pulse1|integer|true|none|modbus中pulse1数值|none|
+|»»» pulse2|integer|true|none|modbus中pulse2数值|none|
+|»»» pulse3|integer|true|none|modbus中pulse3数值|none|
+|»»» pulse4|integer|true|none|modbus中pulse4数值|none|
+|»»» pulse5|integer|true|none|modbus中pulse5数值|none|
+|»»» baseLine|integer|true|none|modbus中基线数值|none|
+|»»» pulseFrequency|integer|true|none|modbus中雷达频率|none|
+|»»» antennaNumber|integer|true|none|modbus中天线号|none|
+|»»» crc16|integer|true|none|modbus中crc16校验码|none|
+|»»» inputTime|integer|true|none|插入时间|none|
 
 ## GET 获取雷达识别列表-合并
 
@@ -1351,18 +1386,18 @@ GET /api/radar/v1/dataGroup
 
 ### 请求参数
 
-| 名称 | 位置 | 类型 | 必选 | 中文名 | 说明 |
-| --- | --- | --- | --- | --- | --- |
-| radarHost | query | string | 否 |  | 雷达ip-搜索 |
-| stationLabel | query | string | 否 |  | 工位名称-搜索 |
-| tagType | query | integer | 否 |  | 标识器类型，0-高温标识器（铁包）/1-常温标识器（车架） |
-| tagSn | query | integer | 否 |  | 标签器ID |
-| tagBoundName | query | string | 否 |  | 铁包号/车架号（名）-搜索 |
-| startTime | query | integer | 是 |  | 查询开始时间 |
-| endTime | query | integer | 是 |  | 查询结束时间 |
-| page | query | integer | 是 |  | none |
-| pageSize | query | integer | 是 |  | 最大200 |
-| token | header | string | 否 |  | none |
+|名称|位置|类型|必选|中文名|说明|
+|---|---|---|---|---|---|
+|radarHost|query|string| 否 ||雷达ip-搜索|
+|stationLabel|query|string| 否 ||工位名称-搜索|
+|tagType|query|integer| 否 ||标识器类型，0-高温标识器（铁包）/1-常温标识器（车架）|
+|tagSn|query|integer| 否 ||标签器ID|
+|tagBoundName|query|string| 否 ||铁包号/车架号（名）-搜索|
+|startTime|query|integer| 是 ||查询开始时间|
+|endTime|query|integer| 是 ||查询结束时间|
+|page|query|integer| 是 ||none|
+|pageSize|query|integer| 是 ||最大200|
+|token|header|string| 否 ||none|
 
 > 返回示例
 
@@ -1441,36 +1476,178 @@ GET /api/radar/v1/dataGroup
 
 ### 返回结果
 
-| 状态码 | 状态码含义 | 说明 | 数据模型 |
-| --- | --- | --- | --- |
-| 200 | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | none | Inline |
+|状态码|状态码含义|说明|数据模型|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|none|Inline|
 
 ### 返回数据结构
 
 状态码 **200**
 
-| 名称 | 类型 | 必选 | 约束 | 中文名 | 说明 |
-| --- | --- | --- | --- | --- | --- |
-| » status | integer | true | none |  | none |
-| » resMsg | string | true | none |  | none |
-| » data | object | true | none |  | none |
-| »» total | integer | true | none |  | none |
-| »» items | [object] | false | none |  | none |
-| »»» id | integer | true | none |  | none |
-| »»» radarHost | string | true | none | 雷达ip | none |
-| »»» radarPort | integer | true | none | 雷达端口 | none |
-| »»» radarAntennaNum | integer | true | none | 雷达天线号 | none |
-| »»» radarAddress | integer | true | none | 雷达地址 | none |
-| »»» stationLabel | string | false | none | 工位名称 | none |
-| »»» tagType | integer | false | none | 标签器类型 | 0-高温标识器（铁包）/1-常温标识器（车架） |
-| »»» tagSn | integer | true | none | 标签器id | none |
-| »»» tagBoundName | string | false | none | 铁包/车架名称 | none |
-| »»» tagMaxPulse | integer | true | none | 信号值 | none |
-| »»» tagReadCount | integer | true | none | 读取次数 | none |
-| »»» startTime | integer | true | none | 开始读取时间 | none |
-| »»» endTime | integer | false | none | 结束读取时间 | none |
-| »»» updateTime | integer | true | none | 更新时间 | none |
-| »»» lastTime | integer | true | none | 最后一次读取时间 | none |
+|名称|类型|必选|约束|中文名|说明|
+|---|---|---|---|---|---|
+|» status|integer|true|none||none|
+|» resMsg|string|true|none||none|
+|» data|object|true|none||none|
+|»» total|integer|true|none||none|
+|»» items|[object]|false|none||none|
+|»»» id|integer|true|none||none|
+|»»» radarHost|string|true|none|雷达ip|none|
+|»»» radarPort|integer|true|none|雷达端口|none|
+|»»» radarAntennaNum|integer|true|none|雷达天线号|none|
+|»»» radarAddress|integer|true|none|雷达地址|none|
+|»»» stationLabel|string|false|none|工位名称|none|
+|»»» tagType|integer|false|none|标签器类型|0-高温标识器（铁包）/1-常温标识器（车架）|
+|»»» tagSn|integer|true|none|标签器id|none|
+|»»» tagBoundName|string|false|none|铁包/车架名称|none|
+|»»» tagMaxPulse|integer|true|none|信号值|none|
+|»»» tagReadCount|integer|true|none|读取次数|none|
+|»»» startTime|integer|true|none|开始读取时间|none|
+|»»» endTime|integer|false|none|结束读取时间|none|
+|»»» updateTime|integer|true|none|更新时间|none|
+|»»» lastTime|integer|true|none|最后一次读取时间|none|
+
+## GET 下载雷达导入模板
+
+GET /api/radar/v1/template/download
+
+### 请求参数
+
+|名称|位置|类型|必选|中文名|说明|
+|---|---|---|---|---|---|
+|token|header|string| 否 ||none|
+
+> 返回示例
+
+> 200 Response
+
+### 返回结果
+
+|状态码|状态码含义|说明|数据模型|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|none|Inline|
+
+### 返回数据结构
+
+## POST 导入雷达
+
+POST /api/radar/v1/import
+
+只支持.xls或.xlsx文件
+导入接口会对文件内的数据进行预检查。
+只有检测全部通过才会进行导入。
+只要有数据检测不通过，就不会进行导入，接口会返回所有有问题的数据，供用户修改参考。
+
+> Body 请求参数
+
+```yaml
+file: ""
+
+```
+
+### 请求参数
+
+|名称|位置|类型|必选|中文名|说明|
+|---|---|---|---|---|---|
+|token|header|string| 否 ||none|
+|body|body|object| 否 ||none|
+|» file|body|string(binary)| 否 ||none|
+
+> 返回示例
+
+```json
+{
+  "status": 0,
+  "resMsg": "成功",
+  "data": {
+    "success": true,
+    "totalRows": 2,
+    "successCount": 2,
+    "failCount": 0,
+    "errors": []
+  }
+}
+```
+
+```json
+{
+  "status": 9000005,
+  "resMsg": "参数异常",
+  "data": {}
+}
+```
+
+```json
+{
+  "status": 9009999,
+  "resMsg": "未知错误,{0}",
+  "data": {}
+}
+```
+
+```json
+{
+  "status": 0,
+  "resMsg": "成功",
+  "data": {
+    "success": false,
+    "totalRows": 2,
+    "successCount": 0,
+    "failCount": 2,
+    "errors": [
+      "第2行: 雷达(IP:8.133.247.229, 端口:5005, 地址:1)已存在",
+      "第3行: 雷达(IP:8.133.247.229, 端口:5006, 地址:1)已存在"
+    ]
+  }
+}
+```
+
+### 返回结果
+
+|状态码|状态码含义|说明|数据模型|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|none|Inline|
+
+### 返回数据结构
+
+状态码 **200**
+
+|名称|类型|必选|约束|中文名|说明|
+|---|---|---|---|---|---|
+|» status|integer|true|none||none|
+|» resMsg|string|true|none||none|
+|» data|object|true|none||none|
+|»» success|boolean|true|none|导入状态|none|
+|»» totalRows|integer|true|none|数据总行数|文件中的雷达数据总行数|
+|»» successCount|integer|true|none|成功导入数|none|
+|»» failCount|integer|true|none|失败导入数|none|
+|»» errors|[string]|true|none|错误信息|none|
+
+## GET 导出雷达
+
+GET /api/radar/v1/export
+
+### 请求参数
+
+|名称|位置|类型|必选|中文名|说明|
+|---|---|---|---|---|---|
+|radarHost|query|string| 否 ||none|
+|stationLabel|query|string| 否 ||none|
+|stationCode|query|string| 否 ||none|
+|processOrder|query|integer| 否 ||none|
+|token|header|string| 否 ||none|
+
+> 返回示例
+
+> 200 Response
+
+### 返回结果
+
+|状态码|状态码含义|说明|数据模型|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|none|Inline|
+
+### 返回数据结构
 
 # iron-铁包（高温标识器）
 
@@ -1490,13 +1667,13 @@ POST /api/iron/v1/create
 
 ### 请求参数
 
-| 名称       | 位置   | 类型    | 必选 | 中文名    | 说明 |
-| ---------- | ------ | ------- | ---- | --------- | ---- |
-| token      | header | string  | 否   |           | none |
-| body       | body   | object  | 否   |           | none |
-| » tagSn1   | body   | integer | 否   | 标识器ID1 | none |
-| » tagSn2   | body   | integer | 否   | 标识器ID2 | none |
-| » ironName | body   | string  | 是   | 铁包名称  | none |
+|名称|位置|类型|必选|中文名|说明|
+|---|---|---|---|---|---|
+|token|header|string| 否 ||none|
+|body|body|object| 否 ||none|
+|» tagSn1|body|integer| 否 | 标识器ID1|none|
+|» tagSn2|body|integer| 否 | 标识器ID2|none|
+|» ironName|body|string| 是 | 铁包名称|none|
 
 > 返回示例
 
@@ -1542,19 +1719,19 @@ POST /api/iron/v1/create
 
 ### 返回结果
 
-| 状态码 | 状态码含义 | 说明 | 数据模型 |
-| --- | --- | --- | --- |
-| 200 | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | none | Inline |
+|状态码|状态码含义|说明|数据模型|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|none|Inline|
 
 ### 返回数据结构
 
 状态码 **200**
 
-| 名称     | 类型    | 必选  | 约束 | 中文名 | 说明     |
-| -------- | ------- | ----- | ---- | ------ | -------- |
-| » status | integer | true  | none |        | none     |
-| » resMsg | string  | true  | none |        | none     |
-| » data   | object  | false | none |        | 这里为空 |
+|名称|类型|必选|约束|中文名|说明|
+|---|---|---|---|---|---|
+|» status|integer|true|none||none|
+|» resMsg|string|true|none||none|
+|» data|object|false|none||这里为空|
 
 ## GET 获取铁包列表
 
@@ -1562,13 +1739,13 @@ GET /api/iron/v1/list
 
 ### 请求参数
 
-| 名称     | 位置   | 类型    | 必选 | 中文名 | 说明              |
-| -------- | ------ | ------- | ---- | ------ | ----------------- |
-| ironName | query  | string  | 否   |        | 铁包名称-模糊搜索 |
-| tagSn    | query  | integer | 否   |        | 标识器ID-搜索     |
-| page     | query  | integer | 是   |        | none              |
-| pageSize | query  | integer | 是   |        | none              |
-| token    | header | string  | 否   |        | none              |
+|名称|位置|类型|必选|中文名|说明|
+|---|---|---|---|---|---|
+|ironName|query|string| 否 ||铁包名称-模糊搜索|
+|tagSn|query|integer| 否 ||标识器ID-搜索|
+|page|query|integer| 是 ||none|
+|pageSize|query|integer| 是 ||none|
+|token|header|string| 否 ||none|
 
 > 返回示例
 
@@ -1613,27 +1790,27 @@ GET /api/iron/v1/list
 
 ### 返回结果
 
-| 状态码 | 状态码含义 | 说明 | 数据模型 |
-| --- | --- | --- | --- |
-| 200 | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | none | Inline |
+|状态码|状态码含义|说明|数据模型|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|none|Inline|
 
 ### 返回数据结构
 
 状态码 **200**
 
-| 名称           | 类型         | 必选  | 约束 | 中文名        | 说明 |
-| -------------- | ------------ | ----- | ---- | ------------- | ---- |
-| » status       | integer      | true  | none |               | none |
-| » resMsg       | string       | true  | none |               | none |
-| » data         | object       | true  | none |               | none |
-| »» total       | integer      | true  | none | 总数          | none |
-| »» items       | [object]     | true  | none |               | none |
-| »»» id         | integer      | true  | none | 铁包id        | none |
-| »»» tagSn1     | integer¦null | false | none | 高温标识器1ID | none |
-| »»» tagSn2     | integer¦null | false | none | 高温标识器2ID | none |
-| »»» ironName   | string       | true  | none | 铁包名称      | none |
-| »»» inputTime  | integer      | true  | none |               | none |
-| »»» updateTime | integer      | true  | none |               | none |
+|名称|类型|必选|约束|中文名|说明|
+|---|---|---|---|---|---|
+|» status|integer|true|none||none|
+|» resMsg|string|true|none||none|
+|» data|object|true|none||none|
+|»» total|integer|true|none|总数|none|
+|»» items|[object]|true|none||none|
+|»»» id|integer|true|none|铁包id|none|
+|»»» tagSn1|integer¦null|false|none|高温标识器1ID|none|
+|»»» tagSn2|integer¦null|false|none|高温标识器2ID|none|
+|»»» ironName|string|true|none|铁包名称|none|
+|»»» inputTime|integer|true|none||none|
+|»»» updateTime|integer|true|none||none|
 
 ## PUT 修改铁包信息
 
@@ -1651,14 +1828,14 @@ PUT /api/iron/v1/{id}
 
 ### 请求参数
 
-| 名称       | 位置   | 类型    | 必选 | 中文名    | 说明   |
-| ---------- | ------ | ------- | ---- | --------- | ------ |
-| id         | path   | integer | 是   |           | 铁包id |
-| token      | header | string  | 否   |           | none   |
-| body       | body   | object  | 否   |           | none   |
-| » tagSn1   | body   | integer | 否   | 标识器ID1 | none   |
-| » tagSn2   | body   | integer | 否   | 标识器ID2 | none   |
-| » ironName | body   | string  | 是   | 铁包名称  | none   |
+|名称|位置|类型|必选|中文名|说明|
+|---|---|---|---|---|---|
+|id|path|integer| 是 ||铁包id|
+|token|header|string| 否 ||none|
+|body|body|object| 否 ||none|
+|» tagSn1|body|integer| 否 | 标识器ID1|none|
+|» tagSn2|body|integer| 否 | 标识器ID2|none|
+|» ironName|body|string| 是 | 铁包名称|none|
 
 > 返回示例
 
@@ -1712,19 +1889,19 @@ PUT /api/iron/v1/{id}
 
 ### 返回结果
 
-| 状态码 | 状态码含义 | 说明 | 数据模型 |
-| --- | --- | --- | --- |
-| 200 | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | none | Inline |
+|状态码|状态码含义|说明|数据模型|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|none|Inline|
 
 ### 返回数据结构
 
 状态码 **200**
 
-| 名称     | 类型    | 必选  | 约束 | 中文名 | 说明     |
-| -------- | ------- | ----- | ---- | ------ | -------- |
-| » status | integer | true  | none |        | none     |
-| » resMsg | string  | true  | none |        | none     |
-| » data   | object  | false | none |        | 这里为空 |
+|名称|类型|必选|约束|中文名|说明|
+|---|---|---|---|---|---|
+|» status|integer|true|none||none|
+|» resMsg|string|true|none||none|
+|» data|object|false|none||这里为空|
 
 ## DELETE 删除铁包
 
@@ -1734,17 +1911,21 @@ DELETE /api/iron/v1/delete
 
 ```json
 {
-  "ids": [1, 2, 3]
+  "ids": [
+    1,
+    2,
+    3
+  ]
 }
 ```
 
 ### 请求参数
 
-| 名称  | 位置   | 类型      | 必选 | 中文名         | 说明 |
-| ----- | ------ | --------- | ---- | -------------- | ---- |
-| token | header | string    | 否   |                | none |
-| body  | body   | object    | 否   |                | none |
-| » ids | body   | [integer] | 是   | 删除铁包id数组 | none |
+|名称|位置|类型|必选|中文名|说明|
+|---|---|---|---|---|---|
+|token|header|string| 否 ||none|
+|body|body|object| 否 ||none|
+|» ids|body|[integer]| 是 | 删除铁包id数组|none|
 
 > 返回示例
 
@@ -1766,19 +1947,159 @@ DELETE /api/iron/v1/delete
 
 ### 返回结果
 
-| 状态码 | 状态码含义 | 说明 | 数据模型 |
-| --- | --- | --- | --- |
-| 200 | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | none | Inline |
+|状态码|状态码含义|说明|数据模型|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|none|Inline|
 
 ### 返回数据结构
 
 状态码 **200**
 
-| 名称     | 类型    | 必选  | 约束 | 中文名 | 说明     |
-| -------- | ------- | ----- | ---- | ------ | -------- |
-| » status | integer | true  | none |        | none     |
-| » resMsg | string  | true  | none |        | none     |
-| » data   | object  | false | none |        | 这里为空 |
+|名称|类型|必选|约束|中文名|说明|
+|---|---|---|---|---|---|
+|» status|integer|true|none||none|
+|» resMsg|string|true|none||none|
+|» data|object|false|none||这里为空|
+
+## GET 下载铁包导入模板
+
+GET /api/iron/v1/template/download
+
+### 请求参数
+
+|名称|位置|类型|必选|中文名|说明|
+|---|---|---|---|---|---|
+|token|header|string| 否 ||none|
+
+> 返回示例
+
+> 200 Response
+
+### 返回结果
+
+|状态码|状态码含义|说明|数据模型|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|none|Inline|
+
+### 返回数据结构
+
+## POST 导入铁包
+
+POST /api/iron/v1/import
+
+只支持.xls或.xlsx文件
+导入接口会对文件内的数据进行预检查。
+检测通过的会先行导入。
+数据检测不通过，就不会进行导入，接口会返回所有有问题的数据，供用户修改参考。
+
+> Body 请求参数
+
+```yaml
+file: ""
+
+```
+
+### 请求参数
+
+|名称|位置|类型|必选|中文名|说明|
+|---|---|---|---|---|---|
+|token|header|string| 否 ||none|
+|body|body|object| 否 ||none|
+|» file|body|string(binary)| 否 ||none|
+
+> 返回示例
+
+```json
+{
+  "status": 0,
+  "resMsg": "成功",
+  "data": {
+    "success": true,
+    "totalRows": 2,
+    "successCount": 2,
+    "failCount": 0,
+    "errors": []
+  }
+}
+```
+
+```json
+{
+  "status": 9000005,
+  "resMsg": "参数异常",
+  "data": {}
+}
+```
+
+```json
+{
+  "status": 9009999,
+  "resMsg": "未知错误,{0}",
+  "data": {}
+}
+```
+
+```json
+{
+  "status": 0,
+  "resMsg": "成功",
+  "data": {
+    "success": false,
+    "totalRows": 2,
+    "successCount": 0,
+    "failCount": 2,
+    "errors": [
+      "第2行：标签器ID【1002】与第3行重复",
+      "第3行：标签器ID【1002】与第2行重复"
+    ]
+  }
+}
+```
+
+### 返回结果
+
+|状态码|状态码含义|说明|数据模型|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|none|Inline|
+
+### 返回数据结构
+
+状态码 **200**
+
+|名称|类型|必选|约束|中文名|说明|
+|---|---|---|---|---|---|
+|» status|integer|true|none||none|
+|» resMsg|string|true|none||none|
+|» data|object|true|none||none|
+|»» success|boolean|true|none|导入状态|none|
+|»» totalRows|integer|true|none|数据总行数|文件中的雷达数据总行数|
+|»» successCount|integer|true|none|成功导入数|none|
+|»» failCount|integer|true|none|失败导入数|none|
+|»» errors|[string]|true|none|错误信息|none|
+
+## GET 导出铁包
+
+GET /api/iron/v1/export
+
+### 请求参数
+
+|名称|位置|类型|必选|中文名|说明|
+|---|---|---|---|---|---|
+|ironName|query|string| 否 ||铁包名称|
+|tagSn|query|number| 否 ||标签器ID|
+|token|header|string| 否 ||none|
+
+> 返回示例
+
+> 200 Response
+
+### 返回结果
+
+|状态码|状态码含义|说明|数据模型|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|none|Inline|
+
+### 返回数据结构
 
 # frame-车架（常温标识器）
 
@@ -1800,15 +2121,15 @@ POST /api/frame/v1/create
 
 ### 请求参数
 
-| 名称        | 位置   | 类型    | 必选 | 中文名    | 说明 |
-| ----------- | ------ | ------- | ---- | --------- | ---- |
-| token       | header | string  | 否   |           | none |
-| body        | body   | object  | 否   |           | none |
-| » tagSn1    | body   | integer | 否   | 标识器ID1 | none |
-| » tagSn2    | body   | integer | 否   | 标识器ID2 | none |
-| » tagSn3    | body   | integer | 否   | 标识器ID3 | none |
-| » tagSn4    | body   | integer | 否   | 标识器ID4 | none |
-| » frameName | body   | string  | 是   | 车架名称  | none |
+|名称|位置|类型|必选|中文名|说明|
+|---|---|---|---|---|---|
+|token|header|string| 否 ||none|
+|body|body|object| 否 ||none|
+|» tagSn1|body|integer| 否 | 标识器ID1|none|
+|» tagSn2|body|integer| 否 | 标识器ID2|none|
+|» tagSn3|body|integer| 否 | 标识器ID3|none|
+|» tagSn4|body|integer| 否 | 标识器ID4|none|
+|» frameName|body|string| 是 | 车架名称|none|
 
 > 返回示例
 
@@ -1854,19 +2175,19 @@ POST /api/frame/v1/create
 
 ### 返回结果
 
-| 状态码 | 状态码含义 | 说明 | 数据模型 |
-| --- | --- | --- | --- |
-| 200 | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | none | Inline |
+|状态码|状态码含义|说明|数据模型|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|none|Inline|
 
 ### 返回数据结构
 
 状态码 **200**
 
-| 名称     | 类型    | 必选  | 约束 | 中文名 | 说明     |
-| -------- | ------- | ----- | ---- | ------ | -------- |
-| » status | integer | true  | none |        | none     |
-| » resMsg | string  | true  | none |        | none     |
-| » data   | object  | false | none |        | 这里为空 |
+|名称|类型|必选|约束|中文名|说明|
+|---|---|---|---|---|---|
+|» status|integer|true|none||none|
+|» resMsg|string|true|none||none|
+|» data|object|false|none||这里为空|
 
 ## GET 获取车架列表
 
@@ -1874,13 +2195,13 @@ GET /api/frame/v1/list
 
 ### 请求参数
 
-| 名称      | 位置   | 类型    | 必选 | 中文名 | 说明              |
-| --------- | ------ | ------- | ---- | ------ | ----------------- |
-| frameName | query  | string  | 否   |        | 车架名称-模糊搜索 |
-| tagSn     | query  | integer | 否   |        | 标识器ID-搜索     |
-| page      | query  | integer | 是   |        | none              |
-| pageSize  | query  | integer | 是   |        | none              |
-| token     | header | string  | 否   |        | none              |
+|名称|位置|类型|必选|中文名|说明|
+|---|---|---|---|---|---|
+|frameName|query|string| 否 ||车架名称-模糊搜索|
+|tagSn|query|integer| 否 ||标识器ID-搜索|
+|page|query|integer| 是 ||none|
+|pageSize|query|integer| 是 ||none|
+|token|header|string| 否 ||none|
 
 > 返回示例
 
@@ -1927,29 +2248,29 @@ GET /api/frame/v1/list
 
 ### 返回结果
 
-| 状态码 | 状态码含义 | 说明 | 数据模型 |
-| --- | --- | --- | --- |
-| 200 | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | none | Inline |
+|状态码|状态码含义|说明|数据模型|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|none|Inline|
 
 ### 返回数据结构
 
 状态码 **200**
 
-| 名称           | 类型         | 必选  | 约束 | 中文名        | 说明 |
-| -------------- | ------------ | ----- | ---- | ------------- | ---- |
-| » status       | integer      | true  | none |               | none |
-| » resMsg       | string       | true  | none |               | none |
-| » data         | object       | true  | none |               | none |
-| »» total       | integer      | true  | none |               | none |
-| »» items       | [object]     | true  | none |               | none |
-| »»» id         | integer      | true  | none | 车架id        | none |
-| »»» tagSn1     | integer¦null | false | none | 常温标识器1ID | none |
-| »»» tagSn2     | integer¦null | false | none | 常温标识器2ID | none |
-| »»» tagSn3     | integer¦null | false | none | 常温标识器3ID | none |
-| »»» tagSn4     | integer¦null | false | none | 常温标识器4ID | none |
-| »»» frameName  | string       | true  | none | 车架名称      | none |
-| »»» inputTime  | integer      | true  | none |               | none |
-| »»» updateTime | integer      | true  | none |               | none |
+|名称|类型|必选|约束|中文名|说明|
+|---|---|---|---|---|---|
+|» status|integer|true|none||none|
+|» resMsg|string|true|none||none|
+|» data|object|true|none||none|
+|»» total|integer|true|none||none|
+|»» items|[object]|true|none||none|
+|»»» id|integer|true|none|车架id|none|
+|»»» tagSn1|integer¦null|false|none|常温标识器1ID|none|
+|»»» tagSn2|integer¦null|false|none|常温标识器2ID|none|
+|»»» tagSn3|integer¦null|false|none|常温标识器3ID|none|
+|»»» tagSn4|integer¦null|false|none|常温标识器4ID|none|
+|»»» frameName|string|true|none|车架名称|none|
+|»»» inputTime|integer|true|none||none|
+|»»» updateTime|integer|true|none||none|
 
 ## PUT 修改车架信息
 
@@ -1969,16 +2290,16 @@ PUT /api/frame/v1/{id}
 
 ### 请求参数
 
-| 名称        | 位置   | 类型    | 必选 | 中文名    | 说明   |
-| ----------- | ------ | ------- | ---- | --------- | ------ |
-| id          | path   | integer | 是   |           | 车架id |
-| token       | header | string  | 否   |           | none   |
-| body        | body   | object  | 否   |           | none   |
-| » tagSn1    | body   | integer | 否   | 标识器ID1 | none   |
-| » tagSn2    | body   | integer | 否   | 标识器ID2 | none   |
-| » tagSn3    | body   | integer | 否   | 标识器ID3 | none   |
-| » tagSn4    | body   | integer | 否   | 标识器ID4 | none   |
-| » frameName | body   | string  | 是   | 车架名称  | none   |
+|名称|位置|类型|必选|中文名|说明|
+|---|---|---|---|---|---|
+|id|path|integer| 是 ||车架id|
+|token|header|string| 否 ||none|
+|body|body|object| 否 ||none|
+|» tagSn1|body|integer| 否 | 标识器ID1|none|
+|» tagSn2|body|integer| 否 | 标识器ID2|none|
+|» tagSn3|body|integer| 否 | 标识器ID3|none|
+|» tagSn4|body|integer| 否 | 标识器ID4|none|
+|» frameName|body|string| 是 | 车架名称|none|
 
 > 返回示例
 
@@ -2032,19 +2353,19 @@ PUT /api/frame/v1/{id}
 
 ### 返回结果
 
-| 状态码 | 状态码含义 | 说明 | 数据模型 |
-| --- | --- | --- | --- |
-| 200 | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | none | Inline |
+|状态码|状态码含义|说明|数据模型|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|none|Inline|
 
 ### 返回数据结构
 
 状态码 **200**
 
-| 名称     | 类型    | 必选  | 约束 | 中文名 | 说明 |
-| -------- | ------- | ----- | ---- | ------ | ---- |
-| » status | integer | true  | none |        | none |
-| » resMsg | string  | true  | none |        | none |
-| » data   | object  | false | none |        | none |
+|名称|类型|必选|约束|中文名|说明|
+|---|---|---|---|---|---|
+|» status|integer|true|none||none|
+|» resMsg|string|true|none||none|
+|» data|object|false|none||none|
 
 ## DELETE 删除车架
 
@@ -2054,17 +2375,21 @@ DELETE /api/frame/v1/delete
 
 ```json
 {
-  "ids": [1, 2, 3]
+  "ids": [
+    1,
+    2,
+    3
+  ]
 }
 ```
 
 ### 请求参数
 
-| 名称  | 位置   | 类型      | 必选 | 中文名         | 说明 |
-| ----- | ------ | --------- | ---- | -------------- | ---- |
-| token | header | string    | 否   |                | none |
-| body  | body   | object    | 否   |                | none |
-| » ids | body   | [integer] | 是   | 删除车架id数组 | none |
+|名称|位置|类型|必选|中文名|说明|
+|---|---|---|---|---|---|
+|token|header|string| 否 ||none|
+|body|body|object| 否 ||none|
+|» ids|body|[integer]| 是 | 删除车架id数组|none|
 
 > 返回示例
 
@@ -2086,18 +2411,284 @@ DELETE /api/frame/v1/delete
 
 ### 返回结果
 
-| 状态码 | 状态码含义 | 说明 | 数据模型 |
-| --- | --- | --- | --- |
-| 200 | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | none | Inline |
+|状态码|状态码含义|说明|数据模型|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|none|Inline|
 
 ### 返回数据结构
 
 状态码 **200**
 
-| 名称     | 类型    | 必选  | 约束 | 中文名 | 说明 |
-| -------- | ------- | ----- | ---- | ------ | ---- |
-| » status | integer | true  | none |        | none |
-| » resMsg | string  | true  | none |        | none |
-| » data   | object  | false | none |        | none |
+|名称|类型|必选|约束|中文名|说明|
+|---|---|---|---|---|---|
+|» status|integer|true|none||none|
+|» resMsg|string|true|none||none|
+|» data|object|false|none||none|
+
+## GET 下载车架导入模板
+
+GET /api/frame/v1/template/download
+
+### 请求参数
+
+|名称|位置|类型|必选|中文名|说明|
+|---|---|---|---|---|---|
+|token|header|string| 否 ||none|
+
+> 返回示例
+
+> 200 Response
+
+### 返回结果
+
+|状态码|状态码含义|说明|数据模型|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|none|Inline|
+
+### 返回数据结构
+
+## POST 导入车架
+
+POST /api/frame/v1/import
+
+只支持.xls或.xlsx文件
+导入接口会对文件内的数据进行预检查。
+检测通过的会先行导入。
+数据检测不通过，就不会进行导入，接口会返回所有有问题的数据，供用户修改参考。
+
+> Body 请求参数
+
+```yaml
+file: ""
+
+```
+
+### 请求参数
+
+|名称|位置|类型|必选|中文名|说明|
+|---|---|---|---|---|---|
+|token|header|string| 否 ||none|
+|body|body|object| 否 ||none|
+|» file|body|string(binary)| 否 ||none|
+
+> 返回示例
+
+```json
+{
+  "status": 0,
+  "resMsg": "成功",
+  "data": {
+    "success": true,
+    "totalRows": 2,
+    "successCount": 2,
+    "failCount": 0,
+    "errors": []
+  }
+}
+```
+
+```json
+{
+  "status": 9000005,
+  "resMsg": "参数异常",
+  "data": {}
+}
+```
+
+```json
+{
+  "status": 9009999,
+  "resMsg": "未知错误,{0}",
+  "data": {}
+}
+```
+
+```json
+{
+  "status": 0,
+  "resMsg": "成功",
+  "data": {
+    "success": false,
+    "totalRows": 1,
+    "successCount": 0,
+    "failCount": 1,
+    "errors": [
+      "第2行: 已存在相同高温标识器ID【1002】，被【铁包1】铁包绑定"
+    ]
+  }
+}
+```
+
+### 返回结果
+
+|状态码|状态码含义|说明|数据模型|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|none|Inline|
+
+### 返回数据结构
+
+状态码 **200**
+
+|名称|类型|必选|约束|中文名|说明|
+|---|---|---|---|---|---|
+|» status|integer|true|none||none|
+|» resMsg|string|true|none||none|
+|» data|object|true|none||none|
+|»» success|boolean|true|none|导入状态|none|
+|»» totalRows|integer|true|none|数据总行数|文件中的雷达数据总行数|
+|»» successCount|integer|true|none|成功导入数|none|
+|»» failCount|integer|true|none|失败导入数|none|
+|»» errors|[string]|true|none|错误信息|none|
+
+## GET 导出车架
+
+GET /api/frame/v1/export
+
+### 请求参数
+
+|名称|位置|类型|必选|中文名|说明|
+|---|---|---|---|---|---|
+|frameName|query|string| 否 ||车架名称|
+|tagSn|query|number| 否 ||标签器ID|
+|token|header|string| 否 ||none|
+
+> 返回示例
+
+> 200 Response
+
+### 返回结果
+
+|状态码|状态码含义|说明|数据模型|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|none|Inline|
+
+### 返回数据结构
+
+# tag-标识器
+
+## GET 获取标识器状态
+
+GET /api/tag/v1/status
+
+### 请求参数
+
+|名称|位置|类型|必选|中文名|说明|
+|---|---|---|---|---|---|
+|stationId|query|integer| 是 ||工位id|
+|tagType|query|integer| 否 ||标识器类型，0-高温标识器（铁包）/1-常温标识器（车架）|
+|token|header|string| 否 ||none|
+
+> 返回示例
+
+```json
+{
+  "status": 0,
+  "resMsg": "success",
+  "data": {
+    "items": [
+      {
+        "rangeType": "A",
+        "rangeValue": ">360",
+        "rangeData": [
+          {
+            "boundName": "铁包1号",
+            "tagSn": 10086,
+            "tagType": 0,
+            "tagLastPulse": 366,
+            "tagLastRecordTime": 1754017140000
+          },
+          {
+            "boundName": "铁包1号",
+            "tagSn": 10087,
+            "tagType": 0,
+            "tagLastPulse": 387,
+            "tagLastRecordTime": 1754017140000
+          }
+        ]
+      },
+      {
+        "rangeType": "B",
+        "rangeValue": ">330",
+        "rangeData": [
+          {
+            "boundName": "铁包2号",
+            "tagSn": 10088,
+            "tagType": 0,
+            "tagLastPulse": 357,
+            "tagLastRecordTime": 1754017140000
+          },
+          {
+            "boundName": "铁包2号",
+            "tagSn": 10089,
+            "tagType": 0,
+            "tagLastPulse": 345,
+            "tagLastRecordTime": 1754017140000
+          }
+        ]
+      },
+      {
+        "rangeType": "C",
+        "rangeValue": ">300",
+        "rangeData": []
+      },
+      {
+        "rangeType": "D",
+        "rangeValue": "<300",
+        "rangeData": []
+      }
+    ]
+  }
+}
+```
+
+```json
+{
+  "status": 9009999,
+  "resMsg": "未知错误,{0}",
+  "data": {}
+}
+```
+
+```json
+{
+  "status": 9000005,
+  "resMsg": "参数异常,未找到工位",
+  "data": {}
+}
+```
+
+```json
+{
+  "status": 4000001,
+  "resMsg": "工位【{0}】，未开启监控标签状态",
+  "data": {}
+}
+```
+
+### 返回结果
+
+|状态码|状态码含义|说明|数据模型|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|none|Inline|
+
+### 返回数据结构
+
+状态码 **200**
+
+|名称|类型|必选|约束|中文名|说明|
+|---|---|---|---|---|---|
+|» status|integer|true|none||none|
+|» resMsg|string|true|none||none|
+|» data|object|false|none||none|
+|»» items|[object]|true|none|高温标识器状态数据|none|
+|»»» rangeType|string|true|none|范围类型|状态范围类型区分ABCD四级|
+|»»» rangeValue|string|true|none|范围值|展示再改范围应达到的值|
+|»»» rangeData|[object]|false|none|范围内的标签数据|none|
+|»»»» boundName|string|true|none|铁包/车架名称|none|
+|»»»» tagSn|integer|true|none|标识器ID|none|
+|»»»» tagType|integer|true|none|标识器类型|0-高温标识器（铁包）/1-常温标识器（车架）|
+|»»»» tagLastPulse|integer|true|none|标识器最新记录信号值|none|
+|»»»» tagLastRecordTime|number|true|none|标识器最新记录时间|none|
 
 # 数据模型
+

@@ -1,363 +1,428 @@
 <script lang="ts" setup>
-import type { ColumnsType } from 'ant-design-vue/es/table';
+import type { TreeProps } from 'ant-design-vue';
 
-import { onMounted, onUnmounted, ref } from 'vue';
+import type { StationAlarmItem } from '#/api/alarm';
+import type { TagStatusRangeGroup } from '#/api/tag';
+
+import { computed, onMounted, ref } from 'vue';
 
 import { Page } from '@vben/common-ui';
 
 import {
-  Badge,
-  Card,
-  Col,
-  Progress,
-  Row,
-  Statistic,
-  Table,
-  Tag,
-} from 'ant-design-vue';
+  FireOutlined,
+  FolderOpenOutlined,
+  FolderOutlined,
+  InboxOutlined,
+} from '@ant-design/icons-vue';
+import { Card, Empty, Spin, Tooltip, Tree } from 'ant-design-vue';
 
-interface Identifier {
-  identifierId: string;
-  identifierType: 'high_temp' | 'normal_temp';
-  status: 'active' | 'error' | 'inactive' | 'low_battery';
-  battery: number;
-  temperature: number;
-  recognitionCount: number;
-  bindingType: 'carriage' | 'ladle' | 'none';
-  bindingTarget?: string;
-  lastRecognition: number;
-  signalQuality: number;
+import { getStationAlarmListApi } from '#/api/alarm';
+import { getTagStatusApi } from '#/api/tag';
+
+// Tree node data structure
+interface TreeNodeData {
+  key: string;
+  title: string;
+  icon?: any;
+  children?: TreeNodeData[];
+  isLeaf?: boolean;
+  stationId?: number;
+  tagType?: 0 | 1;
 }
 
-// 模拟数据
-const identifiers = ref<Identifier[]>([
-  {
-    identifierId: 'HT-001',
-    identifierType: 'high_temp',
-    status: 'active',
-    battery: 85,
-    temperature: 650,
-    recognitionCount: 3256,
-    bindingType: 'ladle',
-    bindingTarget: '铁包-001',
-    lastRecognition: Date.now() - 30_000,
-    signalQuality: 92,
-  },
-  {
-    identifierId: 'HT-002',
-    identifierType: 'high_temp',
-    status: 'active',
-    battery: 72,
-    temperature: 680,
-    recognitionCount: 2845,
-    bindingType: 'ladle',
-    bindingTarget: '铁包-002',
-    lastRecognition: Date.now() - 45_000,
-    signalQuality: 88,
-  },
-  {
-    identifierId: 'HT-003',
-    identifierType: 'high_temp',
-    status: 'low_battery',
-    battery: 15,
-    temperature: 620,
-    recognitionCount: 4512,
-    bindingType: 'ladle',
-    bindingTarget: '铁包-003',
-    lastRecognition: Date.now() - 60_000,
-    signalQuality: 75,
-  },
-  {
-    identifierId: 'NT-001',
-    identifierType: 'normal_temp',
-    status: 'active',
-    battery: 90,
-    temperature: 25,
-    recognitionCount: 1856,
-    bindingType: 'carriage',
-    bindingTarget: '车架-001',
-    lastRecognition: Date.now() - 20_000,
-    signalQuality: 95,
-  },
-  {
-    identifierId: 'NT-002',
-    identifierType: 'normal_temp',
-    status: 'active',
-    battery: 78,
-    temperature: 28,
-    recognitionCount: 2145,
-    bindingType: 'carriage',
-    bindingTarget: '车架-002',
-    lastRecognition: Date.now() - 35_000,
-    signalQuality: 90,
-  },
-  {
-    identifierId: 'NT-003',
-    identifierType: 'normal_temp',
-    status: 'inactive',
-    battery: 55,
-    temperature: 22,
-    recognitionCount: 856,
-    bindingType: 'none',
-    lastRecognition: Date.now() - 300_000,
-    signalQuality: 0,
-  },
-]);
+// State
+const stations = ref<StationAlarmItem[]>([]);
+const tagStatusData = ref<TagStatusRangeGroup[]>([]);
+const loadingStations = ref(false);
+const loadingStatus = ref(false);
 
-// 统计数据
-const totalIdentifiers = ref(6);
-const highTempCount = ref(3);
-const normalTempCount = ref(3);
-const lowBatteryCount = ref(1);
+// Tree state
+const selectedKeys = ref<string[]>([]);
+const expandedKeys = ref<string[]>([]);
 
-// 表格列定义
-const columns: ColumnsType<Identifier> = [
-  {
-    title: '标识器编号',
-    dataIndex: 'identifierId',
-    key: 'identifierId',
-    width: 120,
-  },
-  {
-    title: '类型',
-    dataIndex: 'identifierType',
-    key: 'identifierType',
-    width: 100,
-  },
-  {
-    title: '状态',
-    dataIndex: 'status',
-    key: 'status',
-    width: 100,
-  },
-  {
-    title: '电量',
-    dataIndex: 'battery',
-    key: 'battery',
-    width: 120,
-  },
-  {
-    title: '温度(℃)',
-    dataIndex: 'temperature',
-    key: 'temperature',
-    width: 100,
-  },
-  {
-    title: '识别次数',
-    dataIndex: 'recognitionCount',
-    key: 'recognitionCount',
-    width: 100,
-  },
-  {
-    title: '绑定类型',
-    dataIndex: 'bindingType',
-    key: 'bindingType',
-    width: 100,
-  },
-  {
-    title: '绑定目标',
-    dataIndex: 'bindingTarget',
-    key: 'bindingTarget',
-    width: 120,
-  },
-  {
-    title: '信号质量',
-    dataIndex: 'signalQuality',
-    key: 'signalQuality',
-    width: 100,
-  },
-];
+// Current selection
+const currentStationId = ref<null | number>(null);
+const currentTagType = ref<0 | 1>(0);
 
-const getStatusColor = (status: string) => {
-  const colorMap: Record<string, string> = {
-    active: 'success',
-    inactive: 'default',
-    low_battery: 'warning',
-    error: 'error',
-  };
-  return colorMap[status] || 'default';
-};
+// Fetch stations
+const fetchStations = async () => {
+  try {
+    loadingStations.value = true;
+    const response = await getStationAlarmListApi({
+      showTagStatus: 1,
+      page: 1,
+      pageSize: 100,
+    });
 
-const getStatusText = (status: string) => {
-  const textMap: Record<string, string> = {
-    active: '活跃',
-    inactive: '不活跃',
-    low_battery: '低电量',
-    error: '错误',
-  };
-  return textMap[status] || '未知';
-};
+    stations.value = response.items;
 
-const getTypeText = (type: string) => {
-  return type === 'high_temp' ? '高温' : '常温';
-};
-
-const getTypeColor = (type: string) => {
-  return type === 'high_temp' ? 'red' : 'blue';
-};
-
-const getBindingTypeText = (type: string) => {
-  const textMap: Record<string, string> = {
-    ladle: '铁包',
-    carriage: '车架',
-    none: '未绑定',
-  };
-  return textMap[type] || '未知';
-};
-
-const getBatteryStatus = (battery: number) => {
-  if (battery >= 80) return 'success';
-  if (battery >= 50) return 'normal';
-  if (battery >= 20) return 'warning';
-  return 'exception';
-};
-
-// WebSocket 连接管理（占位）
-const wsConnected = ref(false);
-let ws: null | WebSocket = null;
-
-const connectWebSocket = () => {
-  // TODO: 实际项目中连接 WebSocket
-  console.log('WebSocket 连接已建立（模拟）');
-  wsConnected.value = true;
-};
-
-const disconnectWebSocket = () => {
-  if (ws) {
-    ws.close();
-    ws = null;
+    // Auto-select first station's high-temp child
+    if (stations.value.length > 0) {
+      const firstStation = stations.value[0];
+      if (firstStation) {
+        const firstChildKey = `${firstStation.id}-0`;
+        selectedKeys.value = [firstChildKey];
+        expandedKeys.value = [`station-${firstStation.id}`];
+        currentStationId.value = firstStation.id;
+        currentTagType.value = 0;
+        await fetchTagStatus();
+      }
+    }
+  } catch (error) {
+    console.error('[IdentifierStatus] Failed to fetch stations:', error);
+  } finally {
+    loadingStations.value = false;
   }
-  wsConnected.value = false;
-  console.log('WebSocket 连接已断开');
 };
 
-onMounted(() => {
-  connectWebSocket();
+// Fetch tag status data
+const fetchTagStatus = async () => {
+  if (!currentStationId.value) return;
+
+  try {
+    loadingStatus.value = true;
+    const response = await getTagStatusApi({
+      stationId: currentStationId.value,
+      tagType: currentTagType.value,
+    });
+    tagStatusData.value = response.items;
+  } catch (error) {
+    console.error('[IdentifierStatus] Failed to fetch tag status:', error);
+    tagStatusData.value = [];
+  } finally {
+    loadingStatus.value = false;
+  }
+};
+
+// Transform stations into tree data
+const treeData = computed<TreeNodeData[]>(() => {
+  return stations.value.map((station) => ({
+    key: `station-${station.id}`,
+    title: station.label,
+    children: [
+      {
+        key: `${station.id}-0`,
+        title: '高温标识器',
+        isLeaf: true,
+        stationId: station.id,
+        tagType: 0,
+      },
+      {
+        key: `${station.id}-1`,
+        title: '常温标识器',
+        isLeaf: true,
+        stationId: station.id,
+        tagType: 1,
+      },
+    ],
+  }));
 });
 
-onUnmounted(() => {
-  disconnectWebSocket();
+// Handle tree node selection
+const handleSelect: TreeProps['onSelect'] = (keys, event) => {
+  const node = event.node as any;
+
+  // Only allow leaf node selection
+  if (!node.isLeaf) {
+    // If clicking a parent, toggle expansion
+    const stationKey = node.key;
+    expandedKeys.value = expandedKeys.value.includes(stationKey)
+      ? expandedKeys.value.filter((k) => k !== stationKey)
+      : [...expandedKeys.value, stationKey];
+    return;
+  }
+
+  // Update selection
+  selectedKeys.value = keys as string[];
+  currentStationId.value = node.stationId;
+  currentTagType.value = node.tagType;
+
+  // Fetch data
+  fetchTagStatus();
+};
+
+// Handle tree expansion
+const handleExpand: TreeProps['onExpand'] = (keys) => {
+  expandedKeys.value = keys as string[];
+};
+
+// Range type color mapping
+const getRangeColorClasses = (rangeType: 'A' | 'B' | 'C' | 'D') => {
+  const colorMap = {
+    A: {
+      bg: 'bg-green-100',
+      text: 'text-green-600',
+      border: 'border-green-200',
+      cardBg: 'bg-green-50',
+    },
+    B: {
+      bg: 'bg-cyan-100',
+      text: 'text-cyan-600',
+      border: 'border-cyan-200',
+      cardBg: 'bg-cyan-50',
+    },
+    C: {
+      bg: 'bg-amber-100',
+      text: 'text-amber-600',
+      border: 'border-amber-200',
+      cardBg: 'bg-amber-50',
+    },
+    D: {
+      bg: 'bg-red-100',
+      text: 'text-red-600',
+      border: 'border-red-200',
+      cardBg: 'bg-red-50',
+    },
+  };
+  return colorMap[rangeType];
+};
+
+// Format timestamp
+const formatTime = (timestamp: number) => {
+  return new Date(timestamp).toLocaleString('zh-CN', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+  });
+};
+
+// Check if all groups are empty
+const isEmpty = computed(() => {
+  if (!tagStatusData.value || tagStatusData.value.length === 0) {
+    return true;
+  }
+  return tagStatusData.value.every((group) => group.rangeData?.length === 0);
+});
+
+// Mount
+onMounted(() => {
+  fetchStations();
 });
 </script>
 
 <template>
-  <Page
-    title="标识器状态监控"
-    description="实时监控高温标识器和常温标识器的电量、温度、识别次数等信息"
-  >
-    <!-- 统计卡片 -->
-    <div class="mb-4">
-      <Row :gutter="16">
-        <Col :span="6">
-          <Card>
-            <Statistic title="标识器总数" :value="totalIdentifiers">
-              <template #prefix>
-                <Badge status="processing" />
-              </template>
-            </Statistic>
-          </Card>
-        </Col>
-        <Col :span="6">
-          <Card>
-            <Statistic title="高温标识器" :value="highTempCount">
-              <template #prefix>
-                <Badge status="error" />
-              </template>
-            </Statistic>
-          </Card>
-        </Col>
-        <Col :span="6">
-          <Card>
-            <Statistic title="常温标识器" :value="normalTempCount">
-              <template #prefix>
-                <Badge status="success" />
-              </template>
-            </Statistic>
-          </Card>
-        </Col>
-        <Col :span="6">
-          <Card>
-            <Statistic title="低电量标识器" :value="lowBatteryCount">
-              <template #prefix>
-                <Badge status="warning" />
-              </template>
-            </Statistic>
-          </Card>
-        </Col>
-      </Row>
-    </div>
-
-    <!-- WebSocket 连接状态 -->
-    <div class="mb-4">
-      <Card size="small">
-        <div class="flex items-center">
-          <Badge
-            :status="wsConnected ? 'success' : 'error'"
-            :text="wsConnected ? 'WebSocket 已连接' : 'WebSocket 未连接'"
-          />
-        </div>
-      </Card>
-    </div>
-
-    <!-- 标识器列表 -->
-    <Card title="标识器列表" :bordered="false">
-      <Table
-        :columns="columns"
-        :data-source="identifiers"
-        :row-key="(record: Identifier) => record.identifierId"
-        :pagination="{ pageSize: 10 }"
+  <Page title="标识器状态监控" description="实时监控标识器的状态信息">
+    <!-- Left-Right Split Layout -->
+    <div class="flex h-[calc(100vh-200px)] gap-4">
+      <!-- Left Sidebar: Tree Navigation -->
+      <Card
+        :loading="loadingStations"
+        title="工位列表"
+        class="w-64 flex-shrink-0"
+        :bordered="false"
+        :body-style="{
+          padding: '12px',
+          height: 'calc(100% - 57px)',
+          overflowY: 'auto',
+        }"
       >
-        <template #bodyCell="{ column, record }">
-          <template v-if="column.key === 'identifierType'">
-            <Tag :color="getTypeColor(record.identifierType)">
-              {{ getTypeText(record.identifierType) }}
-            </Tag>
-          </template>
-          <template v-else-if="column.key === 'status'">
-            <Tag :color="getStatusColor(record.status)">
-              {{ getStatusText(record.status) }}
-            </Tag>
-          </template>
-          <template v-else-if="column.key === 'battery'">
-            <Progress
-              :percent="record.battery"
-              :status="getBatteryStatus(record.battery)"
-              :stroke-width="8"
-              style="width: 100px"
-            />
-          </template>
-          <template v-else-if="column.key === 'bindingType'">
-            <span>{{ getBindingTypeText(record.bindingType) }}</span>
-          </template>
-          <template v-else-if="column.key === 'bindingTarget'">
-            <span>{{ record.bindingTarget || '-' }}</span>
-          </template>
-          <template v-else-if="column.key === 'signalQuality'">
-            <span
-              :class="{
-                'text-green-500': record.signalQuality >= 80,
-                'text-yellow-500':
-                  record.signalQuality >= 50 && record.signalQuality < 80,
-                'text-red-500': record.signalQuality < 50,
-              }"
-            >
-              {{ record.signalQuality }}%
-            </span>
-          </template>
+        <template v-if="stations.length === 0 && !loadingStations">
+          <Empty
+            description="暂无工位数据"
+            :image="Empty.PRESENTED_IMAGE_SIMPLE"
+          />
         </template>
-      </Table>
-    </Card>
+
+        <Tree
+          v-else
+          v-model:selected-keys="selectedKeys"
+          v-model:expanded-keys="expandedKeys"
+          :tree-data="treeData"
+          :show-icon="true"
+          :block-node="true"
+          @select="handleSelect"
+          @expand="handleExpand"
+        >
+          <template #icon="{ dataRef }">
+            <FolderOpenOutlined
+              v-if="!dataRef.isLeaf && expandedKeys.includes(dataRef.key)"
+              :style="{ fontSize: '16px' }"
+            />
+            <FolderOutlined
+              v-else-if="!dataRef.isLeaf"
+              :style="{ fontSize: '16px' }"
+            />
+            <FireOutlined
+              v-else-if="dataRef.tagType === 0"
+              :style="{ fontSize: '16px' }"
+            />
+            <InboxOutlined v-else :style="{ fontSize: '16px' }" />
+          </template>
+        </Tree>
+      </Card>
+
+      <!-- Right Content Area -->
+      <div class="flex-1 overflow-hidden">
+        <Card
+          :loading="loadingStatus"
+          :bordered="false"
+          class="h-full"
+          :body-style="{
+            height: '100%',
+            overflowY: 'auto',
+            background: '#f9fafb',
+            padding: '0',
+          }"
+        >
+          <!-- Loading State -->
+          <div
+            v-if="loadingStatus"
+            class="flex h-full items-center justify-center"
+          >
+            <Spin size="large" tip="加载中..." />
+          </div>
+
+          <!-- Empty State -->
+          <Empty
+            v-else-if="isEmpty"
+            description="该工位暂无标识器数据"
+            :image="Empty.PRESENTED_IMAGE_SIMPLE"
+            class="py-12"
+          />
+
+          <!-- Group List -->
+          <div v-else class="space-y-6 p-6">
+            <div
+              v-for="group in tagStatusData"
+              :key="group.rangeType"
+              class="group-row"
+            >
+              <!-- Group Header -->
+              <div class="flex items-start gap-4">
+                <!-- Range Type Label (Large Letter Box) -->
+                <div
+                  class="flex h-24 w-24 flex-shrink-0 items-center justify-center rounded-lg border-2"
+                  :class="[
+                    getRangeColorClasses(group.rangeType).bg,
+                    getRangeColorClasses(group.rangeType).border,
+                  ]"
+                >
+                  <span
+                    class="text-4xl font-bold"
+                    :class="getRangeColorClasses(group.rangeType).text"
+                  >
+                    {{ group.rangeType }}
+                  </span>
+                </div>
+
+                <!-- Range Data Cards Container -->
+                <div class="flex-1">
+                  <!-- Range Value Header -->
+                  <div class="mb-3 flex items-center gap-2">
+                    <span class="text-sm font-medium text-gray-600">
+                      温度范围:
+                    </span>
+                    <span
+                      class="text-sm font-semibold"
+                      :class="getRangeColorClasses(group.rangeType).text"
+                    >
+                      {{ group.rangeValue }}
+                    </span>
+                    <span class="text-xs text-gray-400">
+                      ({{ group.rangeData?.length || 0 }} 个标识器)
+                    </span>
+                  </div>
+
+                  <!-- Dashed Border Container -->
+                  <div
+                    v-if="group.rangeData && group.rangeData.length > 0"
+                    class="grid grid-cols-2 gap-3 rounded-lg border-2 border-dashed p-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6"
+                    :class="getRangeColorClasses(group.rangeType).border"
+                  >
+                    <!-- Tag Cards -->
+                    <Tooltip
+                      v-for="(tag, index) in group.rangeData"
+                      :key="index"
+                      placement="top"
+                    >
+                      <template #title>
+                        <div class="space-y-1 text-xs">
+                          <div>脉冲值: {{ tag.tagLastPulse }}</div>
+                          <div>
+                            更新时间: {{ formatTime(tag.tagLastRecordTime) }}
+                          </div>
+                        </div>
+                      </template>
+
+                      <div
+                        class="cursor-pointer rounded-lg border px-3 py-2 shadow-sm transition-all hover:shadow-md"
+                        :class="[
+                          getRangeColorClasses(group.rangeType).cardBg,
+                          getRangeColorClasses(group.rangeType).border,
+                        ]"
+                      >
+                        <div
+                          class="text-sm font-semibold"
+                          :class="getRangeColorClasses(group.rangeType).text"
+                        >
+                          {{ tag.boundName }}
+                        </div>
+                        <div class="mt-1 text-xs text-gray-600">
+                          {{ tag.tagSn }}
+                        </div>
+                      </div>
+                    </Tooltip>
+                  </div>
+
+                  <!-- Empty Group Message -->
+                  <div
+                    v-else
+                    class="rounded-lg border-2 border-dashed p-4 text-center text-sm text-gray-400"
+                    :class="getRangeColorClasses(group.rangeType).border"
+                  >
+                    该范围暂无数据
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </Card>
+      </div>
+    </div>
   </Page>
 </template>
 
 <style scoped>
-:deep(.ant-statistic-title) {
-  font-size: 14px;
-  color: rgb(0 0 0 / 65%);
+.group-row {
+  padding: 16px;
+  background: white;
+  border-radius: 8px;
+  transition: all 0.2s;
 }
 
-:deep(.ant-statistic-content) {
-  font-size: 24px;
-  font-weight: 600;
+.group-row:hover {
+  box-shadow: 0 2px 8px rgb(0 0 0 / 8%);
+}
+
+/* Custom tree styles */
+:deep(.ant-tree) {
+  background: transparent;
+}
+
+:deep(.ant-tree-node-content-wrapper) {
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+:deep(.ant-tree-node-selected .ant-tree-node-content-wrapper) {
+  color: rgb(37 99 235) !important;
+  background-color: rgb(219 234 254) !important;
+}
+
+:deep(.ant-tree-node-content-wrapper:hover) {
+  background-color: rgb(243 244 246);
+}
+
+:deep(.ant-tree-title) {
+  font-size: 14px;
+}
+
+:deep(.ant-tree-switcher) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 </style>
