@@ -43,10 +43,10 @@ async function onSubmit(params: Recordable<any>) {
   await authStore.authLogin(params, async () => {
     // 登录成功后，检查是否有 redirect 参数
     const redirect = route.query.redirect as string;
-    if (redirect) {
-      // 解码并跳转到原页面
-      await router.replace(decodeURIComponent(redirect));
-    }
+    // 有重定向地址则跳转到原页面，否则跳转到雷达设备状态页面
+    await router.replace(
+      redirect ? decodeURIComponent(redirect) : '/status/radar',
+    );
   });
 }
 </script>
