@@ -21,7 +21,7 @@ export const useAlarmStore = defineStore('alarm', {
      * Get the latest alarm
      */
     latestAlarm(state): Alarm | null {
-      return state.alarmList.length > 0 ? state.alarmList[0] : null;
+      return state.alarmList.length > 0 ? (state.alarmList[0] ?? null) : null;
     },
 
     /**
@@ -53,16 +53,21 @@ export const useAlarmStore = defineStore('alarm', {
         this.alarmList.unshift(alarm);
       } else {
         // Update existing alarm
-        this.alarmList[existingIndex] = {
-          ...this.alarmList[existingIndex],
-          message: alarm.message,
-          time: alarm.time,
-        };
+        const existingAlarm = this.alarmList[existingIndex];
+        if (existingAlarm) {
+          this.alarmList[existingIndex] = {
+            ...existingAlarm,
+            message: alarm.message,
+            time: alarm.time,
+          };
 
-        // Move to top if not already at top
-        if (existingIndex !== 0) {
-          const updatedAlarm = this.alarmList.splice(existingIndex, 1)[0];
-          this.alarmList.unshift(updatedAlarm);
+          // Move to top if not already at top
+          if (existingIndex !== 0) {
+            const updatedAlarm = this.alarmList.splice(existingIndex, 1)[0];
+            if (updatedAlarm) {
+              this.alarmList.unshift(updatedAlarm);
+            }
+          }
         }
       }
     },
