@@ -22,7 +22,9 @@ export interface RadarInfo {
   radarAddress: number;
   // Visual Display Info:
   radarAntenna1StationLabel: string; // Antenna 1 Location
+  radarAntenna1StationCode: string; // Antenna 1 Station Code
   radarAntenna2StationLabel: string; // Antenna 2 Location
+  radarAntenna2StationCode: string; // Antenna 2 Station Code
   radarStatus: RadarStatus;
   updateTime: string; // Date string
 }

@@ -11,6 +11,11 @@ export default defineConfig(async () => {
             target: 'http://nas.bigjin.cc:34090',
             ws: true,
           },
+          '/ws': {
+            changeOrigin: true,
+            target: 'ws://nas.bigjin.cc:34091',
+            ws: true,
+          },
         },
       },
     },

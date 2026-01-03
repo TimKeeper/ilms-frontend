@@ -11,8 +11,21 @@ import { Badge, Card, Col, Row, Statistic, Table, Tag } from 'ant-design-vue';
 
 import { RadarStatus, useRadarSocket } from '#/composables/useRadarSocket';
 
-// WebSocket URL
-const WS_URL = 'ws://nas.bigjin.cc:34090/ws';
+// Build WebSocket URL
+const getWebSocketUrl = () => {
+  const envUrl = import.meta.env.VITE_GLOB_WS_URL || '/ws';
+
+  // If it's a relative path, construct full WebSocket URL
+  if (envUrl.startsWith('/')) {
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const host = window.location.host;
+    return `${protocol}//${host}${envUrl}`;
+  }
+
+  return envUrl;
+};
+
+const WS_URL = getWebSocketUrl();
 
 // Initialize WebSocket connection
 const { radars, isConnected, isReconnecting, connectionError, connect } =
