@@ -3,12 +3,14 @@ import type { ColumnsType } from 'ant-design-vue/es/table';
 
 import type { RadarInfo } from '#/composables/useRadarSocket';
 
-import { computed, onMounted, onUnmounted } from 'vue';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 
 import { Page } from '@vben/common-ui';
 
 import { Badge, Card, Col, Row, Statistic, Table, Tag } from 'ant-design-vue';
 
+import AlarmHistoryModal from '#/components/AlarmHistoryModal.vue';
+import AlarmTicker from '#/components/AlarmTicker.vue';
 import { RadarStatus, useRadarSocket } from '#/composables/useRadarSocket';
 
 // Build WebSocket URL
@@ -148,6 +150,13 @@ const formatTimestamp = (timestamp: string) => {
   }
 };
 
+// Alarm History Modal
+const isAlarmHistoryOpen = ref(false);
+
+const handleOpenAlarmHistory = () => {
+  isAlarmHistoryOpen.value = true;
+};
+
 // Connect on mount
 onMounted(() => {
   connect();
@@ -162,21 +171,27 @@ onUnmounted(() => {
 <template>
   <Page title="雷达设备状态监控">
     <template #description>
-      <div class="flex items-center gap-4">
-        <span>实时监控雷达设备运行状态、信号强度、识别精度等关键指标</span>
-        <Badge
-          :status="isConnected ? 'success' : 'error'"
-          :text="
-            isConnected
-              ? 'WebSocket 已连接'
-              : isReconnecting
-                ? 'WebSocket 重连中...'
-                : 'WebSocket 未连接'
-          "
-        />
-        <span v-if="connectionError" class="text-sm text-red-500">
-          {{ connectionError }}
-        </span>
+      <div class="flex w-full flex-col gap-3">
+        <!-- Connection Status Row -->
+        <div class="flex items-center gap-4">
+          <span>实时监控雷达设备运行状态、信号强度、识别精度等关键指标</span>
+          <Badge
+            :status="isConnected ? 'success' : 'error'"
+            :text="
+              isConnected
+                ? 'WebSocket 已连接'
+                : isReconnecting
+                  ? 'WebSocket 重连中...'
+                  : 'WebSocket 未连接'
+            "
+          />
+          <span v-if="connectionError" class="text-sm text-red-500">
+            {{ connectionError }}
+          </span>
+        </div>
+
+        <!-- Alarm Ticker - Full Width -->
+        <AlarmTicker @open-history="handleOpenAlarmHistory" />
       </div>
     </template>
 
@@ -255,6 +270,9 @@ onUnmounted(() => {
         </template>
       </Table>
     </Card>
+
+    <!-- Alarm History Modal -->
+    <AlarmHistoryModal v-model:open="isAlarmHistoryOpen" />
   </Page>
 </template>
 

@@ -4,7 +4,7 @@ import { onUnmounted, ref } from 'vue';
 
 import { useAccessStore } from '@vben/stores';
 
-import { notification } from 'ant-design-vue';
+import { useAlarmStore } from '#/store/alarm';
 
 // Radar Status Codes
 export enum RadarStatus {
@@ -83,6 +83,9 @@ export function useRadarSocket(wsUrl: string) {
   const isConnected = ref(false);
   const isReconnecting = ref(false);
   const connectionError = ref<null | string>(null);
+
+  // Alarm Store
+  const alarmStore = useAlarmStore();
 
   // WebSocket & Internals
   let ws: null | WebSocket = null;
@@ -164,12 +167,15 @@ export function useRadarSocket(wsUrl: string) {
         case 'ALARM': {
           // data 是 AlarmData 对象
           const alarmData = response.data as AlarmData;
-          const alarmMessage = alarmData.message || 'Radar alarm triggered!';
-          notification.error({
-            message: '雷达报警',
-            description: `[${alarmData.type}] ${alarmMessage}`,
-            duration: 5,
+
+          // Add alarm to store for ticker and history
+          alarmStore.addOrUpdateAlarm({
+            id: alarmData.id,
+            type: alarmData.type as 'radar' | 'tag',
+            message: alarmData.message,
+            time: alarmData.time,
           });
+
           console.warn('[WebSocket] ALARM received:', alarmData);
           break;
         }

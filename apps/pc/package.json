@@ -16,6 +16,7 @@
     "#/*": "./src/*"
   },
   "dependencies": {
+    "@ant-design/icons-vue": "^7.0.1",
     "@tanstack/vue-query": "catalog:",
     "@types/dagre": "^0.7.53",
     "@vben-core/menu-ui": "workspace:*",
