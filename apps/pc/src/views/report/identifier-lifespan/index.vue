@@ -3,7 +3,14 @@ import type { Dayjs } from 'dayjs';
 
 import type { TagLifeChartParams, TagLifeChartResult } from '#/api/tag';
 
-import { onBeforeUnmount, onMounted, reactive, ref } from 'vue';
+import {
+  computed,
+  onBeforeUnmount,
+  onMounted,
+  reactive,
+  ref,
+  watch,
+} from 'vue';
 
 import { Page } from '@vben/common-ui';
 
@@ -12,6 +19,7 @@ import {
   Card,
   Col,
   DatePicker,
+  Empty,
   Form,
   Input,
   InputNumber,
@@ -24,6 +32,7 @@ import dayjs from 'dayjs';
 import * as echarts from 'echarts';
 
 import { getTagLifeChartApi } from '#/api/tag';
+import { getBoundListApi } from '#/api/util';
 
 // Form state
 const formState = reactive<{
@@ -34,14 +43,72 @@ const formState = reactive<{
   tagType?: 0 | 1;
 }>({
   dateRange: [dayjs().subtract(7, 'day'), dayjs()],
+  tagType: 1, // 默认选中车架
 });
 
 const loading = ref(false);
 const chartData = ref<null | TagLifeChartResult>(null);
 
+// Check if chart has data
+const hasData = computed(() => {
+  return (
+    chartData.value?.series?.some((s) => s.data.some((d) => d !== null)) ??
+    false
+  );
+});
+
 // Chart instance
 let chartInstance: echarts.ECharts | null = null;
 const chartRef = ref<HTMLElement>();
+
+// 铁包/车架选项列表
+const boundNameOptions = ref<{ label: string; value: string }[]>([]);
+const boundNameLoading = ref(false);
+
+// 获取铁包/车架列表
+const fetchBoundNameOptions = async () => {
+  // 如果没有选择标识器类型，清空选项列表
+  if (formState.tagType === undefined) {
+    boundNameOptions.value = [];
+    formState.tagBoundName = undefined;
+    return;
+  }
+
+  try {
+    boundNameLoading.value = true;
+
+    // 使用统一的 boundList 接口
+    const result = await getBoundListApi({
+      type: formState.tagType,
+    });
+
+    boundNameOptions.value = result.boundList.map((item) => ({
+      label: item.boundName,
+      value: item.boundName,
+    }));
+
+    // 默认选中第一项
+    formState.tagBoundName =
+      boundNameOptions.value.length > 0
+        ? boundNameOptions.value[0]?.value
+        : undefined;
+  } catch (error) {
+    console.error('Failed to fetch bound name options:', error);
+    boundNameOptions.value = [];
+    formState.tagBoundName = undefined;
+  } finally {
+    boundNameLoading.value = false;
+  }
+};
+
+// 监听标识器类型变化
+watch(
+  () => formState.tagType,
+  () => {
+    formState.tagBoundName = undefined; // 清空之前的选择
+    fetchBoundNameOptions();
+  },
+);
 
 // Fetch chart data
 const fetchChartData = async () => {
@@ -116,7 +183,9 @@ const renderChart = (data: TagLifeChartResult) => {
     legend: {
       type: 'scroll',
       top: 0,
-      data: data.series.map((s) => `${s.tagBoundName} @ ${s.stationLabel}`),
+      data: data.series.map(
+        (s) => `${s.tagBoundName} @ ${s.stationLabel} (SN: ${s.tagSn})`,
+      ),
     },
     grid: {
       left: '3%',
@@ -197,7 +266,7 @@ const renderChart = (data: TagLifeChartResult) => {
       },
     },
     series: data.series.map((item) => ({
-      name: `${item.tagBoundName} @ ${item.stationLabel}`,
+      name: `${item.tagBoundName} @ ${item.stationLabel} (SN: ${item.tagSn})`,
       type: 'line',
       data: item.data,
       smooth: true,
@@ -218,10 +287,11 @@ const renderChart = (data: TagLifeChartResult) => {
 // Reset form
 const handleReset = () => {
   formState.stationLabel = undefined;
-  formState.tagType = undefined;
+  formState.tagType = 1; // 重置为默认车架
   formState.tagSn = undefined;
-  formState.tagBoundName = undefined;
   formState.dateRange = [dayjs().subtract(7, 'day'), dayjs()];
+  // 重新加载铁包/车架列表
+  fetchBoundNameOptions();
 };
 
 // Resize chart on window resize
@@ -230,6 +300,9 @@ const handleResize = () => {
 };
 
 onMounted(() => {
+  // 初始化时加载铁包/车架列表
+  fetchBoundNameOptions();
+  // 初始化图表数据
   fetchChartData();
   window.addEventListener('resize', handleResize);
 });
@@ -272,21 +345,47 @@ onBeforeUnmount(() => {
             </Form.Item>
           </Col>
           <Col :span="6">
+            <Form.Item
+              :label="
+                formState.tagType === 0
+                  ? '铁包名称'
+                  : formState.tagType === 1
+                    ? '车架名称'
+                    : '铁包/车架名称'
+              "
+            >
+              <!-- 当选择了标识器类型时，显示下拉框 -->
+              <Select
+                v-if="formState.tagType !== undefined"
+                v-model:value="formState.tagBoundName"
+                :placeholder="`请选择${formState.tagType === 0 ? '铁包' : '车架'}名称`"
+                :loading="boundNameLoading"
+                allow-clear
+              >
+                <Select.Option
+                  v-for="option in boundNameOptions"
+                  :key="option.value"
+                  :value="option.value"
+                >
+                  {{ option.label }}
+                </Select.Option>
+              </Select>
+              <!-- 当未选择标识器类型时，显示输入框 -->
+              <Input
+                v-else
+                v-model:value="formState.tagBoundName"
+                placeholder="请输入铁包/车架名称"
+                allow-clear
+              />
+            </Form.Item>
+          </Col>
+          <Col :span="6">
             <Form.Item label="标识器ID">
               <InputNumber
                 v-model:value="formState.tagSn"
                 placeholder="请输入标识器ID"
                 :min="0"
                 class="w-full"
-              />
-            </Form.Item>
-          </Col>
-          <Col :span="6">
-            <Form.Item label="铁包/车架名称">
-              <Input
-                v-model:value="formState.tagBoundName"
-                placeholder="请输入名称"
-                allow-clear
               />
             </Form.Item>
           </Col>
@@ -318,11 +417,29 @@ onBeforeUnmount(() => {
     <!-- Chart -->
     <Card :bordered="false" title="标识器寿命趋势图">
       <Spin :spinning="loading">
-        <div
-          ref="chartRef"
-          class="w-full"
-          style="height: 500px; min-height: 500px"
-        ></div>
+        <div style="position: relative">
+          <div
+            ref="chartRef"
+            class="w-full"
+            style="height: 500px; min-height: 500px"
+          ></div>
+          <div
+            v-if="!loading && !hasData"
+            style="
+              position: absolute;
+              inset: 0;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              background: #fff;
+            "
+          >
+            <Empty
+              description="暂无数据，请调整查询条件"
+              :image="Empty.PRESENTED_IMAGE_SIMPLE"
+            />
+          </div>
+        </div>
       </Spin>
     </Card>
   </Page>
