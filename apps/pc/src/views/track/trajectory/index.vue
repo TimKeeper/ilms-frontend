@@ -3,7 +3,7 @@ import type { Dayjs } from 'dayjs';
 
 import type { TrackChartParams, TrackChartResult, TrackPoint } from '#/api/tag';
 
-import { onBeforeUnmount, onMounted, reactive, ref } from 'vue';
+import { onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue';
 
 import { Page } from '@vben/common-ui';
 
@@ -13,7 +13,6 @@ import {
   Col,
   DatePicker,
   Form,
-  Input,
   Row,
   Select,
   Space,
@@ -23,6 +22,7 @@ import dayjs from 'dayjs';
 import * as echarts from 'echarts';
 
 import { getTrackChartApi } from '#/api/tag';
+import { getBoundListApi } from '#/api/util';
 
 // Form state
 const formState = reactive<{
@@ -38,9 +38,56 @@ const formState = reactive<{
 const loading = ref(false);
 const chartData = ref<null | TrackChartResult>(null);
 
+// 铁包/车架选项列表
+const boundNameOptions = ref<{ label: string; value: string }[]>([]);
+const boundNameLoading = ref(false);
+
 // Chart instance
 let chartInstance: echarts.ECharts | null = null;
 const chartRef = ref<HTMLElement>();
+
+// 获取铁包/车架列表
+const fetchBoundNameOptions = async () => {
+  try {
+    boundNameLoading.value = true;
+
+    // 使用统一的 boundList 接口
+    const result = await getBoundListApi({
+      type: formState.trackType,
+    });
+
+    boundNameOptions.value = result.boundList.map((item) => ({
+      label: item.boundName,
+      value: item.boundName,
+    }));
+
+    // 默认选中第一项
+    formState.boundName =
+      boundNameOptions.value.length > 0
+        ? boundNameOptions.value[0]?.value
+        : undefined;
+
+    // 数据填充完毕后自动获取图表数据
+    if (formState.boundName) {
+      await fetchChartData();
+    }
+  } catch (error) {
+    console.error('Failed to fetch bound name options:', error);
+    boundNameOptions.value = [];
+    formState.boundName = undefined;
+  } finally {
+    boundNameLoading.value = false;
+  }
+};
+
+// 监听轨迹类型变化
+watch(
+  () => formState.trackType,
+  () => {
+    formState.boundName = undefined; // 清空之前的选择
+    fetchBoundNameOptions();
+  },
+);
 
 // Fetch chart data
 const fetchChartData = async () => {
@@ -231,9 +278,11 @@ const renderChart = (data: TrackChartResult) => {
 
 // Reset form
 const handleReset = () => {
+  formState.trackType = 1; // 重置为默认车架
   formState.boundName = undefined;
-  formState.trackType = 1;
   formState.dateRange = [dayjs().subtract(1, 'day'), dayjs()];
+  // 重新加载铁包/车架列表
+  fetchBoundNameOptions();
 };
 
 // Resize chart on window resize
@@ -242,7 +291,8 @@ const handleResize = () => {
 };
 
 onMounted(() => {
-  fetchChartData();
+  // 初始化时加载铁包/车架列表
+  fetchBoundNameOptions();
   window.addEventListener('resize', handleResize);
 });
 
@@ -263,7 +313,7 @@ onBeforeUnmount(() => {
       <Form layout="vertical">
         <Row :gutter="16">
           <Col :span="6">
-            <Form.Item label="轨迹类型">
+            <Form.Item label="轨迹类型" required>
               <Select
                 v-model:value="formState.trackType"
                 placeholder="请选择类型"
@@ -276,16 +326,25 @@ onBeforeUnmount(() => {
           <Col :span="6">
             <Form.Item
               :label="formState.trackType === 0 ? '铁包名称' : '车架名称'"
+              required
             >
-              <Input
+              <Select
                 v-model:value="formState.boundName"
-                :placeholder="`请输入${formState.trackType === 0 ? '铁包' : '车架'}名称`"
-                allow-clear
-              />
+                :placeholder="`请选择${formState.trackType === 0 ? '铁包' : '车架'}名称`"
+                :loading="boundNameLoading"
+              >
+                <Select.Option
+                  v-for="option in boundNameOptions"
+                  :key="option.value"
+                  :value="option.value"
+                >
+                  {{ option.label }}
+                </Select.Option>
+              </Select>
             </Form.Item>
           </Col>
           <Col :span="12">
-            <Form.Item label="时间范围">
+            <Form.Item label="时间范围" required>
               <DatePicker.RangePicker
                 v-model:value="formState.dateRange"
                 show-time
@@ -302,7 +361,13 @@ onBeforeUnmount(() => {
           <Col :span="24">
             <Form.Item>
               <Space>
-                <Button type="primary" @click="fetchChartData"> 查询 </Button>
+                <Button
+                  type="primary"
+                  :disabled="!formState.boundName"
+                  @click="fetchChartData"
+                >
+                  查询
+                </Button>
                 <Button @click="handleReset">重置</Button>
               </Space>
             </Form.Item>

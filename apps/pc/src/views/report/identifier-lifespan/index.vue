@@ -392,7 +392,7 @@ onBeforeUnmount(() => {
         </Row>
         <Row :gutter="16">
           <Col :span="12">
-            <Form.Item label="时间范围">
+            <Form.Item label="时间范围" required>
               <DatePicker.RangePicker
                 v-model:value="formState.dateRange"
                 class="w-full"
