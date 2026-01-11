@@ -35,3 +35,39 @@ export function getTagStatusApi(params: TagStatusParams) {
     params,
   });
 }
+
+/**
+ * 标识器寿命图表 API
+ */
+
+export interface TagLifeChartParams {
+  stationLabel?: string; // 工位名称
+  tagType?: 0 | 1; // 标识器类型，0-高温标识器（铁包）/1-常温标识器（车架）
+  tagSn?: number; // 标识器id
+  tagBoundName?: string; // 铁包/车架名称
+  startTime?: number; // 开始时间（毫秒时间戳，但只需要到日）
+  endTime?: number; // 结束时间（毫秒时间戳，但只需要到日）
+}
+
+export interface TagLifeChartSeriesItem {
+  tagBoundName: string; // 铁包/车架名
+  data: (null | number)[]; // 对应日期pulse数值
+  tagSn: number; // 标签id
+  stationLabel: string; // 工位名称
+  tagType: 0 | 1; // 标签类型 0-高温标识器（铁包）/1-常温标识器（车架）
+  type: string; // echarts节点类型，固定line
+}
+
+export interface TagLifeChartResult {
+  xaxis: string[]; // 日期列表（注意：后端返回的是小写 xaxis）
+  series: TagLifeChartSeriesItem[]; // 数据列表
+}
+
+/**
+ * 获取标识器寿命图表数据
+ */
+export function getTagLifeChartApi(params: TagLifeChartParams) {
+  return requestClient.get<TagLifeChartResult>('/api/view/v1/tag/lifeChart', {
+    params,
+  });
+}

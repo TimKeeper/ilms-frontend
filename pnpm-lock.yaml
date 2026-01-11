@@ -205,7 +205,7 @@ catalogs:
       specifier: ^16.6.1
       version: 16.6.1
     echarts:
-      specifier: ^6.0.0
+      specifier: 6.0.0
       version: 6.0.0
     es-toolkit:
       specifier: ^1.41.0
@@ -678,6 +678,9 @@ importers:
       dayjs:
         specifier: 'catalog:'
         version: 1.11.19
+      echarts:
+        specifier: 'catalog:'
+        version: 6.0.0
       json-bigint:
         specifier: 'catalog:'
         version: 1.0.0

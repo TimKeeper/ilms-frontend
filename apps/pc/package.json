@@ -42,6 +42,7 @@
     "crypto-js": "^4.2.0",
     "dagre": "^0.8.5",
     "dayjs": "catalog:",
+    "echarts": "catalog:",
     "json-bigint": "catalog:",
     "pinia": "catalog:",
     "vue": "catalog:",
