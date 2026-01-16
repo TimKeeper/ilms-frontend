@@ -226,7 +226,18 @@ class WebSocketService {
     try {
       const response: WebSocketResponse = JSON.parse(event.data);
 
-      // 检查响应状态
+      // 检查响应状态 - token 失效处理
+      if (response.status === 9_000_007) {
+        console.error('[WebSocket] Token expired, logging out...');
+        // 导入动态导入避免循环依赖
+        import('#/store').then(({ useAuthStore }) => {
+          const authStore = useAuthStore();
+          authStore.logout(true);
+        });
+        return;
+      }
+
+      // 检查其他错误状态
       if (response.status !== 0) {
         console.error(`[WebSocket] Server error: ${response.resMsg}`, response);
         return;
