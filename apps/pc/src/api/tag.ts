@@ -130,3 +130,88 @@ export function getTrackChartApi(type: 0 | 1, params: TrackChartParams) {
     params,
   });
 }
+
+/**
+ * 漏读列表 API
+ */
+
+export interface MissListParams {
+  boundType?: number; // 0-铁包 1-车架
+  boundId?: number; // 铁包/车架id
+  page: number;
+  pageSize: number;
+}
+
+export interface StationInfo {
+  id: number; // 工位id
+  label: string; // 工位名称
+  code: string; // 工位代号
+}
+
+export interface MissListItem {
+  id: number; // 记录id
+  boundType: number; // 类型 0-高温标识器 1-常温标识器
+  boundId: number; // 铁包/车架ID
+  boundName: string; // 标识器绑定名称（铁包/车架名称）
+  preStationLabel: string; // 上一个工位名称
+  preStationCode: string; // 上一个工位代号
+  preStartTime: number; // 上一个工位时间
+  afterStationLabel: string; // 下一个工位名称
+  afterStationCode: string; // 下一个工位代号
+  afterStartTime: number; // 下一个工位时间
+  missPaths: StationInfo[][]; // 漏读工位路径列表（可能的所有漏读路径）
+  missPathsStations: StationInfo[]; // 漏读工位列表（可能的所有漏读工位）
+}
+
+export interface MissListResult {
+  total: number;
+  items: MissListItem[];
+}
+
+/**
+ * 获取漏读列表
+ */
+export function getMissListApi(params: MissListParams) {
+  return requestClient.get<MissListResult>('/api/tag/v1/miss/list', {
+    params,
+  });
+}
+
+/**
+ * 串读列表 API
+ */
+
+export interface ChaosListParams {
+  tagSn?: number; // 标识器id
+  page: number;
+  pageSize: number;
+}
+
+export interface ChaosListItem {
+  id: number; // 记录id
+  tagType: number; // 标识器类型 0-高温标识器 1-常温标识器
+  tagSn: number; // 标识器ID
+  tagBoundName: string; // 标识器绑定名称（铁包/车架名称）
+  chaosRadarDataGroupId: number; // 串读雷达数据组id
+  chaosStationLabel: string; // 串读工位名称
+  normalRadarDataGroupId: number; // 应读雷达数据组id
+  normalStationLabel: string; // 应读工位名称
+  normalStartTime: number; // 应读工位读取开始时间（毫秒时间戳）
+  normalEndTime: number; // 应读工位读取结束时间（毫秒时间戳）
+  chaosPoint: number; // 串读时间交错点（毫秒时间戳）
+  updateTime: number; // 更新时间
+}
+
+export interface ChaosListResult {
+  total: number;
+  items: ChaosListItem[];
+}
+
+/**
+ * 获取串读列表
+ */
+export function getChaosListApi(params: ChaosListParams) {
+  return requestClient.get<ChaosListResult>('/api/tag/v1/chaos/list', {
+    params,
+  });
+}

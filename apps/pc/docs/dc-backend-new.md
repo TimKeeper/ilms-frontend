@@ -254,273 +254,6 @@ GET /api/iam/v1/info
 
 # station-工位
 
-## POST 维护工位工序图
-
-POST /api/workstation/v1/graph
-
-# 工位以网格的形式进行组图
-如图：
-![image.png](https://api.apifox.com/api/v1/projects/7475240/resources/604121/image-preview)
-> 前端初始化默认画布时，可给定10（X）* 10（Y）大小的画布
-> 用户可手动继续扩展
-
-- workstationId：代表工序id，若传入，代表修改该工序，若不传入，代表新增该工序
-- workstationName：代表工序名称
-- workstationX：代表工序，用户拖动工位组件到坐标，取其X即可
-- workstationY：代表工位在工序中的上下位置，用户拖动工位组件到坐标，取其Y即可
-- workstationType：代表工位类型，0-起点工位 1-过程工位 2-终点工位
-- workstationIndex：代表工位代号，工位代号需前端按图从左到右，从上到下依次编码
-
-# 组图后进行路径规划
-
-按照当前工位能到达的其他工位代号（workstationIndex）进行编排
-假设：
-- 1能到达2，那么1的routerIndexs为[2]
-- 2能到达1、3、4，那么2的routerIndexs为[1,3,4]
-- 3能到达2、5，那么3的routerIndexs为[2,5]
-- 4能到达2、6，那么4的routerIndexs为[2,6]
-- 5能到达3、7，那么5的routerIndexs为[3,7]
-- 6能到达4、7，那么6的routerIndexs为[4,7]
-- 7能到达5、6、8，那么7的routerIndexs为[5,6,8]
-- 8能到达7，那么8的routerIndexs为[7]
-
-由此组成的图谱如下：
-
-![image.png](https://api.apifox.com/api/v1/projects/7475240/resources/604122/image-preview)
-
-> Body 请求参数
-
-```json
-{
-  "graph": [
-    {
-      "workstationId": 1,
-      "workstationIndex": 1,
-      "workstationName": "工位1",
-      "workstationType": 0,
-      "workstationX": 1,
-      "workstationY": 2,
-      "routerIndexs": [
-        2
-      ]
-    },
-    {
-      "workstationIndex": 2,
-      "workstationName": "工位2",
-      "workstationType": 1,
-      "workstationX": 2,
-      "workstationY": 2,
-      "routerIndexs": [
-        1,
-        3,
-        4
-      ]
-    },
-    {
-      "workstationIndex": 3,
-      "workstationName": "工位3",
-      "workstationType": 1,
-      "workstationX": 3,
-      "workstationY": 3,
-      "routerIndexs": [
-        2,
-        5
-      ]
-    },
-    {
-      "workstationIndex": 4,
-      "workstationName": "工位4",
-      "workstationType": 1,
-      "workstationX": 3,
-      "workstationY": 1,
-      "routerIndexs": [
-        2,
-        5
-      ]
-    },
-    {
-      "workstationIndex": 5,
-      "workstationName": "工位5",
-      "workstationType": 2,
-      "workstationX": 4,
-      "workstationY": 2,
-      "routerIndexs": [
-        3,
-        4
-      ]
-    }
-  ]
-}
-```
-
-### 请求参数
-
-|名称|位置|类型|必选|中文名|说明|
-|---|---|---|---|---|---|
-|token|header|string| 否 ||none|
-|body|body|object| 否 ||none|
-|» graph|body|[object]| 是 | 图谱对象数组|none|
-|»» workstationId|body|integer| 否 | 工位id|若有则代表更新该工位信息，若无则代表新建该工位信息|
-|»» workstationIndex|body|integer| 是 | 工位代号|需前端编号传回，从左到右、从上到下依次编号|
-|»» workstationName|body|string| 是 | 工位名称|none|
-|»» workstationType|body|integer| 是 | 工位类型|0-起点工位 1-过程工位 2-终点工位|
-|»» workstationX|body|integer| 是 | 工位横坐标|代表工序|
-|»» workstationY|body|integer| 是 | 工位纵坐标|标定同工序下的上下顺序|
-|»» routerIndexs|body|[integer]| 否 | 工位路由表|代表这个工位连通哪些其他工位，值为工位代号数组|
-
-> 返回示例
-
-```json
-{
-  "status": 0,
-  "resMsg": "成功",
-  "data": {}
-}
-```
-
-```json
-{
-  "status": 9009999,
-  "resMsg": "未知错误,{0}",
-  "data": {}
-}
-```
-
-```json
-{
-  "status": 4000001,
-  "resMsg": "工位【工位1】，已被雷达【192.168.0.1】天线1,2绑定，请解除雷达天线绑定后再试",
-  "data": {}
-}
-```
-
-### 返回结果
-
-|状态码|状态码含义|说明|数据模型|
-|---|---|---|---|
-|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|none|Inline|
-
-### 返回数据结构
-
-状态码 **200**
-
-|名称|类型|必选|约束|中文名|说明|
-|---|---|---|---|---|---|
-|» status|integer|true|none|状态码|0-代表成功|
-|» resMsg|string|true|none|状态描述|none|
-|» data|object|true|none||none|
-
-## GET 获取工位工序图
-
-GET /api/workstation/v1/graph
-
-### 请求参数
-
-|名称|位置|类型|必选|中文名|说明|
-|---|---|---|---|---|---|
-|token|header|string| 否 ||none|
-
-> 返回示例
-
-```json
-{
-  "status": 0,
-  "resMsg": "成功",
-  "data": {
-    "graph": [
-      {
-        "workstationId": 1,
-        "workstationIndex": 1,
-        "workstationName": "工位1",
-        "workstationType": 0,
-        "workstationX": 1,
-        "workstationY": 2,
-        "routerIndexs": [
-          2
-        ]
-      },
-      {
-        "workstationIndex": 2,
-        "workstationName": "工位2",
-        "workstationType": 1,
-        "workstationX": 2,
-        "workstationY": 2,
-        "routerIndexs": [
-          1,
-          3,
-          4
-        ]
-      },
-      {
-        "workstationIndex": 3,
-        "workstationName": "工位3",
-        "workstationType": 1,
-        "workstationX": 3,
-        "workstationY": 3,
-        "routerIndexs": [
-          2,
-          5
-        ]
-      },
-      {
-        "workstationIndex": 4,
-        "workstationName": "工位4",
-        "workstationType": 1,
-        "workstationX": 3,
-        "workstationY": 1,
-        "routerIndexs": [
-          2,
-          5
-        ]
-      },
-      {
-        "workstationIndex": 5,
-        "workstationName": "工位5",
-        "workstationType": 2,
-        "workstationX": 4,
-        "workstationY": 2,
-        "routerIndexs": [
-          3,
-          4
-        ]
-      }
-    ]
-  }
-}
-```
-
-```json
-{
-  "status": 9009999,
-  "resMsg": "未知错误,{0}",
-  "data": {}
-}
-```
-
-### 返回结果
-
-|状态码|状态码含义|说明|数据模型|
-|---|---|---|---|
-|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|none|Inline|
-
-### 返回数据结构
-
-状态码 **200**
-
-|名称|类型|必选|约束|中文名|说明|
-|---|---|---|---|---|---|
-|» status|integer|true|none||none|
-|» resMsg|string|true|none||none|
-|» data|object|false|none||none|
-|»» graph|[object]|true|none||none|
-|»»» workstationId|integer|false|none|工位id|none|
-|»»» workstationIndex|integer|true|none|工位代号|none|
-|»»» workstationName|string|true|none|工位名称|none|
-|»»» workstationType|integer|true|none|工位类型|0-起点工位 1-过程工位 2-终点工位|
-|»»» workstationX|integer|true|none|工位横坐标|代表工序|
-|»»» workstationY|integer|true|none|工位纵坐标|标定同工序下的上下顺序|
-|»»» routerIndexs|[integer]|false|none|工位路由表|代表这个工位连通哪些其他工位，值为工位代号数组|
-
 ## GET 获取工位工序流程配置
 
 GET /api/station/v1/flow-config
@@ -754,6 +487,129 @@ POST /api/station/v1/flow-config
 |» resMsg|string|true|none||none|
 |» data|object|false|none||none|
 
+## GET 获取工位识别率报表
+
+GET /api/station/v1/accuracy
+
+### 请求参数
+
+|名称|位置|类型|必选|中文名|说明|
+|---|---|---|---|---|---|
+|startTime|query|number| 否 ||筛选开始时间，毫秒时间戳|
+|endTime|query|number| 否 ||筛选结束时间，毫秒时间戳|
+|token|header|string| 否 ||none|
+
+> 返回示例
+
+```json
+{
+  "status": 0,
+  "resMsg": "成功",
+  "data": {
+    "overallAccuracy": {
+      "identifyCount": 6,
+      "missCount": 2,
+      "chaosCount": 2,
+      "errorCount": 4,
+      "rate": 0.5
+    },
+    "stationAccuracyList": [
+      {
+        "stationLabel": "工位 1",
+        "stationCode": 1
+      },
+      {
+        "stationLabel": "工位 2",
+        "stationCode": 2,
+        "identifyCount": 4,
+        "missCount": 0,
+        "chaosCount": 1,
+        "errorCount": 1,
+        "rate": 0.75
+      },
+      {
+        "stationLabel": "工位 3",
+        "stationCode": 3,
+        "identifyCount": 0,
+        "missCount": 2,
+        "chaosCount": 0,
+        "errorCount": 2,
+        "rate": 0
+      },
+      {
+        "stationLabel": "工位 4",
+        "stationCode": 4,
+        "identifyCount": 0,
+        "missCount": 2,
+        "chaosCount": 0,
+        "errorCount": 2,
+        "rate": 0
+      },
+      {
+        "stationLabel": "工位 5",
+        "stationCode": 5,
+        "identifyCount": 0,
+        "missCount": 2,
+        "chaosCount": 0,
+        "errorCount": 2,
+        "rate": 0
+      },
+      {
+        "stationLabel": "工位 6",
+        "stationCode": 6,
+        "identifyCount": 2,
+        "missCount": 0,
+        "chaosCount": 1,
+        "errorCount": 1,
+        "rate": 0.5
+      },
+      {
+        "stationLabel": "工位 7",
+        "stationCode": 7
+      }
+    ]
+  }
+}
+```
+
+```json
+{
+  "status": 9009999,
+  "resMsg": "未知错误,{0}",
+  "data": {}
+}
+```
+
+### 返回结果
+
+|状态码|状态码含义|说明|数据模型|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|none|Inline|
+
+### 返回数据结构
+
+状态码 **200**
+
+|名称|类型|必选|约束|中文名|说明|
+|---|---|---|---|---|---|
+|» status|integer|true|none||none|
+|» resMsg|string|true|none||none|
+|» data|object|true|none||none|
+|»» overallAccuracy|object|true|none|整体识别率|none|
+|»»» identifyCount|integer|true|none|识别次数|包含正常识别与串读|
+|»»» missCount|integer|true|none|漏读次数|none|
+|»»» chaosCount|integer|true|none|串读次数|none|
+|»»» errorCount|integer|true|none|错误次数|包含漏读与串读|
+|»»» rate|number|true|none|识别率|none|
+|»» stationAccuracyList|[object]|true|none|工位识别率|none|
+|»»» stationLabel|string|true|none|工位名称|none|
+|»»» stationCode|integer|true|none|工位代号|none|
+|»»» identifyCount|integer|false|none|识别次数|包含正常识别与串读|
+|»»» missCount|integer|false|none|漏读次数|none|
+|»»» chaosCount|integer|false|none|串读次数|none|
+|»»» errorCount|integer|false|none|错误次数|漏读+串读|
+|»»» rate|number|false|none|识别率|none|
+
 # alarm-工位告警
 
 ## GET 获取工位告警列表
@@ -770,8 +626,8 @@ GET /api/station/v1/alarm/list
 |code|query|string| 否 ||工位代号-模糊搜索|
 |processId|query|integer| 否 ||工序id-搜索|
 |showTagStatus|query|integer| 否 ||标签状态展示标记 0-不展示 1-展示；传入1用于查询标识器状态的工位过滤|
-|page|query|integer| 是 ||none|
-|pageSize|query|integer| 是 ||none|
+|page|query|integer| 否 ||none|
+|pageSize|query|integer| 否 ||none|
 |token|header|string| 否 ||none|
 
 > 返回示例
@@ -2689,6 +2545,1692 @@ GET /api/tag/v1/status
 |»»»» tagType|integer|true|none|标识器类型|0-高温标识器（铁包）/1-常温标识器（车架）|
 |»»»» tagLastPulse|integer|true|none|标识器最新记录信号值|none|
 |»»»» tagLastRecordTime|number|true|none|标识器最新记录时间|none|
+
+## GET 获取漏读列表
+
+GET /api/tag/v1/miss/list
+
+### 请求参数
+
+|名称|位置|类型|必选|中文名|说明|
+|---|---|---|---|---|---|
+|boundType|query|number| 否 ||0-铁包 1-车架|
+|boundId|query|number| 否 ||铁包/车架id|
+|page|query|integer| 是 ||none|
+|pageSize|query|integer| 是 ||none|
+|token|header|string| 否 ||none|
+
+> 返回示例
+
+```json
+{
+  "status": 0,
+  "resMsg": "成功",
+  "data": {
+    "total": 17,
+    "items": [
+      {
+        "id": 18,
+        "boundType": 1,
+        "boundId": 1,
+        "boundName": "车架1号",
+        "preStationLabel": "工位 2",
+        "preStationCode": "2",
+        "preStartTime": 1767855717119,
+        "afterStationLabel": "工位 6",
+        "afterStationCode": "6",
+        "afterStartTime": 1767855718374,
+        "missPaths": [
+          [
+            {
+              "id": 2,
+              "label": "工位 2",
+              "code": "2"
+            },
+            {
+              "id": 3,
+              "label": "工位 3",
+              "code": "3"
+            },
+            {
+              "id": 4,
+              "label": "工位 4",
+              "code": "4"
+            },
+            {
+              "id": 5,
+              "label": "工位 5",
+              "code": "5"
+            },
+            {
+              "id": 6,
+              "label": "工位 6",
+              "code": "6"
+            }
+          ],
+          [
+            {
+              "id": 2,
+              "label": "工位 2",
+              "code": "2"
+            },
+            {
+              "id": 3,
+              "label": "工位 3",
+              "code": "3"
+            },
+            {
+              "id": 4,
+              "label": "工位 4",
+              "code": "4"
+            },
+            {
+              "id": 6,
+              "label": "工位 6",
+              "code": "6"
+            }
+          ],
+          [
+            {
+              "id": 2,
+              "label": "工位 2",
+              "code": "2"
+            },
+            {
+              "id": 3,
+              "label": "工位 3",
+              "code": "3"
+            },
+            {
+              "id": 5,
+              "label": "工位 5",
+              "code": "5"
+            },
+            {
+              "id": 6,
+              "label": "工位 6",
+              "code": "6"
+            }
+          ],
+          [
+            {
+              "id": 2,
+              "label": "工位 2",
+              "code": "2"
+            },
+            {
+              "id": 3,
+              "label": "工位 3",
+              "code": "3"
+            },
+            {
+              "id": 6,
+              "label": "工位 6",
+              "code": "6"
+            }
+          ],
+          [
+            {
+              "id": 2,
+              "label": "工位 2",
+              "code": "2"
+            },
+            {
+              "id": 4,
+              "label": "工位 4",
+              "code": "4"
+            },
+            {
+              "id": 5,
+              "label": "工位 5",
+              "code": "5"
+            },
+            {
+              "id": 6,
+              "label": "工位 6",
+              "code": "6"
+            }
+          ],
+          [
+            {
+              "id": 2,
+              "label": "工位 2",
+              "code": "2"
+            },
+            {
+              "id": 4,
+              "label": "工位 4",
+              "code": "4"
+            },
+            {
+              "id": 6,
+              "label": "工位 6",
+              "code": "6"
+            }
+          ]
+        ],
+        "missPathsStations": [
+          {
+            "id": 4,
+            "label": "工位 4",
+            "code": "4"
+          },
+          {
+            "id": 3,
+            "label": "工位 3",
+            "code": "3"
+          },
+          {
+            "id": 5,
+            "label": "工位 5",
+            "code": "5"
+          }
+        ]
+      },
+      {
+        "id": 17,
+        "boundType": 1,
+        "boundId": 1,
+        "boundName": "车架1号",
+        "preStationLabel": "工位 6",
+        "preStationCode": "6",
+        "preStartTime": 1767855704720,
+        "afterStationLabel": "工位 2",
+        "afterStationCode": "2",
+        "afterStartTime": 1767855707099,
+        "missPaths": [
+          [
+            {
+              "id": 6,
+              "label": "工位 6",
+              "code": "6"
+            },
+            {
+              "id": 3,
+              "label": "工位 3",
+              "code": "3"
+            },
+            {
+              "id": 2,
+              "label": "工位 2",
+              "code": "2"
+            }
+          ],
+          [
+            {
+              "id": 6,
+              "label": "工位 6",
+              "code": "6"
+            },
+            {
+              "id": 4,
+              "label": "工位 4",
+              "code": "4"
+            },
+            {
+              "id": 2,
+              "label": "工位 2",
+              "code": "2"
+            }
+          ],
+          [
+            {
+              "id": 6,
+              "label": "工位 6",
+              "code": "6"
+            },
+            {
+              "id": 4,
+              "label": "工位 4",
+              "code": "4"
+            },
+            {
+              "id": 3,
+              "label": "工位 3",
+              "code": "3"
+            },
+            {
+              "id": 2,
+              "label": "工位 2",
+              "code": "2"
+            }
+          ],
+          [
+            {
+              "id": 6,
+              "label": "工位 6",
+              "code": "6"
+            },
+            {
+              "id": 5,
+              "label": "工位 5",
+              "code": "5"
+            },
+            {
+              "id": 3,
+              "label": "工位 3",
+              "code": "3"
+            },
+            {
+              "id": 2,
+              "label": "工位 2",
+              "code": "2"
+            }
+          ],
+          [
+            {
+              "id": 6,
+              "label": "工位 6",
+              "code": "6"
+            },
+            {
+              "id": 5,
+              "label": "工位 5",
+              "code": "5"
+            },
+            {
+              "id": 4,
+              "label": "工位 4",
+              "code": "4"
+            },
+            {
+              "id": 2,
+              "label": "工位 2",
+              "code": "2"
+            }
+          ],
+          [
+            {
+              "id": 6,
+              "label": "工位 6",
+              "code": "6"
+            },
+            {
+              "id": 5,
+              "label": "工位 5",
+              "code": "5"
+            },
+            {
+              "id": 4,
+              "label": "工位 4",
+              "code": "4"
+            },
+            {
+              "id": 3,
+              "label": "工位 3",
+              "code": "3"
+            },
+            {
+              "id": 2,
+              "label": "工位 2",
+              "code": "2"
+            }
+          ]
+        ],
+        "missPathsStations": [
+          {
+            "id": 4,
+            "label": "工位 4",
+            "code": "4"
+          },
+          {
+            "id": 3,
+            "label": "工位 3",
+            "code": "3"
+          },
+          {
+            "id": 5,
+            "label": "工位 5",
+            "code": "5"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+```json
+{
+  "status": 9009999,
+  "resMsg": "未知错误,{0}",
+  "data": {}
+}
+```
+
+```json
+{
+  "status": 0,
+  "resMsg": "成功",
+  "data": {
+    "total": 0,
+    "items": []
+  }
+}
+```
+
+### 返回结果
+
+|状态码|状态码含义|说明|数据模型|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|none|Inline|
+
+### 返回数据结构
+
+状态码 **200**
+
+|名称|类型|必选|约束|中文名|说明|
+|---|---|---|---|---|---|
+|» status|integer|true|none||none|
+|» resMsg|string|true|none||none|
+|» data|object|true|none||none|
+|»» total|integer|true|none||none|
+|»» items|[object]|false|none||none|
+|»»» boundType|integer|true|none|类型|0-高温标识器 1-常温标识器|
+|»»» boundId|integer|true|none|铁包/车架ID|none|
+|»»» boundName|string|true|none|标识器绑定名称|铁包/车架名称|
+|»»» preStationLabel|string|true|none|上一个工位名称|none|
+|»»» preStationCode|string|true|none|上一个工位代号|该标识器经过这个工位的开始时间|
+|»»» preStartTime|integer|true|none|上一个工位时间|none|
+|»»» afterStationLabel|string|true|none|下一个工位名称|none|
+|»»» afterStationCode|string|true|none|下一个工位代号|该标识器经过这个工位的开始时间|
+|»»» afterStartTime|integer|true|none|下一个工位时间|none|
+|»»» missPaths|[array]|true|none|漏读工位路径列表|可能的所有漏读路径|
+|»»»» id|number|true|none|工位id|none|
+|»»»» label|string|true|none|工位名称|none|
+|»»»» code|string|true|none|工位代号|none|
+|» missPathsStations|[object]|true|none|漏读工位列表|可能的所有漏读工位|
+|»» id|number|true|none|工位id|none|
+|»» label|string|true|none|工位名称|none|
+|»» code|string|true|none|工位代号|none|
+
+## GET 获取串读列表
+
+GET /api/tag/v1/chaos/list
+
+该串读列表记录的是同一个标签在相同的时间段内被2个工位雷达同时扫描到。
+会反馈两个工位雷达扫描到的时间节点，以及标签本身信息。
+
+### 请求参数
+
+|名称|位置|类型|必选|中文名|说明|
+|---|---|---|---|---|---|
+|tagSn|query|number| 否 ||标识器id|
+|page|query|integer| 是 ||none|
+|pageSize|query|integer| 是 ||none|
+|token|header|string| 否 ||none|
+
+> 返回示例
+
+```json
+{
+  "status": 0,
+  "resMsg": "成功",
+  "data": {
+    "total": 6,
+    "items": [
+      {
+        "id": 20,
+        "tagType": 1,
+        "tagSn": 5283351,
+        "tagBoundName": "车架1号",
+        "chaosRadarDataGroupId": 88,
+        "chaosStationLabel": "工位 6",
+        "normalRadarDataGroupId": 87,
+        "normalStationLabel": "工位 2",
+        "normalStartTime": 1767858477091,
+        "normalEndTime": 1767858479664,
+        "chaosPoint": 1767858479119,
+        "updateTime": 1767858482000
+      },
+      {
+        "id": 19,
+        "tagType": 1,
+        "tagSn": 5283351,
+        "tagBoundName": "车架1号",
+        "chaosRadarDataGroupId": 84,
+        "chaosStationLabel": "工位 2",
+        "normalRadarDataGroupId": 83,
+        "normalStationLabel": "工位 6",
+        "normalStartTime": 1767858465017,
+        "normalEndTime": 1767858467738,
+        "chaosPoint": 1767858467430,
+        "updateTime": 1767858468000
+      }
+    ]
+  }
+}
+```
+
+```json
+{
+  "status": 9009999,
+  "resMsg": "未知错误,{0}",
+  "data": {}
+}
+```
+
+```json
+{
+  "status": 0,
+  "resMsg": "成功",
+  "data": {
+    "total": 0,
+    "items": []
+  }
+}
+```
+
+### 返回结果
+
+|状态码|状态码含义|说明|数据模型|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|none|Inline|
+
+### 返回数据结构
+
+状态码 **200**
+
+|名称|类型|必选|约束|中文名|说明|
+|---|---|---|---|---|---|
+|» status|integer|true|none||none|
+|» resMsg|string|true|none||none|
+|» data|object|true|none||none|
+|»» total|integer|true|none||none|
+|»» items|[object]|false|none||none|
+|»»» id|integer|true|none|记录id|none|
+|»»» tagType|integer|true|none|标识器类型|0-高温标识器 1-常温标识器|
+|»»» tagSn|integer|true|none|标识器ID|none|
+|»»» tagBoundName|string|true|none|标识器绑定名称|铁包/车架名称|
+|»»» chaosRadarDataGroupId|integer|true|none|串读雷达数据组id|none|
+|»»» chaosStationLabel|string|true|none|串读工位名称|none|
+|»»» normalRadarDataGroupId|integer|true|none|应读雷达数据组id|none|
+|»»» normalStationLabel|string|true|none|应读工位名称|none|
+|»»» normalStartTime|integer|true|none|应读工位读取开始时间|毫秒时间戳|
+|»»» normalEndTime|integer|true|none|应读工位读取结束时间|毫秒时间戳|
+|»»» chaosPoint|integer|true|none|串读时间交错点|毫秒时间戳|
+|»»» updateTime|integer|true|none||none|
+
+# view-图表
+
+## GET 获取标识器寿命图
+
+GET /api/view/v1/tag/lifeChart
+
+### 请求参数
+
+|名称|位置|类型|必选|中文名|说明|
+|---|---|---|---|---|---|
+|stationLabel|query|string| 否 ||工位名称|
+|tagType|query|integer| 否 ||标识器类型，0-高温标识器（铁包）/1-常温标识器（车架）|
+|tagSn|query|number| 否 ||标识器id|
+|tagBoundName|query|string| 否 ||铁包/车架名称|
+|startTime|query|number| 否 ||开始时间（毫秒时间戳，但只需要到日）|
+|endTime|query|number| 否 ||结束时间（毫秒时间戳，但只需要到日）|
+|token|header|string| 否 ||none|
+
+> 返回示例
+
+```json
+{
+  "status": 0,
+  "resMsg": "成功",
+  "data": {
+    "xaxis": [
+      "2025-12-27",
+      "2025-12-28",
+      "2025-12-29",
+      "2025-12-30"
+    ],
+    "series": [
+      {
+        "tagBoundName": "车架1号",
+        "data": [
+          367,
+          367,
+          366,
+          367
+        ],
+        "tagSn": 5283351,
+        "stationLabel": "新工位 2612",
+        "tagType": 1,
+        "type": "line"
+      },
+      {
+        "tagBoundName": "车架1号",
+        "data": [
+          365,
+          null,
+          null,
+          null
+        ],
+        "tagSn": 5283351,
+        "stationLabel": "新工位 7104",
+        "tagType": 1,
+        "type": "line"
+      }
+    ]
+  }
+}
+```
+
+```json
+{
+  "status": 9009999,
+  "resMsg": "未知错误,{0}",
+  "data": {}
+}
+```
+
+### 返回结果
+
+|状态码|状态码含义|说明|数据模型|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|none|Inline|
+
+### 返回数据结构
+
+状态码 **200**
+
+|名称|类型|必选|约束|中文名|说明|
+|---|---|---|---|---|---|
+|» status|integer|true|none||none|
+|» resMsg|string|true|none||none|
+|» data|object|false|none||none|
+|»» xaxis|[string]|false|none|日期列表|none|
+|»» series|[object]|false|none|数据列表|none|
+|»»» tagBoundName|string|true|none|铁包/车架名|none|
+|»»» data|[integer]|true|none|对应日期pulse数值|none|
+|»»» tagSn|integer|true|none|标签id|none|
+|»»» stationLabel|string|true|none|工位名称|none|
+|»»» tagType|integer|true|none|标签类型|0-高温标识器（铁包）/1-常温标识器（车架）|
+|»»» type|string|true|none|echarts节点类型|这里固定line|
+
+## GET 获取铁包或车架路径图
+
+GET /api/view/v1/path/{type}
+
+## 实现逻辑说明
+  1. 纵坐标区分：
+    - 标签器数据点：工位代号 + 100
+    - 铁包/车架数据点：工位代号 + 110
+    - 这样可以在图表上区分标签器轨迹和整体轨迹
+  2. 数据合并：
+    - 为每个标签器创建一个独立的 series（折线）
+    - 所有标签器的数据点合并后创建铁包/车架的整体 series
+  3. Tooltip 信息：
+    - 开始时间、结束时间
+    - 工位名称、工位代号
+    - 标签 SN
+    - 读取次数
+    - 信号值
+  4. Y 轴数据：
+    - 提供工位代号、工位名称的映射关系
+    - 按工位代号排序（小的在起点，大的在终点）
+
+## 前端 Echarts 使用建议
+
+  前端可以这样配置 echarts：
+
+  ```
+  const option = {
+    title: { text: '铁包/车架运行轨迹' },
+    tooltip: {
+      trigger: 'item',
+      formatter: function(params) {
+        const data = params.data.tooltipData;
+        return `
+          系列: ${params.seriesName}<br/>
+          工位: ${data.stationLabel} (${data.stationCode})<br/>
+          标签SN: ${data.tagSn}<br/>
+          开始时间: ${data.startTime}<br/>
+          结束时间: ${data.endTime}<br/>
+          读取次数: ${data.readCount}<br/>
+          信号值: ${data.signalValue}
+        `;
+      }
+    },
+    xAxis: {
+      type: 'time',
+      name: '时间'
+    },
+    yAxis: {
+      type: 'value',
+      name: '工位',
+      axisLabel: {
+        formatter: function(value) {
+          // 使用 yAxis 数据映射工位名称
+          const station = response.data.yAxis.find(s =>
+            Math.abs(s.value - (value - 100)) < 0.1 ||
+            Math.abs(s.value - (value - 110)) < 0.1
+          );
+          return station ? station.label : value;
+        }
+      }
+    },
+    series: response.data.series.map(s => ({
+      ...s,
+      data: s.data.map(d => [d.timestamp, d.value, d])
+    }))
+  };
+```
+
+### 请求参数
+
+|名称|位置|类型|必选|中文名|说明|
+|---|---|---|---|---|---|
+|type|path|integer| 是 ||查询类型。0-铁包 1-车架|
+|boundName|query|string| 是 ||铁包/车架名称|
+|startTime|query|number| 是 ||开始时间（毫秒时间戳，精度到秒）|
+|endTime|query|number| 是 ||结束时间（毫秒时间戳，精度到秒）|
+|token|header|string| 否 ||none|
+
+> 返回示例
+
+```json
+{
+  "status": 0,
+  "resMsg": "成功",
+  "data": {
+    "series": [
+      {
+        "name": "标签器-5283351",
+        "type": "line",
+        "data": [
+          {
+            "timestamp": 1767065374537,
+            "value": 102,
+            "tooltipData": {
+              "startTime": "2025-12-30 11:29:34",
+              "endTime": "2025-12-30 11:29:36",
+              "stationLabel": "工位 A-2",
+              "stationCode": "2",
+              "tagSn": 5283351,
+              "readCount": 21,
+              "signalValue": 366
+            }
+          },
+          {
+            "timestamp": 1767065382580,
+            "value": 102,
+            "tooltipData": {
+              "startTime": "2025-12-30 11:29:42",
+              "endTime": "2025-12-30 11:29:44",
+              "stationLabel": "工位 A-2",
+              "stationCode": "2",
+              "tagSn": 5283351,
+              "readCount": 22,
+              "signalValue": 366
+            }
+          }
+        ],
+        "smooth": true,
+        "symbol": "circle",
+        "symbolSize": 6
+      },
+      {
+        "name": "车架1号",
+        "type": "line",
+        "data": [
+          {
+            "timestamp": 1767065374537,
+            "value": 112,
+            "tooltipData": {
+              "startTime": "2025-12-30 11:29:34",
+              "endTime": "2025-12-30 11:29:36",
+              "stationLabel": "工位 A-2",
+              "stationCode": "2",
+              "tagSn": 5283351,
+              "readCount": 21,
+              "signalValue": 366
+            }
+          },
+          {
+            "timestamp": 1767065382580,
+            "value": 112,
+            "tooltipData": {
+              "startTime": "2025-12-30 11:29:42",
+              "endTime": "2025-12-30 11:29:44",
+              "stationLabel": "工位 A-2",
+              "stationCode": "2",
+              "tagSn": 5283351,
+              "readCount": 22,
+              "signalValue": 366
+            }
+          }
+        ],
+        "smooth": true,
+        "symbol": "circle",
+        "symbolSize": 6
+      }
+    ],
+    "yaxis": [
+      {
+        "code": "1",
+        "label": "工位 A-1",
+        "value": 1
+      },
+      {
+        "code": "2",
+        "label": "工位 A-2",
+        "value": 2
+      },
+      {
+        "code": "3",
+        "label": "工位 A-3",
+        "value": 3
+      }
+    ]
+  }
+}
+```
+
+```json
+{
+  "status": 9009999,
+  "resMsg": "未知错误,{0}",
+  "data": {}
+}
+```
+
+```json
+{
+  "status": 9000004,
+  "resMsg": "查询异常,{0}",
+  "data": {}
+}
+```
+
+### 返回结果
+
+|状态码|状态码含义|说明|数据模型|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|none|Inline|
+
+### 返回数据结构
+
+状态码 **200**
+
+|名称|类型|必选|约束|中文名|说明|
+|---|---|---|---|---|---|
+|» status|integer|true|none||none|
+|» resMsg|string|true|none||none|
+|» data|object|true|none||none|
+|»» series|[object]|true|none|数据实体|none|
+|»»» name|string|true|none|图例名称|none|
+|»»» type|string|true|none|连线方式|固定line|
+|»»» data|[object]|true|none|数据点|none|
+|»»»» timestamp|integer|true|none|点位时间|none|
+|»»»» value|integer|true|none|y坐标|none|
+|»»»» tooltipData|object|true|none|数据点详情|用于鼠标移入后的弹出提示|
+|»»»»» startTime|string|true|none|开始时间|标签器首次被读取时间|
+|»»»»» endTime|string|true|none|结束时间|标签器读取完毕时间|
+|»»»»» stationLabel|string|true|none|读取工位名称|none|
+|»»»»» stationCode|string|true|none|读取工位代号|none|
+|»»»»» tagSn|integer|true|none|标签器id|none|
+|»»»»» readCount|integer|true|none|读取次数|none|
+|»»»»» pulseValue|integer|true|none|信号值|none|
+|»»» smooth|boolean|true|none|是否平滑曲线|固定true，前端可无视，自行定义|
+|»»» symbol|string|true|none|标记形状|默认circle，前端可无视，自行定义|
+|»»» symbolSize|integer|true|none|标记大小|默认6，前端可无视，自行定义|
+|»» yaxis|[object]|true|none|y轴配置数据|none|
+|»»» code|string|true|none|工位代号|none|
+|»»» label|string|true|none|工位名称|none|
+|»»» value|integer|true|none||none|
+
+# Export-数据导出
+
+## GET 查询导出记录列表
+
+GET /api/export/v1/records
+
+当用户点击导出雷达原始数据，或雷达数据组时，会生成一条导出记录表，系统将在后台执行导出工作。
+当后台执行完成后，刷新列表即可看到导出状态，当状态为成功时，代表可以下载，执行下载导出文件接口即可。
+
+注：导出缓存将长期存在，若需要释放空间，则可以调用批量删除导出记录接口，该接口在删除记录时，会一并删除本地缓存文件。
+
+### 请求参数
+
+|名称|位置|类型|必选|中文名|说明|
+|---|---|---|---|---|---|
+|type|query|integer| 否 ||0-原始数据/1-数据组|
+|status|query|integer| 否 ||0-处理中/1-成功/2-失败|
+|page|query|integer| 是 ||none|
+|pageSize|query|integer| 是 ||none|
+|token|header|string| 否 ||none|
+
+> 返回示例
+
+```json
+{
+  "status": 0,
+  "resMsg": "成功",
+  "data": {
+    "total": 1,
+    "items": [
+      {
+        "id": 1,
+        "type": 0,
+        "status": 1,
+        "fileName": "radar_data_原始数据_20260109_173111.xlsx",
+        "fileSize": 76587,
+        "createTime": 1767951071000,
+        "updateTime": 1767951072000
+      }
+    ]
+  }
+}
+```
+
+```json
+{
+  "status": 0,
+  "resMsg": "成功",
+  "data": {
+    "total": 0,
+    "items": []
+  }
+}
+```
+
+```json
+{
+  "status": 9009999,
+  "resMsg": "未知错误,{0}",
+  "data": {}
+}
+```
+
+### 返回结果
+
+|状态码|状态码含义|说明|数据模型|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|none|Inline|
+
+### 返回数据结构
+
+状态码 **200**
+
+|名称|类型|必选|约束|中文名|说明|
+|---|---|---|---|---|---|
+|» status|integer|true|none||none|
+|» resMsg|string|true|none||none|
+|» data|object|true|none||none|
+|»» total|integer|true|none||none|
+|»» items|[object]|false|none||none|
+|»»» id|integer|true|none|表id|none|
+|»»» type|integer|true|none|导出类型|0-雷达原始数据 1-雷达数据组|
+|»»» status|integer|true|none|状态|0-处理中 1-成功 2-失败|
+|»»» fileName|string|false|none|导出文件名|none|
+|»»» fileSize|integer|false|none|导出文件大小|字节|
+|»»» createTime|integer|true|none||none|
+|»»» updateTime|integer|true|none||none|
+
+## DELETE 批量删除导出记录
+
+DELETE /api/export/v1/records
+
+会同时删除数据库记录和对应的Excel文件缓存
+
+> Body 请求参数
+
+```json
+{
+  "ids": [
+    0
+  ]
+}
+```
+
+### 请求参数
+
+|名称|位置|类型|必选|中文名|说明|
+|---|---|---|---|---|---|
+|token|header|string| 否 ||none|
+|body|body|object| 是 ||none|
+|» ids|body|[integer]| 是 | 导出记录id数组|none|
+
+> 返回示例
+
+```json
+{
+  "status": 0,
+  "resMsg": "成功",
+  "data": {}
+}
+```
+
+```json
+{
+  "status": 9000003,
+  "resMsg": "删除失败，{0}",
+  "data": {}
+}
+```
+
+```json
+{
+  "status": 9009999,
+  "resMsg": "未知错误，{0}",
+  "data": {}
+}
+```
+
+### 返回结果
+
+|状态码|状态码含义|说明|数据模型|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|none|Inline|
+
+### 返回数据结构
+
+状态码 **200**
+
+|名称|类型|必选|约束|中文名|说明|
+|---|---|---|---|---|---|
+|» status|integer|true|none||none|
+|» resMsg|string|true|none||none|
+|» data|object|true|none||none|
+
+## POST 导出雷达原始数据
+
+POST /api/export/v1/radar-data
+
+> Body 请求参数
+
+```json
+{
+  "radarHost": "string",
+  "radarPort": 0,
+  "radarAddress": 0,
+  "startTime": 0,
+  "endTime": 0,
+  "stationLabel": "string",
+  "tagType": 0,
+  "tagSn": 0,
+  "tagBoundName": "string"
+}
+```
+
+### 请求参数
+
+|名称|位置|类型|必选|中文名|说明|
+|---|---|---|---|---|---|
+|token|header|string| 否 ||none|
+|body|body|object| 是 ||none|
+|» radarHost|body|string| 是 | 雷达ip|none|
+|» radarPort|body|integer| 是 | 雷达端口|none|
+|» radarAddress|body|integer| 是 | 雷达地址|none|
+|» startTime|body|number| 是 | 开始时间戳|毫秒时间戳，与结束时间差不超过24小时|
+|» endTime|body|number| 是 | 结束时间戳|毫秒时间戳，与开始时间差不超过24小时|
+|» stationLabel|body|string| 否 | 工位名称|精确搜索|
+|» tagType|body|integer| 否 | 标签类型|0-高温标识器，1-常温标识器|
+|» tagSn|body|integer| 否 | 标识器ID|none|
+|» tagBoundName|body|string| 否 | 绑定名称|精确搜索，铁包/车架名称|
+
+> 返回示例
+
+```json
+{
+  "status": 0,
+  "resMsg": "成功",
+  "data": {}
+}
+```
+
+```json
+{
+  "status": 9000005,
+  "resMsg": "参数异常，{0}",
+  "data": {}
+}
+```
+
+```json
+{
+  "status": 9009999,
+  "resMsg": "未知错误，{0}",
+  "data": {}
+}
+```
+
+### 返回结果
+
+|状态码|状态码含义|说明|数据模型|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|none|Inline|
+
+### 返回数据结构
+
+状态码 **200**
+
+|名称|类型|必选|约束|中文名|说明|
+|---|---|---|---|---|---|
+|» status|integer|true|none||none|
+|» resMsg|string|true|none||none|
+|» data|object|true|none||none|
+
+## POST 导出雷达数据组
+
+POST /api/export/v1/radar-data-group
+
+> Body 请求参数
+
+```json
+{
+  "startTime": 0,
+  "endTime": 0,
+  "stationLabel": "string",
+  "tagType": 0,
+  "tagSn": 0,
+  "tagBoundName": "string"
+}
+```
+
+### 请求参数
+
+|名称|位置|类型|必选|中文名|说明|
+|---|---|---|---|---|---|
+|token|header|string| 否 ||none|
+|body|body|object| 是 ||none|
+|» startTime|body|number| 是 | 开始时间戳|毫秒时间戳，与结束时间差不超过24小时|
+|» endTime|body|number| 是 | 结束时间戳|毫秒时间戳，与开始时间差不超过24小时|
+|» stationLabel|body|string| 否 | 工位名称|精确搜索|
+|» tagType|body|integer| 否 | 标签类型|0-高温标识器，1-常温标识器|
+|» tagSn|body|integer| 否 | 标识器ID|none|
+|» tagBoundName|body|string| 否 | 绑定名称|精确搜索，铁包/车架名称|
+
+> 返回示例
+
+```json
+{
+  "status": 0,
+  "resMsg": "成功",
+  "data": {}
+}
+```
+
+```json
+{
+  "status": 9000005,
+  "resMsg": "参数异常，{0}",
+  "data": {}
+}
+```
+
+```json
+{
+  "status": 9009999,
+  "resMsg": "未知错误，{0}",
+  "data": {}
+}
+```
+
+### 返回结果
+
+|状态码|状态码含义|说明|数据模型|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|none|Inline|
+
+### 返回数据结构
+
+状态码 **200**
+
+|名称|类型|必选|约束|中文名|说明|
+|---|---|---|---|---|---|
+|» status|integer|true|none||none|
+|» resMsg|string|true|none||none|
+|» data|object|true|none||none|
+
+## GET 下载导出文件
+
+GET /api/export/v1/download/{id}
+
+### 请求参数
+
+|名称|位置|类型|必选|中文名|说明|
+|---|---|---|---|---|---|
+|id|path|integer| 是 ||导出记录id|
+|token|header|string| 否 ||none|
+
+> 返回示例
+
+> 200 Response
+
+### 返回结果
+
+|状态码|状态码含义|说明|数据模型|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|none|Inline|
+|400|[Bad Request](https://tools.ietf.org/html/rfc7231#section-6.5.1)|none|None|
+|404|[Not Found](https://tools.ietf.org/html/rfc7231#section-6.5.4)|none|None|
+
+### 返回数据结构
+
+# config-系统配置
+
+## GET 获取系统配置
+
+GET /api/config/v1/all
+
+### 请求参数
+
+|名称|位置|类型|必选|中文名|说明|
+|---|---|---|---|---|---|
+|token|header|string| 否 ||none|
+
+> 返回示例
+
+```json
+{
+  "status": 0,
+  "resMsg": "成功",
+  "data": {
+    "DATA_THINNING": "10",
+    "STORAGE_CYCLE": "30",
+    "SYSTEM_TITLE": "电磁微声平台"
+  }
+}
+```
+
+```json
+{
+  "status": 9009999,
+  "resMsg": "未知错误,{0}",
+  "data": {}
+}
+```
+
+### 返回结果
+
+|状态码|状态码含义|说明|数据模型|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|none|Inline|
+
+### 返回数据结构
+
+状态码 **200**
+
+|名称|类型|必选|约束|中文名|说明|
+|---|---|---|---|---|---|
+|» status|integer|true|none||none|
+|» resMsg|string|true|none||none|
+|» data|object|true|none||none|
+|»» DATA_THINNING|string|true|none|数据抽稀指数|1代表不抽稀，100代表抽稀100倍|
+|»» STORAGE_CYCLE|string|true|none|数据存储周期|7代表存储7天，90代表存储90天|
+|»» SYSTEM_TITLE|string|true|none|系统展示标题|none|
+
+## PUT 修改系统配置
+
+PUT /api/config/v1/all
+
+> Body 请求参数
+
+```json
+{
+  "DATA_THINNING": "15",
+  "STORAGE_CYCLE": "60",
+  "SYSTEM_TITLE": "系统标题"
+}
+```
+
+### 请求参数
+
+|名称|位置|类型|必选|中文名|说明|
+|---|---|---|---|---|---|
+|token|header|string| 否 ||none|
+|body|body|object| 否 ||none|
+|» DATA_THINNING|body|string| 是 | 数据抽稀指数|1代表不抽稀，100代表抽稀100倍，要求非负整型，输入1~100字符串形式的数字|
+|» STORAGE_CYCLE|body|string| 是 | 数据存储周期|7代表存储7天，90代表存储90天，要求非负整型，要求输入7~90字符串形式的数字|
+|» SYSTEM_TITLE|body|string| 是 | 系统展示标题|不超过50个字符|
+
+> 返回示例
+
+```json
+{
+  "status": 0,
+  "resMsg": "成功",
+  "data": {}
+}
+```
+
+```json
+{
+  "status": 9000005,
+  "resMsg": "参数异常,{0}",
+  "data": {}
+}
+```
+
+```json
+{
+  "status": 9009999,
+  "resMsg": "未知错误,{0}",
+  "data": {}
+}
+```
+
+### 返回结果
+
+|状态码|状态码含义|说明|数据模型|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|none|Inline|
+
+### 返回数据结构
+
+状态码 **200**
+
+|名称|类型|必选|约束|中文名|说明|
+|---|---|---|---|---|---|
+|» status|integer|true|none||none|
+|» resMsg|string|true|none||none|
+|» data|object|false|none||none|
+
+# util-通用查询
+
+## GET 获取所有铁包或车架名称列表
+
+GET /api/util/v1/boundList
+
+### 请求参数
+
+|名称|位置|类型|必选|中文名|说明|
+|---|---|---|---|---|---|
+|type|query|integer| 否 ||0-铁包/1-车架|
+|token|header|string| 否 ||none|
+
+> 返回示例
+
+```json
+{
+  "status": 0,
+  "resMsg": "成功",
+  "data": {
+    "boundList": [
+      {
+        "id": 1,
+        "type": 1,
+        "boundName": "车架1号"
+      }
+    ]
+  }
+}
+```
+
+```json
+{
+  "status": 9009999,
+  "resMsg": "未知错误,{0}",
+  "data": {}
+}
+```
+
+### 返回结果
+
+|状态码|状态码含义|说明|数据模型|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|none|Inline|
+
+### 返回数据结构
+
+状态码 **200**
+
+|名称|类型|必选|约束|中文名|说明|
+|---|---|---|---|---|---|
+|» status|integer|true|none||none|
+|» resMsg|string|true|none||none|
+|» data|object|true|none||none|
+|»» boundList|[object]|true|none|铁包或车架列表|none|
+|»»» id|integer|false|none|铁包或车架id|none|
+|»»» type|integer|false|none|类型|0-铁包 1-车架|
+|»»» boundName|string|false|none|铁包或车架名称|none|
+
+## GET 获取所有标识器
+
+GET /api/util/v1/tagList
+
+### 请求参数
+
+|名称|位置|类型|必选|中文名|说明|
+|---|---|---|---|---|---|
+|type|query|integer| 否 ||0-高温标签器/1-常温标签器|
+|token|header|string| 否 ||none|
+
+> 返回示例
+
+```json
+{
+  "status": 0,
+  "resMsg": "成功",
+  "data": {
+    "tagList": [
+      {
+        "tagSn": 5283351,
+        "tagType": 1,
+        "tagBoundName": "车架1号"
+      }
+    ]
+  }
+}
+```
+
+```json
+{
+  "status": 9009999,
+  "resMsg": "未知错误,{0}",
+  "data": {}
+}
+```
+
+### 返回结果
+
+|状态码|状态码含义|说明|数据模型|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|none|Inline|
+
+### 返回数据结构
+
+状态码 **200**
+
+|名称|类型|必选|约束|中文名|说明|
+|---|---|---|---|---|---|
+|» status|integer|true|none||none|
+|» resMsg|string|true|none||none|
+|» data|object|true|none||none|
+|»» tagList|[object]|true|none|标识器列表|none|
+|»»» tagSn|integer|false|none|标识器ID|none|
+|»»» tagType|integer|false|none|标识器类型|0-高温标识器 1-常温标识器|
+|»»» tagBoundName|string|false|none|标识器绑定名称|type为0时，则代表绑定的铁包名称，为1时代表绑定的车架名称|
+
+## GET 获取所有工位
+
+GET /api/util/v1/stationList
+
+### 请求参数
+
+|名称|位置|类型|必选|中文名|说明|
+|---|---|---|---|---|---|
+|token|header|string| 否 ||none|
+
+> 返回示例
+
+```json
+{
+  "status": 0,
+  "resMsg": "成功",
+  "data": {
+    "stationList": [
+      {
+        "id": 1,
+        "label": "工位 1",
+        "code": "1"
+      },
+      {
+        "id": 2,
+        "label": "工位 2",
+        "code": "2"
+      },
+      {
+        "id": 3,
+        "label": "工位 3",
+        "code": "3"
+      },
+      {
+        "id": 4,
+        "label": "工位 4",
+        "code": "4"
+      },
+      {
+        "id": 5,
+        "label": "工位 5",
+        "code": "5"
+      },
+      {
+        "id": 6,
+        "label": "工位 6",
+        "code": "6"
+      },
+      {
+        "id": 7,
+        "label": "工位 7",
+        "code": "7"
+      }
+    ]
+  }
+}
+```
+
+```json
+{
+  "status": 9009999,
+  "resMsg": "未知错误,{0}",
+  "data": {}
+}
+```
+
+### 返回结果
+
+|状态码|状态码含义|说明|数据模型|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|none|Inline|
+
+### 返回数据结构
+
+状态码 **200**
+
+|名称|类型|必选|约束|中文名|说明|
+|---|---|---|---|---|---|
+|» status|integer|true|none||none|
+|» resMsg|string|true|none||none|
+|» data|object|true|none||none|
+|»» stationList|[object]|true|none|工位列表|none|
+|»»» id|integer|true|none|工位id|none|
+|»»» label|string|true|none|工位名称|none|
+|»»» code|string|true|none|工位代号|none|
+
+## GET 获取工位图谱
+
+GET /api/util/v1/stationGraph
+
+### 请求参数
+
+|名称|位置|类型|必选|中文名|说明|
+|---|---|---|---|---|---|
+|token|header|string| 否 ||none|
+
+> 返回示例
+
+```json
+{
+  "status": 0,
+  "resMsg": "成功",
+  "data": {
+    "stationGraph": [
+      {
+        "id": 1,
+        "label": "工位 1",
+        "code": 1,
+        "neighbors": [
+          {
+            "id": 2,
+            "label": "工位 2",
+            "code": 2
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "label": "工位 2",
+        "code": 2,
+        "neighbors": [
+          {
+            "id": 1,
+            "label": "工位 1",
+            "code": 1
+          },
+          {
+            "id": 3,
+            "label": "工位 3",
+            "code": 3
+          },
+          {
+            "id": 4,
+            "label": "工位 4",
+            "code": 4
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "label": "工位 3",
+        "code": 3,
+        "neighbors": [
+          {
+            "id": 2,
+            "label": "工位 2",
+            "code": 2
+          },
+          {
+            "id": 4,
+            "label": "工位 4",
+            "code": 4
+          },
+          {
+            "id": 5,
+            "label": "工位 5",
+            "code": 5
+          },
+          {
+            "id": 6,
+            "label": "工位 6",
+            "code": 6
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "label": "工位 4",
+        "code": 4,
+        "neighbors": [
+          {
+            "id": 2,
+            "label": "工位 2",
+            "code": 2
+          },
+          {
+            "id": 3,
+            "label": "工位 3",
+            "code": 3
+          },
+          {
+            "id": 5,
+            "label": "工位 5",
+            "code": 5
+          },
+          {
+            "id": 6,
+            "label": "工位 6",
+            "code": 6
+          }
+        ]
+      },
+      {
+        "id": 5,
+        "label": "工位 5",
+        "code": 5,
+        "neighbors": [
+          {
+            "id": 3,
+            "label": "工位 3",
+            "code": 3
+          },
+          {
+            "id": 4,
+            "label": "工位 4",
+            "code": 4
+          },
+          {
+            "id": 6,
+            "label": "工位 6",
+            "code": 6
+          }
+        ]
+      },
+      {
+        "id": 6,
+        "label": "工位 6",
+        "code": 6,
+        "neighbors": [
+          {
+            "id": 3,
+            "label": "工位 3",
+            "code": 3
+          },
+          {
+            "id": 4,
+            "label": "工位 4",
+            "code": 4
+          },
+          {
+            "id": 5,
+            "label": "工位 5",
+            "code": 5
+          },
+          {
+            "id": 7,
+            "label": "工位 7",
+            "code": 7
+          }
+        ]
+      },
+      {
+        "id": 7,
+        "label": "工位 7",
+        "code": 7,
+        "neighbors": [
+          {
+            "id": 6,
+            "label": "工位 6",
+            "code": 6
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+```json
+{
+  "status": 9009999,
+  "resMsg": "未知错误,{0}",
+  "data": {}
+}
+```
+
+### 返回结果
+
+|状态码|状态码含义|说明|数据模型|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|none|Inline|
+
+### 返回数据结构
+
+状态码 **200**
+
+|名称|类型|必选|约束|中文名|说明|
+|---|---|---|---|---|---|
+|» status|integer|true|none||none|
+|» resMsg|string|true|none||none|
+|» data|object|true|none||none|
+|»» stationGraph|[object]|true|none|工位图|none|
+|»»» id|integer|true|none|工位id|none|
+|»»» label|string|true|none|工位名称|none|
+|»»» code|integer|true|none|工位代号|none|
+|»»» neighbors|[object]|true|none|相邻工位|none|
+|»»»» id|integer|true|none||none|
+|»»»» label|string|true|none||none|
+|»»»» code|integer|true|none||none|
 
 # 数据模型
 
