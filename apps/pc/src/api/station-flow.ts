@@ -89,3 +89,41 @@ export function getStationFlowConfigApi() {
 export function saveStationFlowConfigApi(data: SaveFlowConfigParams) {
   return requestClient.post('/api/station/v1/flow-config', data);
 }
+
+// 识别率统计-整体-类型
+export interface OverallAccuracy {
+  chaosCount: number;
+  errorCount: number;
+  identifyCount: number;
+  missCount: number;
+  rate: number;
+}
+
+// 识别率统计-工位-类型
+export interface StationAccuracy {
+  chaosCount?: number;
+  errorCount?: number;
+  identifyCount?: number;
+  missCount?: number;
+  rate?: number;
+  stationCode: number;
+  stationLabel: string;
+}
+
+// 识别率统计返回结果
+export interface StationAccuracyResult {
+  overallAccuracy: OverallAccuracy;
+  stationAccuracyList: StationAccuracy[];
+}
+
+/**
+ * 获取工位识别率报表
+ */
+export function getStationAccuracyApi(params?: {
+  endTime?: number;
+  startTime?: number;
+}) {
+  return requestClient.get<StationAccuracyResult>('/api/station/v1/accuracy', {
+    params,
+  });
+}
