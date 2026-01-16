@@ -315,10 +315,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <Page
-    title="标识器寿命报表"
-    description="统计和分析标识器的使用寿命、电量消耗、更换记录等"
-  >
+  <Page auto-content-height>
     <!-- Filter Form -->
     <Card :bordered="false" class="mb-4">
       <Form layout="vertical">

@@ -204,7 +204,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <Page title="标识器状态监控" description="实时监控标识器的状态信息">
+  <Page auto-content-height>
     <!-- Left-Right Split Layout -->
     <div class="flex h-[calc(100vh-200px)] gap-4">
       <!-- Left Sidebar: Tree Navigation -->

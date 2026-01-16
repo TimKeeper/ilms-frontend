@@ -304,10 +304,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <Page
-    title="铁包及车架轨迹"
-    description="实时追踪铁包和车架的位置和移动轨迹，支持历史轨迹回放"
-  >
+  <Page auto-content-height>
     <!-- Filter Form -->
     <Card :bordered="false" class="mb-4">
       <Form layout="vertical">
