@@ -63,3 +63,94 @@ export function updateRadarApi(id: number, data: RadarUpdateParams) {
 export function deleteRadarApi(ids: number[]) {
   return requestClient.delete('/api/radar/v1/delete', { data: { ids } });
 }
+
+// ===== Original Data =====
+
+export interface RadarDataParams {
+  radarHost?: string;
+  radarPort?: number;
+  radarAddress?: number;
+  stationLabel?: string;
+  tagType?: number; // 0 | 1
+  tagSn?: number;
+  tagBoundName?: string;
+  startTime?: number;
+  endTime?: number;
+  cursor?: number;
+  pageSize: number;
+}
+
+export interface RadarDataItem {
+  id: number;
+  radarHost: string;
+  radarPort: number;
+  radarAddress: number;
+  stationLabel?: string;
+  tagType?: number;
+  tagBoundName?: string;
+  functionCode: number;
+  dataLength: number;
+  tagSn: number;
+  pulse1: number;
+  pulse2: number;
+  pulse3: number;
+  pulse4: number;
+  pulse5: number;
+  baseLine: number;
+  pulseFrequency: number;
+  antennaNumber: number;
+  crc16: number;
+  inputTime: number;
+}
+
+export interface RadarDataResult {
+  cursor?: number;
+  items: RadarDataItem[];
+}
+
+export function getRadarDataApi(params: RadarDataParams) {
+  return requestClient.get<RadarDataResult>('/api/radar/v1/data', { params });
+}
+
+// ===== Merged Data =====
+
+export interface RadarDataGroupParams {
+  radarHost?: string;
+  stationLabel?: string;
+  tagType?: number;
+  tagSn?: number;
+  tagBoundName?: string;
+  startTime?: number;
+  endTime?: number;
+  page: number;
+  pageSize: number;
+}
+
+export interface RadarDataGroupItem {
+  id: number;
+  radarHost: string;
+  radarPort: number;
+  radarAntennaNum: number;
+  radarAddress: number;
+  stationLabel: string;
+  tagType: number;
+  tagSn: number;
+  tagBoundName: string;
+  tagMaxPulse: number;
+  tagReadCount: number;
+  startTime: number;
+  endTime: number;
+  updateTime: number;
+  lastTime: number;
+}
+
+export interface RadarDataGroupResult {
+  total: number;
+  items: RadarDataGroupItem[];
+}
+
+export function getRadarDataGroupApi(params: RadarDataGroupParams) {
+  return requestClient.get<RadarDataGroupResult>('/api/radar/v1/dataGroup', {
+    params,
+  });
+}

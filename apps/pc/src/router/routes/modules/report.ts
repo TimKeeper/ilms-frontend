@@ -30,15 +30,15 @@ const routes: RouteRecordRaw[] = [
           title: $t('ilms.report.identifierLifespan'),
         },
       },
-      {
-        name: 'RawDataReport',
-        path: '/report/raw-data',
-        component: () => import('#/views/report/raw-data/index.vue'),
-        meta: {
-          icon: 'lucide:database',
-          title: $t('ilms.report.rawData'),
-        },
-      },
+      // {
+      //   name: 'RawDataReport',
+      //   path: '/report/raw-data',
+      //   component: () => import('#/views/report/raw-data/index.vue'),
+      //   meta: {
+      //     icon: 'lucide:database',
+      //     title: $t('ilms.report.rawData'),
+      //   },
+      // },
     ],
   },
 ];

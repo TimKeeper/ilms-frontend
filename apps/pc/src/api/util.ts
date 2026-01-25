@@ -64,3 +64,25 @@ export interface TagListParams {
 export function getTagListApi(params?: TagListParams) {
   return requestClient.get<TagListResult>('/api/util/v1/tagList', { params });
 }
+
+export interface RadarItem {
+  id: number;
+  radarHost: string;
+  radarPort: number;
+  radarAddress: number;
+  radarStatus: number;
+  inputTime: number;
+  updateTime: number;
+  station: string;
+}
+
+export interface AllRadarResult {
+  radarList: RadarItem[];
+}
+
+/**
+ * 获取所有雷达
+ */
+export function getAllRadarApi() {
+  return requestClient.get<AllRadarResult>('/api/util/v1/allRadar');
+}
