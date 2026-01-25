@@ -22,6 +22,16 @@ const routes: RouteRecordRaw[] = [
         },
       },
       {
+        name: 'RadarRecognitionReportHistory',
+        path: '/report/radar-recognition-history',
+        component: () =>
+          import('#/views/report/radar-recognition-history/index.vue'),
+        meta: {
+          icon: 'lucide:history',
+          title: '(历史)雷达识别报表',
+        },
+      },
+      {
         name: 'IdentifierLifespanReport',
         path: '/report/identifier-lifespan',
         component: () => import('#/views/report/identifier-lifespan/index.vue'),
