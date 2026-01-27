@@ -48,3 +48,39 @@ export function updateIronApi(id: number, data: IronUpdateParams) {
 export function deleteIronApi(ids: number[]) {
   return requestClient.delete('/api/iron/v1/delete', { data: { ids } });
 }
+
+export function downloadIronTemplateApi() {
+  return requestClient.get('/api/iron/v1/template/download', {
+    responseType: 'blob',
+  });
+}
+
+export interface IronImportResult {
+  success: boolean;
+  totalRows: number;
+  successCount: number;
+  failCount: number;
+  errors: string[];
+}
+
+export function importIronApi(file: File) {
+  const formData = new FormData();
+  formData.append('file', file);
+  return requestClient.post<IronImportResult>('/api/iron/v1/import', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+}
+
+export interface IronExportParams {
+  ironName?: string;
+  tagSn?: number;
+}
+
+export function exportIronApi(params?: IronExportParams) {
+  return requestClient.get('/api/iron/v1/export', {
+    params,
+    responseType: 'blob',
+  });
+}
