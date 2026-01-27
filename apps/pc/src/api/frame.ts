@@ -54,3 +54,39 @@ export function updateFrameApi(id: number, data: FrameUpdateParams) {
 export function deleteFrameApi(ids: number[]) {
   return requestClient.delete('/api/frame/v1/delete', { data: { ids } });
 }
+
+export function downloadFrameTemplateApi() {
+  return requestClient.get('/api/frame/v1/template/download', {
+    responseType: 'blob',
+  });
+}
+
+export interface FrameImportResult {
+  success: boolean;
+  totalRows: number;
+  successCount: number;
+  failCount: number;
+  errors: string[];
+}
+
+export function importFrameApi(file: File) {
+  const formData = new FormData();
+  formData.append('file', file);
+  return requestClient.post<FrameImportResult>('/api/frame/v1/import', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+}
+
+export interface FrameExportParams {
+  frameName?: string;
+  tagSn?: number;
+}
+
+export function exportFrameApi(params?: FrameExportParams) {
+  return requestClient.get('/api/frame/v1/export', {
+    params,
+    responseType: 'blob',
+  });
+}
