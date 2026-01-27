@@ -7,14 +7,25 @@ import { ref } from 'vue';
 
 import { Page } from '@vben/common-ui';
 
-import { Button, Drawer, message, Modal, Space, Tag } from 'ant-design-vue';
+import {
+  Button,
+  Drawer,
+  message,
+  Modal,
+  Space,
+  Tag,
+  Upload,
+} from 'ant-design-vue';
 
 import { useVbenForm } from '#/adapter/form';
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
 import {
   createRadarApi,
   deleteRadarApi,
+  downloadRadarTemplateApi,
+  exportRadarApi,
   getRadarListApi,
+  importRadarApi,
   updateRadarApi,
 } from '#/api';
 
@@ -308,6 +319,67 @@ const handleCancel = () => {
   drawerVisible.value = false;
   editFormApi.resetForm();
 };
+
+const handleDownloadTemplate = async () => {
+  try {
+    const blob = await downloadRadarTemplateApi();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = '雷达导入模板.xlsx';
+    document.body.append(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    a.remove();
+    message.success('下载成功');
+  } catch (error: any) {
+    message.error(error.message || '下载失败');
+  }
+};
+
+const handleImport = async (file: File) => {
+  try {
+    const result = await importRadarApi(file);
+    if (result.success) {
+      message.success(
+        `导入成功：共${result.totalRows}条，成功${result.successCount}条`,
+      );
+      gridApi.grid.commitProxy('query');
+    } else {
+      Modal.error({
+        title: '导入失败',
+        content: result.errors.join('\n'),
+        width: 600,
+      });
+    }
+  } catch (error: any) {
+    message.error(error.message || '导入失败');
+  }
+  return false;
+};
+
+const handleExport = async () => {
+  try {
+    const formValues = (await gridApi.formApi?.getValues()) || {};
+    const blob = await exportRadarApi({
+      radarHost: formValues?.radarHost || undefined,
+      stationLabel: formValues?.stationLabel || undefined,
+      stationCode: formValues?.stationCode || undefined,
+      processOrder: formValues?.processOrder,
+    });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `雷达数据_${Date.now()}.xlsx`;
+    document.body.append(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    a.remove();
+    message.success('导出成功');
+  } catch (error: any) {
+    message.error(error.message || '导出失败');
+  }
+};
 </script>
 
 <template>
@@ -319,6 +391,15 @@ const handleCancel = () => {
           <Button danger type="primary" @click="handleBatchDelete">
             批量删除
           </Button>
+          <Button @click="handleDownloadTemplate">下载导入模板</Button>
+          <Upload
+            :before-upload="handleImport"
+            :show-upload-list="false"
+            accept=".xls,.xlsx"
+          >
+            <Button>导入雷达</Button>
+          </Upload>
+          <Button @click="handleExport">导出雷达</Button>
         </Space>
       </template>
 

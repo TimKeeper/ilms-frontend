@@ -64,6 +64,44 @@ export function deleteRadarApi(ids: number[]) {
   return requestClient.delete('/api/radar/v1/delete', { data: { ids } });
 }
 
+export function downloadRadarTemplateApi() {
+  return requestClient.get('/api/radar/v1/template/download', {
+    responseType: 'blob',
+  });
+}
+
+export interface RadarImportResult {
+  success: boolean;
+  totalRows: number;
+  successCount: number;
+  failCount: number;
+  errors: string[];
+}
+
+export function importRadarApi(file: File) {
+  const formData = new FormData();
+  formData.append('file', file);
+  return requestClient.post<RadarImportResult>('/api/radar/v1/import', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+}
+
+export interface RadarExportParams {
+  radarHost?: string;
+  stationLabel?: string;
+  stationCode?: string;
+  processOrder?: number;
+}
+
+export function exportRadarApi(params?: RadarExportParams) {
+  return requestClient.get('/api/radar/v1/export', {
+    params,
+    responseType: 'blob',
+  });
+}
+
 // ===== Original Data =====
 
 export interface RadarDataParams {
