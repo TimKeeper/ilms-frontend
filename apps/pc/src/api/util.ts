@@ -65,7 +65,7 @@ export function getTagListApi(params?: TagListParams) {
   return requestClient.get<TagListResult>('/api/util/v1/tagList', { params });
 }
 
-export interface RadarItem {
+export interface UtilRadarItem {
   id: number;
   radarHost: string;
   radarPort: number;
@@ -77,7 +77,7 @@ export interface RadarItem {
 }
 
 export interface AllRadarResult {
-  radarList: RadarItem[];
+  radarList: UtilRadarItem[];
 }
 
 /**

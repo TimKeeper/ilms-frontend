@@ -72,11 +72,15 @@ export interface FrameImportResult {
 export function importFrameApi(file: File) {
   const formData = new FormData();
   formData.append('file', file);
-  return requestClient.post<FrameImportResult>('/api/frame/v1/import', formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
+  return requestClient.post<FrameImportResult>(
+    '/api/frame/v1/import',
+    formData,
+    {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
     },
-  });
+  );
 }
 
 export interface FrameExportParams {

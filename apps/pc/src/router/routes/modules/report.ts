@@ -40,6 +40,15 @@ const routes: RouteRecordRaw[] = [
           title: $t('ilms.report.identifierLifespan'),
         },
       },
+      {
+        name: 'ExportRecords',
+        path: '/report/export-records',
+        component: () => import('#/views/report/export-records/index.vue'),
+        meta: {
+          icon: 'lucide:download',
+          title: '数据导出',
+        },
+      },
       // {
       //   name: 'RawDataReport',
       //   path: '/report/raw-data',

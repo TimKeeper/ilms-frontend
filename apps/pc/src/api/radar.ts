@@ -81,11 +81,15 @@ export interface RadarImportResult {
 export function importRadarApi(file: File) {
   const formData = new FormData();
   formData.append('file', file);
-  return requestClient.post<RadarImportResult>('/api/radar/v1/import', formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
+  return requestClient.post<RadarImportResult>(
+    '/api/radar/v1/import',
+    formData,
+    {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
     },
-  });
+  );
 }
 
 export interface RadarExportParams {

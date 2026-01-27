@@ -8,17 +8,24 @@ import type {
 } from '#/api/radar';
 
 import { onMounted, ref } from 'vue';
+import { useRouter } from 'vue-router';
 
 import { Page } from '@vben/common-ui';
 
-import { message, Radio, Tag } from 'ant-design-vue';
+import { Button, message, Radio, Space, Tag } from 'ant-design-vue';
 import dayjs from 'dayjs';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
-import { getRadarDataApi, getRadarDataGroupApi } from '#/api/radar';
+import {
+  exportRadarDataApi,
+  exportRadarDataGroupApi,
+  getRadarDataApi,
+  getRadarDataGroupApi,
+} from '#/api';
 import { getBoundListApi, getStationListApi, getTagListApi } from '#/api/util';
 
 const activeType = ref<'data' | 'dataGroup'>('data');
+const router = useRouter();
 
 // ===== Constants & Helpers =====
 const tagTypeOptions = [
@@ -318,7 +325,7 @@ const dataGridOptions: VxeGridProps<RadarDataItem> = {
   },
 };
 
-const [DataGrid] = useVbenVxeGrid({
+const [DataGrid, dataGridApi] = useVbenVxeGrid({
   formOptions: dataFormOptions,
   gridOptions: dataGridOptions,
 });
@@ -489,10 +496,89 @@ const dataGroupGridOptions: VxeGridProps<RadarDataGroupItem> = {
   },
 };
 
-const [DataGroupGrid] = useVbenVxeGrid({
+const [DataGroupGrid, dataGroupGridApi] = useVbenVxeGrid({
   formOptions: dataGroupFormOptions,
   gridOptions: dataGroupGridOptions,
 });
+
+const handleExportData = async () => {
+  try {
+    const formValues = (await dataGridApi.formApi?.getValues()) || {};
+    const radarHost = formValues?.radarHost;
+    const radarPort = formValues?.radarPort;
+    const radarAddress = formValues?.radarAddress;
+    const timeRange = formValues?.timeRange;
+
+    if (!radarHost || !radarPort || !radarAddress) {
+      message.warning('请填写雷达IP、端口和地址');
+      return;
+    }
+
+    if (!timeRange || timeRange.length !== 2) {
+      message.warning('请选择时间范围');
+      return;
+    }
+
+    const startTime = timeRange[0].valueOf();
+    const endTime = timeRange[1].valueOf();
+
+    if (endTime - startTime > 24 * 60 * 60 * 1000) {
+      message.warning('时间范围不能超过24小时');
+      return;
+    }
+
+    await exportRadarDataApi({
+      radarHost,
+      radarPort,
+      radarAddress,
+      startTime,
+      endTime,
+      stationLabel: formValues?.stationLabel,
+      tagType: formValues?.tagType,
+      tagSn: formValues?.tagSn,
+      tagBoundName: formValues?.tagBoundName,
+    });
+
+    message.success('导出任务已创建，正在后台处理');
+    router.push('/report/export-records');
+  } catch (error: any) {
+    message.error(error.message || '导出失败');
+  }
+};
+
+const handleExportDataGroup = async () => {
+  try {
+    const formValues = (await dataGroupGridApi.formApi?.getValues()) || {};
+    const timeRange = formValues?.timeRange;
+
+    if (!timeRange || timeRange.length !== 2) {
+      message.warning('请选择时间范围');
+      return;
+    }
+
+    const startTime = timeRange[0].valueOf();
+    const endTime = timeRange[1].valueOf();
+
+    if (endTime - startTime > 24 * 60 * 60 * 1000) {
+      message.warning('时间范围不能超过24小时');
+      return;
+    }
+
+    await exportRadarDataGroupApi({
+      startTime,
+      endTime,
+      stationLabel: formValues?.stationLabel,
+      tagType: formValues?.tagType,
+      tagSn: formValues?.tagSn,
+      tagBoundName: formValues?.tagBoundName,
+    });
+
+    message.success('导出任务已创建，正在后台处理');
+    router.push('/report/export-records');
+  } catch (error: any) {
+    message.error(error.message || '导出失败');
+  }
+};
 
 onMounted(() => {
   loadStationOptions();
@@ -506,10 +592,15 @@ onMounted(() => {
     <div class="h-full w-full">
       <DataGrid v-if="activeType === 'data'">
         <template #toolbar_buttons>
-          <Radio.Group v-model:value="activeType" button-style="solid">
-            <Radio.Button value="data">原始数据</Radio.Button>
-            <Radio.Button value="dataGroup">合并数据</Radio.Button>
-          </Radio.Group>
+          <Space>
+            <Radio.Group v-model:value="activeType" button-style="solid">
+              <Radio.Button value="data">原始数据</Radio.Button>
+              <Radio.Button value="dataGroup">合并数据</Radio.Button>
+            </Radio.Group>
+            <Button type="primary" @click="handleExportData">
+              导出原始数据
+            </Button>
+          </Space>
         </template>
 
         <template #tagType="{ row }">
@@ -525,10 +616,15 @@ onMounted(() => {
 
       <DataGroupGrid v-else>
         <template #toolbar_buttons>
-          <Radio.Group v-model:value="activeType" button-style="solid">
-            <Radio.Button value="data">原始数据</Radio.Button>
-            <Radio.Button value="dataGroup">合并数据</Radio.Button>
-          </Radio.Group>
+          <Space>
+            <Radio.Group v-model:value="activeType" button-style="solid">
+              <Radio.Button value="data">原始数据</Radio.Button>
+              <Radio.Button value="dataGroup">合并数据</Radio.Button>
+            </Radio.Group>
+            <Button type="primary" @click="handleExportDataGroup">
+              导出合并数据
+            </Button>
+          </Space>
         </template>
 
         <template #tagType="{ row }">
