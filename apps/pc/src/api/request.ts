@@ -89,13 +89,40 @@ function createRequestClient(baseURL: string, options?: RequestClientOptions) {
   });
 
   // 处理返回的响应数据格式
-  client.addResponseInterceptor(
-    defaultResponseInterceptor({
-      codeField: 'status',
-      dataField: 'data',
-      successCode: 0,
-    }),
-  );
+  client.addResponseInterceptor({
+    fulfilled: (response) => {
+      const { config, data: responseData, status } = response;
+
+      if (config.responseReturn === 'raw') {
+        return response;
+      }
+
+      if (config.responseType === 'blob') {
+        return responseData;
+      }
+
+      if (status >= 200 && status < 400) {
+        if (config.responseReturn === 'body') {
+          return responseData;
+        }
+
+        const businessCode = responseData.status;
+        const isSuccess = businessCode === 0;
+
+        if (isSuccess) {
+          return responseData.data;
+        }
+
+        const errorMsg = responseData.resMsg || '未知错误';
+        throw Object.assign({}, response, {
+          response,
+          businessError: true,
+          businessMessage: errorMsg,
+        });
+      }
+      throw Object.assign({}, response, { response });
+    },
+  });
 
   // token过期的处理
   client.addResponseInterceptor(
