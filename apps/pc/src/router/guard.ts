@@ -7,6 +7,7 @@ import { startProgress, stopProgress } from '@vben/utils';
 
 import { accessRoutes, coreRouteNames } from '#/router/routes';
 import { useAuthStore } from '#/store';
+import { initWebSocket } from '#/websocket-init';
 
 import { generateAccess } from './access';
 
@@ -105,6 +106,10 @@ function setupAccessGuard(router: Router) {
     accessStore.setAccessMenus(accessibleMenus);
     accessStore.setAccessRoutes(accessibleRoutes);
     accessStore.setIsAccessChecked(true);
+
+    // 初始化 WebSocket 服务（登录成功后）
+    initWebSocket();
+
     let redirectPath: string;
     if (from.query.redirect) {
       redirectPath = from.query.redirect as string;

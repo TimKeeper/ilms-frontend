@@ -16,7 +16,6 @@ import { initComponentAdapter } from './adapter/component';
 import { initSetupVbenForm } from './adapter/form';
 import App from './app.vue';
 import { initTimezone } from './timezone-init';
-import { initWebSocket } from './websocket-init';
 
 async function bootstrap(namespace: string) {
   // 初始化组件适配器
@@ -50,9 +49,6 @@ async function bootstrap(namespace: string) {
 
   // 初始化时区HANDLER
   initTimezone();
-
-  // 初始化 WebSocket 服务
-  initWebSocket();
 
   // 安装权限指令
   registerAccessDirective(app);
