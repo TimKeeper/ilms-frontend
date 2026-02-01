@@ -516,8 +516,10 @@ const loadData = async () => {
 
       message.success('数据加载成功');
 
-      // 数据加载完成后自动触发布局（不显示成功消息）
-      if (processes.value.length > 0) {
+      // 数据加载完成后，仅当没有坐标信息（例如首次加载）时才自动布局
+      // 检查是否有任何工序的坐标非零，如果有则认为已有布局数据，不自动布局
+      const hasLayout = processes.value.some((p) => p.x !== 0 || p.y !== 0);
+      if (processes.value.length > 0 && !hasLayout) {
         performAutoLayout(false);
       }
     }
