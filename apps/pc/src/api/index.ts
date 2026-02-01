@@ -7,3 +7,4 @@ export * from './radar';
 export * from './tag';
 export * from './util';
 export * from './workstation-graph';
+export * from './config';

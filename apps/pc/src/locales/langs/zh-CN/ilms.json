@@ -11,7 +11,8 @@
     "station": "工位列表",
     "ladle": "高温标识器配置",
     "carriage": "常温标识器配置",
-    "alarm": "报警配置"
+    "alarm": "报警配置",
+    "system": "系统配置"
   },
   "report": {
     "title": "报表分析",
