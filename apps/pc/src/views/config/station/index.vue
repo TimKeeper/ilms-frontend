@@ -620,168 +620,107 @@ const deleteLink = (link: Link) => {
 
 // --- 自动布局 ---
 const performAutoLayout = (showMessage = true) => {
-  if (processes.value.length === 0) {
+  if (processes.value.length === 0 && stations.value.length === 0) {
     if (showMessage) {
-      message.warning('没有可布局的工序');
+      message.warning('没有可布局的元素');
     }
     return;
   }
 
-  // 1. 宏观布局：水平排列工序（按order排序）
-  const sortedProcesses = [...processes.value].toSorted(
-    (a, b) => (a.order || 0) - (b.order || 0),
-  );
+  // 创建全局Dagre图，启用复合图(compound)支持
+  const g = new dagre.graphlib.Graph({ compound: true });
+  g.setGraph({
+    rankdir: 'LR',
+    nodesep: 60, // 节点间距
+    ranksep: 100, // 层级间距
+    marginx: 50,
+    marginy: 50,
+  });
+  g.setDefaultEdgeLabel(() => ({}));
 
-  const PROCESS_GAP = 80; // 工序之间的间距
-  const TOP_MARGIN = 50; // 顶部边距
-  const PROCESS_PADDING = 20; // 工序内边距
+  // 配置常量
   const STATION_WIDTH = 100;
   const STATION_HEIGHT = 40;
-  const STATION_VERTICAL_GAP = 30; // 工位之间的垂直间距
+  const HEADER_HEIGHT = 40; // 工序标题高度预留
+  const PADDING = 20; // 工序内边距
 
-  let currentX = 50; // 起始X坐标
+  // 1. 添加工序作为集群(Cluster)
+  processes.value.forEach((p) => {
+    g.setNode(`group_${p.id}`, {
+      label: p.label,
+      clusterLabelPos: 'top',
+      // 尝试设置内边距，帮助Dagre计算集群大小时留出空间
+      // 注意：并非所有Dagre版本都完美支持这些属性，后续会再次修正尺寸
+      paddingTop: HEADER_HEIGHT + PADDING,
+      paddingBottom: PADDING,
+      paddingLeft: PADDING,
+      paddingRight: PADDING,
+    });
+  });
 
-  // 为每个工序创建独立的Dagre图
-  sortedProcesses.forEach((proc) => {
-    const processStations = stations.value.filter(
-      (s) => s.processId === proc.id,
-    );
-
-    if (processStations.length === 0) {
-      // 如果工序内没有工位，保持工序默认大小并移动到下一个位置
-      processes.value = processes.value.map((p) =>
-        p.id === proc.id ? { ...p, x: currentX, y: TOP_MARGIN } : p,
-      );
-      currentX += proc.width + PROCESS_GAP;
-      return;
+  // 2. 添加工位节点
+  stations.value.forEach((s) => {
+    g.setNode(s.id.toString(), {
+      width: STATION_WIDTH,
+      height: STATION_HEIGHT,
+    });
+    // 如果工位属于某个工序，设置父级关系
+    if (s.processId && processes.value.some((p) => p.id === s.processId)) {
+      g.setParent(s.id.toString(), `group_${s.processId}`);
     }
-
-    // 2. 微观布局：使用Dagre计算工位在工序内的位置
-    const g = new dagre.graphlib.Graph();
-    g.setGraph({
-      rankdir: 'LR', // 从左到右排列
-      nodesep: 30, // 同层节点间距
-      ranksep: 80, // 层级间距
-    });
-    g.setDefaultEdgeLabel(() => ({}));
-
-    // 添加当前工序内的所有工位作为节点
-    processStations.forEach((station) => {
-      g.setNode(station.id.toString(), {
-        height: STATION_HEIGHT,
-        width: STATION_WIDTH,
-      });
-    });
-
-    // 添加连线（仅限当前工序内的连线）
-    links.value.forEach((link) => {
-      const fromStation = processStations.find((s) => s.id === link.from);
-      const toStation = processStations.find((s) => s.id === link.to);
-      // 只添加两端都在当前工序内的连线
-      if (fromStation && toStation) {
-        g.setEdge(link.from.toString(), link.to.toString());
-      }
-    });
-
-    // 运行Dagre布局算法
-    dagre.layout(g);
-
-    // 3. 计算工序所需的实际高度和宽度
-    let minX = Number.POSITIVE_INFINITY;
-    let maxX = Number.NEGATIVE_INFINITY;
-    let minY = Number.POSITIVE_INFINITY;
-    let maxY = Number.NEGATIVE_INFINITY;
-
-    processStations.forEach((station) => {
-      const node = g.node(station.id.toString());
-      if (node) {
-        minX = Math.min(minX, node.x - STATION_WIDTH / 2);
-        maxX = Math.max(maxX, node.x + STATION_WIDTH / 2);
-        minY = Math.min(minY, node.y - STATION_HEIGHT / 2);
-        maxY = Math.max(maxY, node.y + STATION_HEIGHT / 2);
-      }
-    });
-
-    // 计算工序内容的实际尺寸
-    const contentWidth = maxX - minX;
-    const contentHeight = maxY - minY;
-
-    // 工序尺寸 = 内容尺寸 + 内边距 + 标题高度
-    const processWidth = Math.max(
-      proc.width,
-      contentWidth + PROCESS_PADDING * 2,
-    );
-    const processHeight = contentHeight + PROCESS_PADDING * 2 + 30; // 30为标题高度
-
-    // 4. 更新工序位置和尺寸
-    processes.value = processes.value.map((p) =>
-      p.id === proc.id
-        ? {
-            ...p,
-            height: processHeight,
-            width: processWidth,
-            x: currentX,
-            y: TOP_MARGIN,
-          }
-        : p,
-    );
-
-    // 5. 更新工位位置（相对于工序的位置）
-    processStations.forEach((station) => {
-      const node = g.node(station.id.toString());
-      if (node) {
-        // 计算工位在工序内的相对位置
-        const relativeX = node.x - minX;
-        const relativeY = node.y - minY;
-
-        // 计算工位的绝对位置（工序位置 + 内边距 + 相对位置）
-        // X轴：居中对齐
-        const centerOffset = (processWidth - contentWidth) / 2;
-        const absoluteX =
-          currentX + centerOffset + relativeX - STATION_WIDTH / 2;
-
-        // Y轴：Dagre计算的位置 + 工序Y + 标题高度 + 内边距
-        const absoluteY =
-          TOP_MARGIN + 30 + PROCESS_PADDING + relativeY - STATION_HEIGHT / 2;
-
-        stations.value = stations.value.map((s) =>
-          s.id === station.id
-            ? {
-                ...s,
-                x: absoluteX,
-                y: absoluteY,
-              }
-            : s,
-        );
-      }
-    });
-
-    // 移动到下一个工序的X位置
-    currentX += processWidth + PROCESS_GAP;
   });
 
-  // 处理孤立工位（没有所属工序或工序不存在的工位）
-  const orphanStations = stations.value.filter((station) => {
-    return !processes.value.some((proc) => proc.id === station.processId);
+  // 3. 添加连线
+  links.value.forEach((l) => {
+    // 确保连线的两端节点都存在
+    const fromExists = stations.value.some((s) => s.id === l.from);
+    const toExists = stations.value.some((s) => s.id === l.to);
+    if (fromExists && toExists) {
+      g.setEdge(l.from.toString(), l.to.toString());
+    }
   });
 
-  if (orphanStations.length > 0) {
-    // 将孤立工位排列在最右侧
-    orphanStations.forEach((station, index) => {
-      stations.value = stations.value.map((s) =>
-        s.id === station.id
-          ? {
-              ...s,
-              x: currentX,
-              y:
-                TOP_MARGIN +
-                50 +
-                index * (STATION_HEIGHT + STATION_VERTICAL_GAP),
-            }
-          : s,
-      );
-    });
-  }
+  // 4. 执行布局计算
+  dagre.layout(g);
+
+  // 5. 应用布局结果
+
+  // 更新工序位置和尺寸
+  processes.value = processes.value.map((p) => {
+    const node = g.node(`group_${p.id}`);
+    if (node) {
+      // Dagre返回的是中心点坐标和宽高
+      // 我们需要保证有足够的空间显示标题和内边距
+      // 如果Dagre没有生效padding属性，我们在这里手动扩展
+
+      const minWidth = node.width || 200;
+      const minHeight = node.height || 150;
+
+      // 转换为左上角坐标
+      return {
+        ...p,
+        x: node.x - minWidth / 2,
+        y: node.y - minHeight / 2,
+        width: minWidth,
+        height: minHeight,
+      };
+    }
+    return p;
+  });
+
+  // 更新工位位置
+  stations.value = stations.value.map((s) => {
+    const node = g.node(s.id.toString());
+    if (node) {
+      return {
+        ...s,
+        // 转换为左上角坐标
+        x: node.x - node.width / 2,
+        y: node.y - node.height / 2,
+      };
+    }
+    return s;
+  });
 
   if (showMessage) {
     message.success('自动布局完成');
