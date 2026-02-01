@@ -1,3 +1,5 @@
+import type { Ref } from 'vue';
+
 import type { NotificationItem } from '@vben/layouts';
 
 import { websocketService } from '#/services/websocket';
@@ -19,12 +21,12 @@ function getWebSocketUrl(): string {
 }
 
 // Global notifications storage
-let notificationsList: NotificationItem[] = [];
+let notificationsList: null | Ref<NotificationItem[]> = null;
 
 /**
  * Set notifications reference
  */
-export function setNotifications(notifications: NotificationItem[]) {
+export function setNotifications(notifications: Ref<NotificationItem[]>) {
   notificationsList = notifications;
 }
 
@@ -34,32 +36,32 @@ export function setNotifications(notifications: NotificationItem[]) {
  * Otherwise, add as new notification
  */
 function handleAlarmNotification(notification: NotificationItem) {
-  if (!notificationsList) return;
+  if (!notificationsList || !notificationsList.value) return;
+
+  const list = notificationsList.value;
 
   // Find existing notification with the same ID
-  const existingIndex = notificationsList.findIndex(
-    (item) => item.id === notification.id,
-  );
+  const existingIndex = list.findIndex((item) => item.id === notification.id);
 
   // If notification with same ID exists, update and move to top
   if (existingIndex !== -1) {
     // Get the existing item
-    const existingItem = notificationsList[existingIndex];
+    const existingItem = list[existingIndex];
     if (existingItem) {
       // Update existing notification's content
       Object.assign(existingItem, notification);
 
       // Move to top if not already at index 0
       if (existingIndex !== 0) {
-        notificationsList.splice(existingIndex, 1);
-        notificationsList.unshift(existingItem);
+        list.splice(existingIndex, 1);
+        list.unshift(existingItem);
       }
     }
     return;
   }
 
   // Add new notification at the top
-  notificationsList.unshift(notification);
+  list.unshift(notification);
 }
 
 /**

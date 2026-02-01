@@ -152,7 +152,7 @@ onBeforeMount(() => {
   }
 
   // Register notifications array with WebSocket service
-  setNotifications(notifications.value);
+  setNotifications(notifications);
 });
 </script>
 
