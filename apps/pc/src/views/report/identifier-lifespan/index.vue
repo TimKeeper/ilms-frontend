@@ -272,9 +272,6 @@ const renderChart = (data: TagLifeChartResult) => {
       smooth: true,
       symbol: 'circle',
       symbolSize: 6,
-      lineStyle: {
-        width: 2,
-      },
       emphasis: {
         focus: 'series',
       },
@@ -393,6 +390,7 @@ onBeforeUnmount(() => {
               <DatePicker.RangePicker
                 v-model:value="formState.dateRange"
                 class="w-full"
+                :allow-clear="false"
                 :disabled-date="
                   (current: Dayjs) => current && current > dayjs().endOf('day')
                 "

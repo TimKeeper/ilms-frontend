@@ -31,7 +31,7 @@ const formState = reactive<{
   trackType: 0 | 1; // 0-铁包 1-车架
 }>({
   boundName: undefined,
-  dateRange: [dayjs().subtract(1, 'day'), dayjs()],
+  dateRange: [dayjs().subtract(1, 'hour'), dayjs()],
   trackType: 1, // 默认车架
 });
 
@@ -280,7 +280,7 @@ const renderChart = (data: TrackChartResult) => {
 const handleReset = () => {
   formState.trackType = 1; // 重置为默认车架
   formState.boundName = undefined;
-  formState.dateRange = [dayjs().subtract(1, 'day'), dayjs()];
+  formState.dateRange = [dayjs().subtract(1, 'hour'), dayjs()];
   // 重新加载铁包/车架列表
   fetchBoundNameOptions();
 };
@@ -346,6 +346,7 @@ onBeforeUnmount(() => {
                 v-model:value="formState.dateRange"
                 show-time
                 class="w-full"
+                :allow-clear="false"
                 :disabled-date="
                   (current: Dayjs) => current && current > dayjs().endOf('day')
                 "
