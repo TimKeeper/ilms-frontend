@@ -13,7 +13,6 @@ import {
   Space,
   Tooltip,
 } from 'ant-design-vue';
-import dagre from 'dagre';
 
 import {
   getStationFlowConfigApi,
@@ -329,19 +328,30 @@ const addProcess = () => {
   // 生成唯一的工序名称（使用时间戳后4位）
   const uniqueSuffix = Date.now().toString().slice(-4);
   const uniqueLabel = `新工序 ${uniqueSuffix}`;
+
+  // 计算新工序的位置：放在最后一个工序的后面
+  let newX = 100;
+  let newY = 100;
+  if (processes.value.length > 0) {
+    // 找到最右侧的工序
+    // eslint-disable-next-line unicorn/no-array-reduce
+    const rightmostProcess = processes.value.reduce((prev, current) => {
+      return prev.x + prev.width > current.x + current.width ? prev : current;
+    });
+    newX = rightmostProcess.x + rightmostProcess.width + 100; // 间距 100
+    newY = rightmostProcess.y; // 保持 Y 轴对齐
+  }
+
   processes.value.push({
     height: 200,
     id: tempId,
     label: uniqueLabel,
     order: maxOrder + 1,
     width: 250,
-    x: 100,
-    y: 100,
+    x: newX,
+    y: newY,
   });
   message.success('工序添加成功');
-
-  // 自动触发布局（不显示成功消息）
-  performAutoLayout(false);
 };
 
 // --- 添加工位 ---
@@ -378,9 +388,6 @@ const addStation = (processId: number) => {
     y: proc.y + 40,
   });
   message.success('工位添加成功');
-
-  // 自动触发布局（不显示成功消息）
-  performAutoLayout(false);
 };
 
 // --- 双击编辑工位 ---
@@ -515,13 +522,6 @@ const loadData = async () => {
       }
 
       message.success('数据加载成功');
-
-      // 数据加载完成后，仅当没有坐标信息（例如首次加载）时才自动布局
-      // 检查是否有任何工序的坐标非零，如果有则认为已有布局数据，不自动布局
-      const hasLayout = processes.value.some((p) => p.x !== 0 || p.y !== 0);
-      if (processes.value.length > 0 && !hasLayout) {
-        performAutoLayout(false);
-      }
     }
   } catch (error) {
     console.error('加载失败:', error);
@@ -621,113 +621,7 @@ const deleteLink = (link: Link) => {
 };
 
 // --- 自动布局 ---
-const performAutoLayout = (showMessage = true) => {
-  if (processes.value.length === 0 && stations.value.length === 0) {
-    if (showMessage) {
-      message.warning('没有可布局的元素');
-    }
-    return;
-  }
-
-  // 创建全局Dagre图，启用复合图(compound)支持
-  const g = new dagre.graphlib.Graph({ compound: true });
-  g.setGraph({
-    rankdir: 'LR',
-    nodesep: 60, // 节点间距
-    ranksep: 100, // 层级间距
-    marginx: 50,
-    marginy: 50,
-  });
-  g.setDefaultEdgeLabel(() => ({}));
-
-  // 配置常量
-  const STATION_WIDTH = 100;
-  const STATION_HEIGHT = 40;
-  const HEADER_HEIGHT = 40; // 工序标题高度预留
-  const PADDING = 20; // 工序内边距
-
-  // 1. 添加工序作为集群(Cluster)
-  processes.value.forEach((p) => {
-    g.setNode(`group_${p.id}`, {
-      label: p.label,
-      clusterLabelPos: 'top',
-      // 尝试设置内边距，帮助Dagre计算集群大小时留出空间
-      // 注意：并非所有Dagre版本都完美支持这些属性，后续会再次修正尺寸
-      paddingTop: HEADER_HEIGHT + PADDING,
-      paddingBottom: PADDING,
-      paddingLeft: PADDING,
-      paddingRight: PADDING,
-    });
-  });
-
-  // 2. 添加工位节点
-  stations.value.forEach((s) => {
-    g.setNode(s.id.toString(), {
-      width: STATION_WIDTH,
-      height: STATION_HEIGHT,
-    });
-    // 如果工位属于某个工序，设置父级关系
-    if (s.processId && processes.value.some((p) => p.id === s.processId)) {
-      g.setParent(s.id.toString(), `group_${s.processId}`);
-    }
-  });
-
-  // 3. 添加连线
-  links.value.forEach((l) => {
-    // 确保连线的两端节点都存在
-    const fromExists = stations.value.some((s) => s.id === l.from);
-    const toExists = stations.value.some((s) => s.id === l.to);
-    if (fromExists && toExists) {
-      g.setEdge(l.from.toString(), l.to.toString());
-    }
-  });
-
-  // 4. 执行布局计算
-  dagre.layout(g);
-
-  // 5. 应用布局结果
-
-  // 更新工序位置和尺寸
-  processes.value = processes.value.map((p) => {
-    const node = g.node(`group_${p.id}`);
-    if (node) {
-      // Dagre返回的是中心点坐标和宽高
-      // 我们需要保证有足够的空间显示标题和内边距
-      // 如果Dagre没有生效padding属性，我们在这里手动扩展
-
-      const minWidth = node.width || 200;
-      const minHeight = node.height || 150;
-
-      // 转换为左上角坐标
-      return {
-        ...p,
-        x: node.x - minWidth / 2,
-        y: node.y - minHeight / 2,
-        width: minWidth,
-        height: minHeight,
-      };
-    }
-    return p;
-  });
-
-  // 更新工位位置
-  stations.value = stations.value.map((s) => {
-    const node = g.node(s.id.toString());
-    if (node) {
-      return {
-        ...s,
-        // 转换为左上角坐标
-        x: node.x - node.width / 2,
-        y: node.y - node.height / 2,
-      };
-    }
-    return s;
-  });
-
-  if (showMessage) {
-    message.success('自动布局完成');
-  }
-};
+// 已移除自动布局功能，新元素添加在默认位置，后续由用户手动调整
 
 // --- 画布缩放控制 ---
 const zoomIn = () => {
@@ -812,13 +706,6 @@ const handleWheel = (e: WheelEvent) => {
 
         <Button type="primary" :disabled="loading" @click="addProcess">
           添加工序
-        </Button>
-        <Button
-          type="default"
-          :disabled="loading"
-          @click="() => performAutoLayout()"
-        >
-          自动布局
         </Button>
         <Button danger :disabled="loading" @click="deleteSelected">
           删除选中
