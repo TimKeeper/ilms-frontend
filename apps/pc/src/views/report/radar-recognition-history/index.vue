@@ -227,7 +227,6 @@ const dataGridOptions: VxeGridProps<RadarDataItem> = {
     },
   ],
   height: 'auto',
-  maxHeight: 700,
   pagerConfig: {
     autoHidden: false,
   },
@@ -459,7 +458,6 @@ const dataGroupGridOptions: VxeGridProps<RadarDataGroupItem> = {
     },
   ],
   height: 'auto',
-  maxHeight: 700,
   pagerConfig: {},
   proxyConfig: {
     autoLoad: false,

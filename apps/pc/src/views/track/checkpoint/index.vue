@@ -117,7 +117,6 @@ const missGridOptions: VxeGridProps<MissListItem> = {
     },
   ],
   height: 'auto',
-  maxHeight: 700,
   pagerConfig: {},
   proxyConfig: {
     ajax: {
@@ -209,7 +208,6 @@ const chaosGridOptions: VxeGridProps<ChaosListItem> = {
     },
   ],
   height: 'auto',
-  maxHeight: 700,
   pagerConfig: {},
   proxyConfig: {
     ajax: {
