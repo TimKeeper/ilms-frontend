@@ -270,6 +270,12 @@ const renderChart = (data: TrackChartResult) => {
           fontWeight: 'bold',
         },
       },
+      // 数据量大时启用降采样策略
+      sampling: 'lttb',
+      // 自动隐藏重叠的标签
+      labelLayout: {
+        hideOverlap: true,
+      },
     })),
   };
 
