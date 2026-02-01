@@ -114,6 +114,7 @@ class WebSocketService {
   private readonly HEARTBEAT_INTERVAL = 10_000; // 10 seconds
 
   private heartbeatInterval: any = null;
+  private isManualClose: boolean = false;
   private readonly MAX_RECONNECT_ATTEMPTS = 5;
   // Notifications callback
   private notificationsCallback:
@@ -121,8 +122,8 @@ class WebSocketService {
     | null = null;
   private readonly RECONNECT_DELAY = 3000;
   private reconnectAttempts: number = 0;
-  private reconnectTimeout: any = null;
 
+  private reconnectTimeout: any = null;
   private sender: string = generateUUID(); // Persistent session ID
   // WebSocket & Internals
   private ws: null | WebSocket = null;
@@ -136,6 +137,8 @@ class WebSocketService {
       console.error('[WebSocket] WebSocket URL not initialized');
       return;
     }
+
+    this.isManualClose = false;
 
     try {
       // Close existing connection if any
@@ -170,8 +173,8 @@ class WebSocketService {
         this.isConnected.value = false;
         this.stopHeartbeat();
 
-        // Attempt to reconnect if not a normal closure
-        if (event.code !== 1000) {
+        // Attempt to reconnect if not a normal closure and not manually closed
+        if (event.code !== 1000 && !this.isManualClose) {
           this.reconnect();
         }
       });
@@ -182,9 +185,10 @@ class WebSocketService {
   }
 
   /**
-   * Disconnect from WebSocket
+   * Disconnect from WebSocket and destroy instance state
    */
   public disconnect() {
+    this.isManualClose = true;
     this.stopHeartbeat();
 
     if (this.reconnectTimeout) {
@@ -201,6 +205,10 @@ class WebSocketService {
     this.isReconnecting.value = false;
     this.connectionError.value = null;
     this.reconnectAttempts = 0;
+
+    // Clear state
+    this.notificationsCallback = null;
+    this.radars.value = [];
   }
 
   /**
@@ -229,6 +237,9 @@ class WebSocketService {
       // 检查响应状态 - token 失效处理
       if (response.status === 9_000_007) {
         console.error('[WebSocket] Token expired, logging out...');
+        // Disconnect immediately to prevent further processing or reconnects
+        this.disconnect();
+
         // 导入动态导入避免循环依赖
         import('#/store').then(({ useAuthStore }) => {
           const authStore = useAuthStore();
@@ -311,9 +322,14 @@ class WebSocketService {
    * Attempt to reconnect
    */
   private reconnect() {
-    if (this.reconnectAttempts >= this.MAX_RECONNECT_ATTEMPTS) {
-      console.error('[WebSocket] Max reconnect attempts reached. Giving up.');
-      this.connectionError.value = '无法连接到服务器，请稍后重试';
+    if (
+      this.isManualClose ||
+      this.reconnectAttempts >= this.MAX_RECONNECT_ATTEMPTS
+    ) {
+      if (this.reconnectAttempts >= this.MAX_RECONNECT_ATTEMPTS) {
+        console.error('[WebSocket] Max reconnect attempts reached. Giving up.');
+        this.connectionError.value = '无法连接到服务器，请稍后重试';
+      }
       this.isReconnecting.value = false;
       return;
     }

@@ -13,6 +13,7 @@ import { defineStore } from 'pinia';
 
 import { loginApi } from '#/api';
 import { $t } from '#/locales';
+import { cleanupWebSocket } from '#/websocket-init';
 
 export const useAuthStore = defineStore('auth', () => {
   const accessStore = useAccessStore();
@@ -96,6 +97,9 @@ export const useAuthStore = defineStore('auth', () => {
     // 清除所有本地状态
     resetAllStores();
     accessStore.setLoginExpired(false);
+
+    // Cleanup WebSocket
+    cleanupWebSocket();
 
     // 回登录页带上当前路由地址
     await router.replace({
