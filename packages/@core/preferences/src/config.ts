@@ -18,7 +18,7 @@ const defaultPreferences: Preferences = {
     defaultAvatar:
       'https://unpkg.com/@vbenjs/static-source@0.1.7/source/avatar-v1.webp',
     defaultHomePath: '/home',
-    dynamicTitle: true,
+    dynamicTitle: false,
     enableCheckUpdates: true,
     enablePreferences: true,
     enableRefreshToken: false,
