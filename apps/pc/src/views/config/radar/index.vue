@@ -3,7 +3,7 @@ import type { VbenFormProps } from '#/adapter/form';
 import type { VxeGridProps } from '#/adapter/vxe-table';
 import type { RadarItem } from '#/api';
 
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 
 import { Page } from '@vben/common-ui';
 
@@ -28,10 +28,29 @@ import {
   importRadarApi,
   updateRadarApi,
 } from '#/api';
+import { getStationListApi } from '#/api/util';
 
 const drawerVisible = ref(false);
 const editingRecord = ref<null | RadarItem>(null);
 const isEditMode = ref(false);
+
+const stationOptions = ref<{ label: string; value: number }[]>([]);
+
+const loadStationOptions = async () => {
+  try {
+    const res = await getStationListApi();
+    stationOptions.value = (res.stationList || []).map((item) => ({
+      label: item.label,
+      value: item.id,
+    }));
+  } catch (error) {
+    console.error('Failed to load station list', error);
+  }
+};
+
+onMounted(() => {
+  loadStationOptions();
+});
 
 const formOptions: VbenFormProps = {
   collapsed: false,
@@ -200,21 +219,25 @@ const [EditForm, editFormApi] = useVbenForm({
       rules: 'required',
     },
     {
-      component: 'InputNumber',
+      component: 'Select',
       componentProps: {
         class: 'w-full',
-        min: 1,
-        placeholder: '请输入天线1工位ID',
+        placeholder: '请选择天线1工位',
+        options: stationOptions,
+        allowClear: true,
+        showSearch: true,
       },
       fieldName: 'radarAntenna1StationId',
       label: '天线1工位ID',
     },
     {
-      component: 'InputNumber',
+      component: 'Select',
       componentProps: {
         class: 'w-full',
-        min: 1,
-        placeholder: '请输入天线2工位ID',
+        placeholder: '请选择天线2工位',
+        options: stationOptions,
+        allowClear: true,
+        showSearch: true,
       },
       fieldName: 'radarAntenna2StationId',
       label: '天线2工位ID',
