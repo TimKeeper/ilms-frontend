@@ -215,3 +215,50 @@ export function getChaosListApi(params: ChaosListParams) {
     params,
   });
 }
+
+/**
+ * 绑定失败列表 API
+ */
+
+export interface BindFailedListParams {
+  frameName?: string; // 车架名称-精确匹配
+  ironName?: string; // 铁包名称-精确匹配
+  stationLabel?: string; // 工位名称-精确匹配
+  page: number;
+  pageSize: number;
+}
+
+export interface BindFailedListItem {
+  id: number;
+  stationLabel: string; // 工位名称
+  frameName?: string; // 车架名称
+  preFrameTagSn?: number; // 车架前标签
+  preFrameTagStartTime?: number; // 读取到前标签的开始时间
+  preFrameTagEndTime?: number; // 读取到前标签的结束时间
+  postFrameTagSn?: number; // 车架后标签
+  postFrameTagStartTime?: number; // 读取到后标签的开始时间
+  postFrameTagEndTime?: number; // 读取到后标签的结束时间
+  ironName?: string; // 铁包名称
+  ironTagSn?: number; // 铁包标签SN
+  ironTagStartTime?: number; // 读取到高温标签的开始时间
+  ironTagEndTime?: number; // 读取到高温标签的结束时间
+  failType: number; // 绑定失败类型
+  bindingFailedTime: number; // 绑定失败时间
+}
+
+export interface BindFailedListResult {
+  total: number;
+  items: BindFailedListItem[];
+}
+
+/**
+ * 获取绑定失败列表
+ */
+export function getBindFailedListApi(params: BindFailedListParams) {
+  return requestClient.get<BindFailedListResult>(
+    '/api/tag/v1/bind-failed/list',
+    {
+      params,
+    },
+  );
+}

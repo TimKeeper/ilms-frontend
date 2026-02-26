@@ -2,6 +2,7 @@
 import type { VbenFormProps } from '#/adapter/form';
 import type { VxeGridProps } from '#/adapter/vxe-table';
 import type {
+  BindFailedListItem,
   BoundItem,
   ChaosListItem,
   MissListItem,
@@ -18,6 +19,7 @@ import dayjs from 'dayjs';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
 import {
+  getBindFailedListApi,
   getBoundListApi,
   getChaosListApi,
   getMissListApi,
@@ -233,6 +235,115 @@ const [ChaosGrid] = useVbenVxeGrid({
   gridOptions: chaosGridOptions,
 });
 
+// ===== 绑定失败相关 =====
+const bindFailTypeMap: Record<number, string> = {
+  1: '未读取到车架前标签，先读到高温标签',
+  2: '未读取到高温标签',
+  3: '未读取到车架后标签',
+  4: '车架未绑定完成，读取到其他车架标签',
+  5: '未读取到车架后标签，读取到其他高温标签',
+  6: '绑定判定车架前后标签相同，是否发生倒车？',
+  7: '车架前标签与高温标签绑定时工位不连续',
+  8: '高温标签与车架后标签绑定时工位不连续',
+  9: '未读取到高温标签（未绑定到高温标签，该车架其他标签已出现在其他不连续的工位）',
+  10: '未读取到车架后标签（未绑定到车架后标签，该车架其他标签已出现在其他不连续工位）',
+  11: '未读取到车架后标签（该高温标签已出现在其他不连续工位）',
+  99: '其他异常',
+};
+
+const getBindFailTypeText = (type: number) => {
+  return bindFailTypeMap[type] || '未知异常';
+};
+
+const bindFailedFormOptions: VbenFormProps = {
+  collapsed: false,
+  schema: [
+    {
+      component: 'Input',
+      fieldName: 'frameName',
+      label: '车架名称',
+      componentProps: {
+        placeholder: '请输入车架名称',
+        allowClear: true,
+      },
+    },
+    {
+      component: 'Input',
+      fieldName: 'ironName',
+      label: '铁包名称',
+      componentProps: {
+        placeholder: '请输入铁包名称',
+        allowClear: true,
+      },
+    },
+    {
+      component: 'Input',
+      fieldName: 'stationLabel',
+      label: '工位名称',
+      componentProps: {
+        placeholder: '请输入工位名称',
+        allowClear: true,
+      },
+    },
+  ],
+  showCollapseButton: true,
+  submitOnChange: false,
+  submitOnEnter: true,
+};
+
+const bindFailedGridOptions: VxeGridProps<BindFailedListItem> = {
+  rowConfig: {
+    keyField: 'id',
+  },
+  columns: [
+    { field: 'id', minWidth: 80, title: 'ID' },
+    { field: 'stationLabel', minWidth: 120, title: '工位名称' },
+    { field: 'frameName', minWidth: 120, title: '车架名称' },
+    { field: 'ironName', minWidth: 120, title: '铁包名称' },
+    {
+      field: 'failType',
+      minWidth: 200,
+      slots: { default: 'failType' },
+      title: '失败原因',
+    },
+    {
+      field: 'bindingFailedTime',
+      minWidth: 180,
+      slots: { default: 'bindingFailedTime' },
+      title: '绑定失败时间',
+    },
+    { field: 'preFrameTagSn', minWidth: 120, title: '车架前标签' },
+    { field: 'postFrameTagSn', minWidth: 120, title: '车架后标签' },
+    { field: 'ironTagSn', minWidth: 120, title: '铁包标签' },
+  ],
+  height: 'auto',
+  pagerConfig: {},
+  proxyConfig: {
+    ajax: {
+      query: async ({ page }, formValues) => {
+        return await getBindFailedListApi({
+          page: page.currentPage,
+          pageSize: page.pageSize,
+          frameName: formValues?.frameName || undefined,
+          ironName: formValues?.ironName || undefined,
+          stationLabel: formValues?.stationLabel || undefined,
+        });
+      },
+    },
+  },
+  toolbarConfig: {
+    custom: true,
+    refresh: true,
+    slots: { buttons: 'toolbar_buttons' },
+    zoom: true,
+  },
+};
+
+const [BindFailedGrid] = useVbenVxeGrid({
+  formOptions: bindFailedFormOptions,
+  gridOptions: bindFailedGridOptions,
+});
+
 // 格式化时间戳
 const formatTime = (timestamp: number) => {
   return dayjs(timestamp).format('YYYY-MM-DD HH:mm:ss');
@@ -275,6 +386,7 @@ onMounted(() => {
         <Radio.Group v-model:value="activeType" button-style="solid">
           <Radio.Button value="miss">漏读列表</Radio.Button>
           <Radio.Button value="chaos">串读列表</Radio.Button>
+          <Radio.Button value="bindFailed">绑定失败</Radio.Button>
         </Radio.Group>
       </template>
 
@@ -359,6 +471,7 @@ onMounted(() => {
         <Radio.Group v-model:value="activeType" button-style="solid">
           <Radio.Button value="miss">漏读列表</Radio.Button>
           <Radio.Button value="chaos">串读列表</Radio.Button>
+          <Radio.Button value="bindFailed">绑定失败</Radio.Button>
         </Radio.Group>
       </template>
 
@@ -380,5 +493,25 @@ onMounted(() => {
         <Tag color="red">{{ formatTime(row.chaosPoint) }}</Tag>
       </template>
     </ChaosGrid>
+
+    <BindFailedGrid v-if="activeType === 'bindFailed'">
+      <template #toolbar_buttons>
+        <Radio.Group v-model:value="activeType" button-style="solid">
+          <Radio.Button value="miss">漏读列表</Radio.Button>
+          <Radio.Button value="chaos">串读列表</Radio.Button>
+          <Radio.Button value="bindFailed">绑定失败</Radio.Button>
+        </Radio.Group>
+      </template>
+
+      <template #failType="{ row }">
+        <Tag color="red">
+          {{ getBindFailTypeText(row.failType) }}
+        </Tag>
+      </template>
+
+      <template #bindingFailedTime="{ row }">
+        {{ formatTime(row.bindingFailedTime) }}
+      </template>
+    </BindFailedGrid>
   </Page>
 </template>
