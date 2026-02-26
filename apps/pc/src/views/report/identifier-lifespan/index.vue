@@ -32,7 +32,7 @@ import dayjs from 'dayjs';
 import * as echarts from 'echarts';
 
 import { getTagLifeChartApi } from '#/api/tag';
-import { getBoundListApi } from '#/api/util';
+import { getBoundListApi, getStationListApi } from '#/api/util';
 
 // Form state
 const formState = reactive<{
@@ -61,9 +61,23 @@ const hasData = computed(() => {
 let chartInstance: echarts.ECharts | null = null;
 const chartRef = ref<HTMLElement>();
 
-// 铁包/车架选项列表
+// Options state
+const stationOptions = ref<{ label: string; value: string }[]>([]);
 const boundNameOptions = ref<{ label: string; value: string }[]>([]);
 const boundNameLoading = ref(false);
+
+// Load station options
+const loadStationOptions = async () => {
+  try {
+    const res = await getStationListApi();
+    stationOptions.value = (res.stationList || []).map((item) => ({
+      label: item.label,
+      value: item.label,
+    }));
+  } catch (error) {
+    console.error('Failed to load station list', error);
+  }
+};
 
 // 获取铁包/车架列表
 const fetchBoundNameOptions = async () => {
@@ -297,8 +311,10 @@ const handleResize = () => {
 };
 
 onMounted(() => {
-  // 初始化时加载铁包/车架列表
+  // Load initial dropdowns
+  loadStationOptions();
   fetchBoundNameOptions();
+
   // 初始化图表数据
   fetchChartData();
   window.addEventListener('resize', handleResize);
@@ -319,11 +335,20 @@ onBeforeUnmount(() => {
         <Row :gutter="16">
           <Col :span="6">
             <Form.Item label="工位名称">
-              <Input
+              <Select
                 v-model:value="formState.stationLabel"
-                placeholder="请输入工位名称"
+                placeholder="请选择工位"
                 allow-clear
-              />
+                show-search
+              >
+                <Select.Option
+                  v-for="option in stationOptions"
+                  :key="option.value"
+                  :value="option.value"
+                >
+                  {{ option.label }}
+                </Select.Option>
+              </Select>
             </Form.Item>
           </Col>
           <Col :span="6">
