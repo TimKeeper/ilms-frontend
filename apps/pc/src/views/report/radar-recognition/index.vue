@@ -40,7 +40,7 @@ const tagTypeOptions = [
 ];
 
 const formatTime = (timestamp: number) => {
-  return timestamp ? dayjs(timestamp).format('YYYY-MM-DD HH:mm:ss') : '-';
+  return timestamp ? dayjs(timestamp).format('YYYY-MM-DD HH:mm:ss.SSS') : '-';
 };
 
 const getTagTypeColor = (type: number | undefined) => {
