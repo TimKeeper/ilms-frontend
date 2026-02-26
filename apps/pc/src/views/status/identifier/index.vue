@@ -313,7 +313,7 @@ onMounted(() => {
                   <!-- Range Value Header -->
                   <div class="mb-3 flex items-center gap-2">
                     <span class="text-sm font-medium text-gray-600">
-                      温度范围:
+                      信号范围:
                     </span>
                     <span
                       class="text-sm font-semibold"
