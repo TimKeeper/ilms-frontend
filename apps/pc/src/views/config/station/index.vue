@@ -842,6 +842,7 @@ const handleWheel = (e: WheelEvent) => {
                   :title="proc.label"
                 >
                   {{ proc.label }}
+                  {{ proc.order !== undefined ? `(${proc.order})` : '' }}
                 </span>
               </div>
             </foreignObject>
