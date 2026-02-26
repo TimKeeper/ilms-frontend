@@ -32,7 +32,7 @@ import dayjs from 'dayjs';
 import * as echarts from 'echarts';
 
 import { getTagLifeChartApi } from '#/api/tag';
-import { getBoundListApi, getStationListApi } from '#/api/util';
+import { getBoundListApi, getStationListApi, getTagListApi } from '#/api/util';
 
 // Form state
 const formState = reactive<{
@@ -65,6 +65,8 @@ const chartRef = ref<HTMLElement>();
 const stationOptions = ref<{ label: string; value: string }[]>([]);
 const boundNameOptions = ref<{ label: string; value: string }[]>([]);
 const boundNameLoading = ref(false);
+const tagSnOptions = ref<{ label: string; value: number }[]>([]);
+const tagSnLoading = ref(false);
 
 // Load station options
 const loadStationOptions = async () => {
@@ -115,12 +117,42 @@ const fetchBoundNameOptions = async () => {
   }
 };
 
+// 获取标识器ID列表
+const fetchTagOptions = async () => {
+  // 如果没有选择标识器类型，清空选项列表
+  if (formState.tagType === undefined) {
+    tagSnOptions.value = [];
+    formState.tagSn = undefined;
+    return;
+  }
+
+  try {
+    tagSnLoading.value = true;
+    const result = await getTagListApi({
+      type: formState.tagType,
+    });
+
+    tagSnOptions.value = result.tagList.map((item) => ({
+      label: `${item.tagSn} (${item.tagBoundName || '-'})`,
+      value: item.tagSn,
+    }));
+  } catch (error) {
+    console.error('Failed to fetch tag options:', error);
+    tagSnOptions.value = [];
+    formState.tagSn = undefined;
+  } finally {
+    tagSnLoading.value = false;
+  }
+};
+
 // 监听标识器类型变化
 watch(
   () => formState.tagType,
   () => {
     formState.tagBoundName = undefined; // 清空之前的选择
+    formState.tagSn = undefined;
     fetchBoundNameOptions();
+    fetchTagOptions();
   },
 );
 
@@ -314,6 +346,7 @@ onMounted(() => {
   // Load initial dropdowns
   loadStationOptions();
   fetchBoundNameOptions();
+  fetchTagOptions(); // Added this call
 
   // 初始化图表数据
   fetchChartData();
@@ -400,7 +433,26 @@ onBeforeUnmount(() => {
           </Col>
           <Col :span="6">
             <Form.Item label="标识器ID">
+              <!-- 当选择了标识器类型时，显示下拉框 -->
+              <Select
+                v-if="formState.tagType !== undefined"
+                v-model:value="formState.tagSn"
+                placeholder="请选择标识器ID"
+                :loading="tagSnLoading"
+                allow-clear
+                show-search
+              >
+                <Select.Option
+                  v-for="option in tagSnOptions"
+                  :key="option.value"
+                  :value="option.value"
+                >
+                  {{ option.label }}
+                </Select.Option>
+              </Select>
+              <!-- 当未选择标识器类型时，显示输入框 -->
               <InputNumber
+                v-else
                 v-model:value="formState.tagSn"
                 placeholder="请输入标识器ID"
                 :min="0"
