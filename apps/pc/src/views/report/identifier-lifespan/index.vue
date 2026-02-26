@@ -278,7 +278,7 @@ const renderChart = (data: TagLifeChartResult) => {
     })),
   };
 
-  chartInstance.setOption(option);
+  chartInstance.setOption(option, { notMerge: true });
 };
 
 // Reset form
