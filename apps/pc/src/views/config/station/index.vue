@@ -31,8 +31,13 @@ const nodes = ref<any[]>([]);
 const edges = ref<any[]>([]);
 const loading = ref(false);
 
-const { addEdges, getSelectedNodes, getSelectedEdges, removeSelectedElements } =
-  useVueFlow();
+const {
+  addEdges,
+  getSelectedNodes,
+  getSelectedEdges,
+  removeNodes,
+  removeEdges,
+} = useVueFlow();
 
 // --- Modals State ---
 const stationModalVisible = ref(false);
@@ -251,10 +256,10 @@ const onEdgeDoubleClick = ({ edge }: any) => {
 };
 
 const deleteSelected = () => {
-  const selectedNodes = getSelectedNodes.value;
-  const selectedEdges = getSelectedEdges.value;
+  const nodesToRemove = getSelectedNodes.value.map((n) => n.id);
+  const edgesToRemove = getSelectedEdges.value.map((e) => e.id);
 
-  if (selectedNodes.length === 0 && selectedEdges.length === 0) {
+  if (nodesToRemove.length === 0 && edgesToRemove.length === 0) {
     message.warning('请先选中要删除的元素');
     return;
   }
@@ -263,7 +268,12 @@ const deleteSelected = () => {
     content: `确定要删除选中的元素吗？`,
     title: '确认删除',
     onOk: () => {
-      removeSelectedElements();
+      if (nodesToRemove.length > 0) {
+        removeNodes(nodesToRemove);
+      }
+      if (edgesToRemove.length > 0) {
+        removeEdges(edgesToRemove);
+      }
       message.success('删除成功');
     },
   });
