@@ -83,7 +83,6 @@ const missGridOptions: VxeGridProps<MissListItem> = {
     keyField: 'id',
   },
   columns: [
-    { field: 'id', minWidth: 80, title: 'ID' },
     {
       field: 'boundType',
       minWidth: 100,
@@ -179,7 +178,6 @@ const chaosGridOptions: VxeGridProps<ChaosListItem> = {
     keyField: 'id',
   },
   columns: [
-    { field: 'id', minWidth: 80, title: 'ID' },
     { field: 'tagSn', minWidth: 120, title: '标识器ID' },
     {
       field: 'tagType',
@@ -296,7 +294,6 @@ const bindFailedGridOptions: VxeGridProps<BindFailedListItem> = {
     keyField: 'id',
   },
   columns: [
-    { field: 'id', minWidth: 80, title: 'ID' },
     { field: 'stationLabel', minWidth: 120, title: '工位名称' },
     { field: 'frameName', minWidth: 120, title: '车架名称' },
     { field: 'ironName', minWidth: 120, title: '铁包名称' },
