@@ -309,8 +309,18 @@ const bindFailedGridOptions: VxeGridProps<BindFailedListItem> = {
       slots: { default: 'bindingFailedTime' },
       title: '绑定失败时间',
     },
-    { field: 'preFrameTagSn', minWidth: 120, title: '车架前标签' },
-    { field: 'postFrameTagSn', minWidth: 120, title: '车架后标签' },
+    {
+      field: 'preFrameTagSn',
+      minWidth: 120,
+      slots: { default: 'preFrameTagSn' },
+      title: '车架前标签',
+    },
+    {
+      field: 'postFrameTagSn',
+      minWidth: 120,
+      slots: { default: 'postFrameTagSn' },
+      title: '车架后标签',
+    },
     { field: 'ironTagSn', minWidth: 120, title: '铁包标签' },
   ],
   height: 'auto',
@@ -344,6 +354,11 @@ const [BindFailedGrid] = useVbenVxeGrid({
 // 格式化时间戳
 const formatTime = (timestamp: number) => {
   return dayjs(timestamp).format('YYYY-MM-DD HH:mm:ss');
+};
+
+const formatTimeMs = (timestamp: number | undefined) => {
+  if (!timestamp) return '-';
+  return dayjs(timestamp).format('YYYY-MM-DD HH:mm:ss.SSS');
 };
 
 // 获取类型标签颜色
@@ -508,6 +523,32 @@ onMounted(() => {
 
       <template #bindingFailedTime="{ row }">
         {{ formatTime(row.bindingFailedTime) }}
+      </template>
+
+      <template #preFrameTagSn="{ row }">
+        <Popover v-if="row.preFrameTagSn" placement="top" trigger="hover">
+          <template #content>
+            <div>
+              读取开始时间: {{ formatTimeMs(row.preFrameTagStartTime) }}
+            </div>
+            <div>读取结束时间: {{ formatTimeMs(row.preFrameTagEndTime) }}</div>
+          </template>
+          <Tag color="cyan">{{ row.preFrameTagSn }}</Tag>
+        </Popover>
+        <span v-else class="text-gray-400">-</span>
+      </template>
+
+      <template #postFrameTagSn="{ row }">
+        <Popover v-if="row.postFrameTagSn" placement="top" trigger="hover">
+          <template #content>
+            <div>
+              读取开始时间: {{ formatTimeMs(row.postFrameTagStartTime) }}
+            </div>
+            <div>读取结束时间: {{ formatTimeMs(row.postFrameTagEndTime) }}</div>
+          </template>
+          <Tag color="cyan">{{ row.postFrameTagSn }}</Tag>
+        </Popover>
+        <span v-else class="text-gray-400">-</span>
       </template>
     </BindFailedGrid>
   </Page>
