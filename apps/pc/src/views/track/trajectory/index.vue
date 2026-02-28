@@ -222,7 +222,7 @@ const renderChart = (data: TrackChartResult) => {
     },
     yAxis: {
       type: 'value',
-      name: '工位',
+      name: '轨迹坐标',
       nameLocation: 'middle',
       nameGap: 50,
       axisLabel: {
