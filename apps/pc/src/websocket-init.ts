@@ -17,7 +17,7 @@ function getWebSocketUrl(): string {
     return `${protocol}//${host}${envUrl}`;
   }
 
-  return envUrl;
+  return envUrl.replaceAll('{HOSTNAME}', window.location.hostname);
 }
 
 // Global notifications storage

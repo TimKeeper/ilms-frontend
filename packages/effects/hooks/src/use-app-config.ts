@@ -22,7 +22,9 @@ export function useAppConfig(
   } = config;
 
   const applicationConfig: ApplicationConfig = {
-    apiURL: VITE_GLOB_API_URL,
+    apiURL:
+      VITE_GLOB_API_URL?.replaceAll('{HOSTNAME}', window.location.hostname) ||
+      '',
     auth: {},
   };
   if (VITE_GLOB_AUTH_DINGDING_CORP_ID && VITE_GLOB_AUTH_DINGDING_CLIENT_ID) {
