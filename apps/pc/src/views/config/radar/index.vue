@@ -124,7 +124,7 @@ const gridOptions: VxeGridProps<RadarItem> = {
   },
   columns: [
     { type: 'checkbox', width: 50 },
-    { field: 'id', minWidth: 80, title: 'ID' },
+    { type: 'seq', minWidth: 80, title: '序号' },
     { field: 'radarHost', minWidth: 150, title: '雷达IP' },
     { field: 'radarPort', minWidth: 100, title: '端口' },
     { field: 'radarAddress', minWidth: 100, title: '地址' },
