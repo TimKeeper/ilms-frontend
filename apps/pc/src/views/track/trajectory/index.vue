@@ -133,6 +133,7 @@ const renderChart = (data: TrackChartResult) => {
   const showSlider = totalDataPoints > 15;
 
   const option: echarts.EChartsOption = {
+    animation: totalDataPoints <= 1000, // 数据量大时关闭动画防卡顿
     title: {
       left: 'center',
     },
@@ -252,9 +253,9 @@ const renderChart = (data: TrackChartResult) => {
       lineStyle: {
         width: 2,
       },
-      // 在数据点上显示工位代号
+      // 大数据量下关闭全局Label绘制，避免极高CPU计算开销
       label: {
-        show: true,
+        show: totalDataPoints <= 500,
         formatter: (params: any) => {
           return params.data?.tooltipData?.stationCode || '';
         },
@@ -272,10 +273,8 @@ const renderChart = (data: TrackChartResult) => {
       },
       // 数据量大时启用降采样策略
       sampling: 'lttb',
-      // 自动隐藏重叠的标签
-      labelLayout: {
-        hideOverlap: true,
-      },
+      // 大数据量下关闭文本重叠计算开销
+      labelLayout: totalDataPoints <= 500 ? { hideOverlap: true } : undefined,
     })),
   };
 
