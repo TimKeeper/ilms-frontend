@@ -14,7 +14,7 @@ import { computed, onMounted, ref } from 'vue';
 
 import { Page } from '@vben/common-ui';
 
-import { Popover, Radio, Space, Table, Tag } from 'ant-design-vue';
+import { Popover, Radio, Space, Table, Tag, Tooltip } from 'ant-design-vue';
 import dayjs from 'dayjs';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
@@ -296,10 +296,27 @@ const bindFailedGridOptions: VxeGridProps<BindFailedListItem> = {
   columns: [
     { field: 'stationLabel', minWidth: 120, title: '工位名称' },
     { field: 'frameName', minWidth: 120, title: '车架名称' },
-    { field: 'ironName', minWidth: 120, title: '铁包名称' },
+    {
+      field: 'preFrameTagSn',
+      minWidth: 120,
+      slots: { default: 'preFrameTagSn' },
+      title: '车架前标签',
+    },
+    {
+      field: 'ironTagSn',
+      minWidth: 150,
+      slots: { default: 'ironTagSn' },
+      title: '铁包',
+    },
+    {
+      field: 'postFrameTagSn',
+      minWidth: 120,
+      slots: { default: 'postFrameTagSn' },
+      title: '车架后标签',
+    },
     {
       field: 'failType',
-      minWidth: 200,
+      minWidth: 280,
       slots: { default: 'failType' },
       title: '失败原因',
     },
@@ -309,19 +326,6 @@ const bindFailedGridOptions: VxeGridProps<BindFailedListItem> = {
       slots: { default: 'bindingFailedTime' },
       title: '绑定失败时间',
     },
-    {
-      field: 'preFrameTagSn',
-      minWidth: 120,
-      slots: { default: 'preFrameTagSn' },
-      title: '车架前标签',
-    },
-    {
-      field: 'postFrameTagSn',
-      minWidth: 120,
-      slots: { default: 'postFrameTagSn' },
-      title: '车架后标签',
-    },
-    { field: 'ironTagSn', minWidth: 120, title: '铁包标签' },
   ],
   height: 'auto',
   pagerConfig: {},
@@ -351,12 +355,8 @@ const [BindFailedGrid] = useVbenVxeGrid({
   gridOptions: bindFailedGridOptions,
 });
 
-// 格式化时间戳
-const formatTime = (timestamp: number) => {
-  return dayjs(timestamp).format('YYYY-MM-DD HH:mm:ss');
-};
-
-const formatTimeMs = (timestamp: number | undefined) => {
+// 格式化时间戳(精确到毫秒)
+const formatTime = (timestamp: number | undefined) => {
   if (!timestamp) return '-';
   return dayjs(timestamp).format('YYYY-MM-DD HH:mm:ss.SSS');
 };
@@ -516,9 +516,21 @@ onMounted(() => {
       </template>
 
       <template #failType="{ row }">
-        <Tag color="red">
-          {{ getBindFailTypeText(row.failType) }}
-        </Tag>
+        <Tooltip :title="getBindFailTypeText(row.failType)" placement="topLeft">
+          <Tag
+            color="red"
+            style="
+              max-width: 100%;
+              margin-right: 0;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              vertical-align: middle;
+              white-space: nowrap;
+            "
+          >
+            {{ getBindFailTypeText(row.failType) }}
+          </Tag>
+        </Tooltip>
       </template>
 
       <template #bindingFailedTime="{ row }">
@@ -528,23 +540,32 @@ onMounted(() => {
       <template #preFrameTagSn="{ row }">
         <Popover v-if="row.preFrameTagSn" placement="top" trigger="hover">
           <template #content>
-            <div>
-              读取开始时间: {{ formatTimeMs(row.preFrameTagStartTime) }}
-            </div>
-            <div>读取结束时间: {{ formatTimeMs(row.preFrameTagEndTime) }}</div>
+            <div>读取开始时间: {{ formatTime(row.preFrameTagStartTime) }}</div>
+            <div>读取结束时间: {{ formatTime(row.preFrameTagEndTime) }}</div>
           </template>
           <Tag color="cyan">{{ row.preFrameTagSn }}</Tag>
         </Popover>
         <span v-else class="text-gray-400">-</span>
       </template>
 
+      <template #ironTagSn="{ row }">
+        <Popover v-if="row.ironTagSn" placement="top" trigger="hover">
+          <template #content>
+            <div>铁包名称: {{ row.ironName || '-' }}</div>
+            <div>读取开始时间: {{ formatTime(row.ironTagStartTime) }}</div>
+            <div>读取结束时间: {{ formatTime(row.ironTagEndTime) }}</div>
+          </template>
+          <Tag color="cyan">{{ row.ironTagSn }}</Tag>
+        </Popover>
+        <span v-else-if="row.ironName">{{ row.ironName }}</span>
+        <span v-else class="text-gray-400">-</span>
+      </template>
+
       <template #postFrameTagSn="{ row }">
         <Popover v-if="row.postFrameTagSn" placement="top" trigger="hover">
           <template #content>
-            <div>
-              读取开始时间: {{ formatTimeMs(row.postFrameTagStartTime) }}
-            </div>
-            <div>读取结束时间: {{ formatTimeMs(row.postFrameTagEndTime) }}</div>
+            <div>读取开始时间: {{ formatTime(row.postFrameTagStartTime) }}</div>
+            <div>读取结束时间: {{ formatTime(row.postFrameTagEndTime) }}</div>
           </template>
           <Tag color="cyan">{{ row.postFrameTagSn }}</Tag>
         </Popover>
