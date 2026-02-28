@@ -61,7 +61,7 @@ const gridOptions: VxeGridProps<IronItem> = {
   },
   columns: [
     { type: 'checkbox', width: 50 },
-    { field: 'id', minWidth: 80, title: 'ID' },
+    { type: 'seq', minWidth: 80, title: '序号' },
     { field: 'ironName', minWidth: 180, title: '铁包名称' },
     { field: 'tagSn1', minWidth: 120, title: '标识器ID1' },
     { field: 'tagSn2', minWidth: 120, title: '标识器ID2' },
