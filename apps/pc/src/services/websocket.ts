@@ -8,6 +8,7 @@ import { useAccessStore } from '@vben/stores';
 
 // Radar Status Codes
 export enum RadarStatus {
+  CONNECT_ERROR = 4, // Connection error with auto retry
   CONNECTING = 0,
   OFFLINE = -1,
   ONLINE = 1,

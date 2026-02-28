@@ -100,6 +100,8 @@ const getStatusText = (status: number) => {
     '0': 'connecting',
     '1': 'online',
     '2': 'warn',
+    '3': 'readTimeout',
+    '4': 'connectError',
   };
   return statusMap[status] || '未知';
 };
@@ -110,6 +112,8 @@ const getStatusColor = (status: number) => {
     '0': 'processing',
     '1': 'success',
     '2': 'warning',
+    '3': 'error',
+    '4': 'error',
   };
   return colorMap[status] || 'default';
 };

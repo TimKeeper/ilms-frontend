@@ -33,7 +33,8 @@ const warningCount = computed(
     radars.value.filter(
       (r) =>
         r.radarStatus === RadarStatus.WARN_SIGNAL ||
-        r.radarStatus === RadarStatus.READ_ERROR,
+        r.radarStatus === RadarStatus.READ_ERROR ||
+        r.radarStatus === RadarStatus.CONNECT_ERROR,
     ).length,
 );
 
@@ -112,6 +113,7 @@ const getStatusColor = (status: number) => {
     '1': 'success',
     '2': 'warning',
     '3': 'error',
+    '4': 'error',
   };
   return colorMap[status] || 'default';
 };
@@ -123,6 +125,7 @@ const getStatusText = (status: number) => {
     '1': '在线',
     '2': '信号警告',
     '3': '读取错误',
+    '4': '连接异常',
   };
   return textMap[status] || '未知';
 };
