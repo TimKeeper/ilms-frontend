@@ -213,12 +213,56 @@ const addStation = (processRawId: number) => {
     uniqueCode = Date.now().toString().slice(-4);
   }
 
+  const existingStations = nodes.value.filter(
+    (n) => n.type === 'station' && n.parentNode === parentNode.id,
+  );
+
+  let newX = 20;
+  let newY = 60;
+
+  // 处理横向排版与换行
+  const ITEM_WIDTH = 140; // 考虑间距后的工位占据宽度
+  const ITEM_HEIGHT = 70; // 考虑间距后的工位占据高度
+  const ROW_PADDINGS = 40; // 左右空白
+
+  const currentWidth = Number.parseInt(
+    parentNode.style?.width?.toString() || '300',
+  );
+
+  // 每行能容下的工位数量 (确保至少一行能放 1 个)
+  const itemsPerRow = Math.max(
+    1,
+    Math.floor((currentWidth - ROW_PADDINGS) / ITEM_WIDTH),
+  );
+
+  const totalCurrentStations = existingStations.length;
+  // 计算在新行和新列的索引
+  const rowIndex = Math.floor(totalCurrentStations / itemsPerRow);
+  const colIndex = totalCurrentStations % itemsPerRow;
+
+  newX = 20 + colIndex * ITEM_WIDTH;
+  newY = 60 + rowIndex * ITEM_HEIGHT;
+
+  // 动态更新父节点高度如果需要的话 (留出一点底部 padding)
+  const requiredHeight = newY + ITEM_HEIGHT + 20;
+  const currentHeight = Number.parseInt(
+    parentNode.style?.height?.toString() || '260',
+  );
+
+  if (requiredHeight > currentHeight) {
+    parentNode.style = {
+      ...parentNode.style,
+      height: `${requiredHeight}px`,
+    };
+  }
+
   nodes.value.push({
     id: `station_${tempId}`,
     type: 'station',
-    position: { x: 20, y: 60 },
+    position: { x: newX, y: newY },
     parentNode: parentNode.id,
     extent: 'parent',
+    expandParent: true, // 这是Vue Flow扩展父级的关键属性，但上面的style修改可以保证即时响应
     data: {
       rawId: tempId,
       label: uniqueLabel,
