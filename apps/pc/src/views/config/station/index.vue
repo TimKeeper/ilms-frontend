@@ -6,6 +6,7 @@ import { Page } from '@vben/common-ui';
 import { Background } from '@vue-flow/background';
 import { Controls } from '@vue-flow/controls';
 import { Handle, Position, useVueFlow, VueFlow } from '@vue-flow/core';
+import { NodeResizer } from '@vue-flow/node-resizer';
 import {
   Button,
   Card,
@@ -25,6 +26,7 @@ import {
 import '@vue-flow/core/dist/style.css';
 import '@vue-flow/core/dist/theme-default.css';
 import '@vue-flow/controls/dist/style.css';
+import '@vue-flow/node-resizer/dist/style.css';
 
 // --- State ---
 const nodes = ref<any[]>([]);
@@ -225,9 +227,9 @@ const addStation = (processRawId: number) => {
   const ITEM_HEIGHT = 70; // 考虑间距后的工位占据高度
   const ROW_PADDINGS = 40; // 左右空白
 
-  const currentWidth = Number.parseInt(
-    parentNode.style?.width?.toString() || '300',
-  );
+  const currentWidth =
+    parentNode.dimensions?.width ||
+    Number.parseInt(parentNode.style?.width?.toString() || '300');
 
   // 每行能容下的工位数量 (确保至少一行能放 1 个)
   const itemsPerRow = Math.max(
@@ -245,9 +247,9 @@ const addStation = (processRawId: number) => {
 
   // 动态更新父节点高度如果需要的话 (留出一点底部 padding)
   const requiredHeight = newY + ITEM_HEIGHT + 20;
-  const currentHeight = Number.parseInt(
-    parentNode.style?.height?.toString() || '260',
-  );
+  const currentHeight =
+    parentNode.dimensions?.height ||
+    Number.parseInt(parentNode.style?.height?.toString() || '260');
 
   if (requiredHeight > currentHeight) {
     parentNode.style = {
@@ -321,6 +323,31 @@ const deleteSelected = () => {
       message.success('删除成功');
     },
   });
+};
+
+// --- Process Node Constraints ---
+const getProcessMinSize = (processRawId: number) => {
+  const processStations = nodes.value.filter(
+    (n) => n.type === 'station' && n.parentNode === `process_${processRawId}`,
+  );
+
+  let minWidth = 300;
+  let minHeight = 260;
+
+  if (processStations.length > 0) {
+    let maxX = 0;
+    let maxY = 0;
+    for (const station of processStations) {
+      const stationRight = station.position.x + 120 + 20;
+      const stationBottom = station.position.y + 50 + 20;
+      if (stationRight > maxX) maxX = stationRight;
+      if (stationBottom > maxY) maxY = stationBottom;
+    }
+    if (maxX > minWidth) minWidth = maxX;
+    if (maxY > minHeight) minHeight = maxY;
+  }
+
+  return { minWidth, minHeight };
 };
 
 // --- Data Operations ---
@@ -411,10 +438,18 @@ const saveData = async () => {
       if (n.type === 'process') {
         const pData: any = {
           color: n.data.color,
-          height: Number.parseInt(n.style?.height as string) || 260,
+          height: Math.round(
+            n.dimensions?.height ||
+              Number.parseInt(n.style?.height as string) ||
+              260,
+          ),
           label: n.data.label,
           order: n.data.order || 0,
-          width: Number.parseInt(n.style?.width as string) || 300,
+          width: Math.round(
+            n.dimensions?.width ||
+              Number.parseInt(n.style?.width as string) ||
+              300,
+          ),
           x: Math.round(n.position.x),
           y: Math.round(n.position.y),
         };
@@ -543,6 +578,14 @@ onMounted(() => {
 
         <!-- 自定义工序节点 -->
         <template #node-process="props">
+          <NodeResizer
+            :min-width="getProcessMinSize(props.data.rawId).minWidth"
+            :min-height="getProcessMinSize(props.data.rawId).minHeight"
+            :is-visible="props.selected"
+            line-class-name="!border-blue-400"
+            handle-class-name="!bg-blue-500 !border-2 !border-white !rounded"
+            :handle-style="{ width: '12px', height: '12px' }"
+          />
           <div
             class="relative flex h-full w-full flex-col rounded-xl border-[2.5px] border-dashed transition-all"
             :class="[

@@ -663,6 +663,9 @@ importers:
       '@vue-flow/core':
         specifier: ^1.48.1
         version: 1.48.1(vue@3.5.24(typescript@5.9.3))
+      '@vue-flow/node-resizer':
+        specifier: ^1.5.1
+        version: 1.5.1(@vue-flow/core@1.48.1(vue@3.5.24(typescript@5.9.3)))(vue@3.5.24(typescript@5.9.3))
       '@vueuse/core':
         specifier: 'catalog:'
         version: 13.9.0(vue@3.5.24(typescript@5.9.3))
@@ -4251,6 +4254,12 @@ packages:
   '@vue-flow/core@1.48.1':
     resolution: {integrity: sha512-3IxaMBLvWRbznZ4CuK0kVhp4Y4lCDQx9nhi48Swp6PwPw29KNhmiKd2kaBogYeWjGLb/tLjlE9V0s3jEmKCYWw==}
     peerDependencies:
+      vue: ^3.5.24
+
+  '@vue-flow/node-resizer@1.5.1':
+    resolution: {integrity: sha512-DNYgXTF39GXPAygVMFmgn5azgFztaWfqbWvv8D/X0HGgeunRrexJ0W94DyXH1rnndGyYAJ0KexEjyelsb+Nlbg==}
+    peerDependencies:
+      '@vue-flow/core': ^1.23.0
       vue: ^3.5.24
 
   '@vue/babel-helper-vue-transform-on@1.5.0':
@@ -12836,6 +12845,13 @@ snapshots:
       vue: 3.5.24(typescript@5.9.3)
     transitivePeerDependencies:
       - '@vue/composition-api'
+
+  '@vue-flow/node-resizer@1.5.1(@vue-flow/core@1.48.1(vue@3.5.24(typescript@5.9.3)))(vue@3.5.24(typescript@5.9.3))':
+    dependencies:
+      '@vue-flow/core': 1.48.1(vue@3.5.24(typescript@5.9.3))
+      d3-drag: 3.0.0
+      d3-selection: 3.0.0
+      vue: 3.5.24(typescript@5.9.3)
 
   '@vue/babel-helper-vue-transform-on@1.5.0': {}
 
