@@ -224,7 +224,7 @@ const addStation = (processRawId: number) => {
       label: uniqueLabel,
       code: uniqueCode,
       processId: processRawId,
-      type: 0,
+      type: 1,
     },
   });
   message.success('工位添加成功');
