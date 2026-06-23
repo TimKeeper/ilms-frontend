@@ -14,11 +14,39 @@ import {
 } from '@vueuse/core';
 
 import { defaultPreferences } from './config';
+import { LOCAL_APP_ICON } from './constants';
 import { updateCSSVariables } from './update-css-variables';
 
 const STORAGE_KEY = 'preferences';
 const STORAGE_KEY_LOCALE = `${STORAGE_KEY}-locale`;
 const STORAGE_KEY_THEME = `${STORAGE_KEY}-theme`;
+const LEGACY_STATIC_SOURCE_URL =
+  'https://unpkg.com/@vbenjs/static-source@0.1.7/source/';
+
+function normalizeLegacyAssetUrl(url?: string) {
+  if (!url) {
+    return url;
+  }
+
+  if (url.startsWith(LEGACY_STATIC_SOURCE_URL)) {
+    return LOCAL_APP_ICON;
+  }
+
+  return url;
+}
+
+function normalizePreferencesAssets(preferences: Preferences) {
+  preferences.app.defaultAvatar =
+    normalizeLegacyAssetUrl(preferences.app.defaultAvatar) || LOCAL_APP_ICON;
+  preferences.logo.source =
+    normalizeLegacyAssetUrl(preferences.logo.source) || LOCAL_APP_ICON;
+
+  if (preferences.logo.sourceDark) {
+    preferences.logo.sourceDark = normalizeLegacyAssetUrl(
+      preferences.logo.sourceDark,
+    );
+  }
+}
 
 class PreferenceManager {
   private cache: null | StorageManager = null;
@@ -75,6 +103,7 @@ class PreferenceManager {
       this.loadCachedPreferences() || {},
       this.initialPreferences,
     );
+    normalizePreferencesAssets(mergedPreference);
 
     // 更新偏好设置
     this.updatePreferences(mergedPreference);

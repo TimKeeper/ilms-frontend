@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { defaultPreferences } from '../src/config';
+import { LOCAL_APP_ICON } from '../src/constants';
 import { PreferenceManager } from '../src/preferences';
 import { isDarkTheme } from '../src/update-css-variables';
 
@@ -22,6 +23,7 @@ describe('preferences', () => {
     })),
   );
   beforeEach(() => {
+    window.localStorage.clear();
     preferenceManager = new PreferenceManager();
   });
 
@@ -53,6 +55,43 @@ describe('preferences', () => {
     };
 
     expect(preferenceManager.getPreferences()).toEqual(expected);
+  });
+
+  it('migrates legacy remote assets from cached preferences', async () => {
+    const namespace = 'legacyAssetsNamespace';
+    const cachedPreferences = {
+      ...defaultPreferences,
+      app: {
+        ...defaultPreferences.app,
+        defaultAvatar:
+          'https://unpkg.com/@vbenjs/static-source@0.1.7/source/avatar-v1.webp',
+      },
+      logo: {
+        ...defaultPreferences.logo,
+        source:
+          'https://unpkg.com/@vbenjs/static-source@0.1.7/source/logo-v1.webp',
+        sourceDark:
+          'https://unpkg.com/@vbenjs/static-source@0.1.7/source/logo-v1.webp',
+      },
+    };
+
+    window.localStorage.setItem(
+      `${namespace}-preferences`,
+      JSON.stringify({ value: cachedPreferences }),
+    );
+
+    await preferenceManager.initPreferences({
+      namespace,
+      overrides: {},
+    });
+
+    expect(preferenceManager.getPreferences().app.defaultAvatar).toBe(
+      LOCAL_APP_ICON,
+    );
+    expect(preferenceManager.getPreferences().logo.source).toBe(LOCAL_APP_ICON);
+    expect(preferenceManager.getPreferences().logo.sourceDark).toBe(
+      LOCAL_APP_ICON,
+    );
   });
 
   it('updates theme mode correctly', () => {

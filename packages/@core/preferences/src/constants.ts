@@ -112,8 +112,10 @@ const DEFAULT_TIME_ZONE_OPTIONS: TimezoneOption[] = [
   },
 ];
 
+const LOCAL_APP_ICON = '/favicon.ico';
+
 export const COLOR_PRESETS = [...BUILT_IN_THEME_PRESETS].slice(0, 7);
 
-export { BUILT_IN_THEME_PRESETS, DEFAULT_TIME_ZONE_OPTIONS };
+export { BUILT_IN_THEME_PRESETS, DEFAULT_TIME_ZONE_OPTIONS, LOCAL_APP_ICON };
 
 export type { BuiltinThemePreset };

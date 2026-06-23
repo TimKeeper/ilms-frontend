@@ -95,10 +95,14 @@ function formatTime(timestamp: number): string {
 /**
  * Generate avatar URL for alarm notifications
  */
-function getAlarmAvatar(alarmType: string, alarmId: string): string {
+function getAlarmAvatar(alarmType: string): string {
   const text = alarmType === 'radar' ? '雷达' : '标签';
-  // Use alarm ID as seed for consistent avatar per alarm
-  return `https://avatar.vercel.sh/${alarmId}.svg?text=${encodeURIComponent(text)}`;
+  const color =
+    alarmType === 'radar'
+      ? { background: '#e6f4ff', foreground: '#1677ff' }
+      : { background: '#fff7e6', foreground: '#fa8c16' };
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64"><rect width="64" height="64" rx="16" fill="${color.background}"/><text x="32" y="38" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="700" fill="${color.foreground}">${text}</text></svg>`;
+  return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
 }
 
 /**
@@ -266,7 +270,7 @@ class WebSocketService {
               alarmData.type === 'radar' ? '雷达告警' : '标签告警';
             this.notificationsCallback({
               id: alarmData.id, // Use alarm ID only for deduplication
-              avatar: getAlarmAvatar(alarmData.type, alarmData.id),
+              avatar: getAlarmAvatar(alarmData.type),
               date: formatTime(alarmData.time),
               isRead: false,
               message: alarmData.message,

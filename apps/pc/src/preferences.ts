@@ -1,4 +1,4 @@
-import { defineOverridesPreferences } from '@vben/preferences';
+import { defineOverridesPreferences, LOCAL_APP_ICON } from '@vben/preferences';
 
 /**
  * @description 项目配置文件
@@ -8,7 +8,11 @@ import { defineOverridesPreferences } from '@vben/preferences';
 export const overridesPreferences = defineOverridesPreferences({
   // overrides
   app: {
+    defaultAvatar: LOCAL_APP_ICON,
     name: import.meta.env.VITE_APP_TITLE,
+  },
+  logo: {
+    source: LOCAL_APP_ICON,
   },
   theme: {
     mode: 'light',
