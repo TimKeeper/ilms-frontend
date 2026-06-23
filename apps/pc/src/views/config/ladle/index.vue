@@ -7,7 +7,19 @@ import { ref } from 'vue';
 
 import { Page } from '@vben/common-ui';
 
-import { Button, Drawer, message, Modal, Space, Upload } from 'ant-design-vue';
+import { SettingOutlined } from '@ant-design/icons-vue';
+import {
+  Button,
+  Drawer,
+  Form,
+  Input,
+  message,
+  Modal,
+  Radio,
+  Space,
+  Tooltip,
+  Upload,
+} from 'ant-design-vue';
 
 import { useVbenForm } from '#/adapter/form';
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
@@ -25,27 +37,106 @@ const drawerVisible = ref(false);
 const editingRecord = ref<IronItem | null>(null);
 const isEditMode = ref(false);
 
+const TERM_STORAGE_KEY = 'ilms:config:ladle:term';
+const DEFAULT_TERM = '铁包';
+const MAX_TERM_LENGTH = 12;
+const PRESET_TERMS = ['铁包', '钢包'] as const;
+
+type PresetTerm = (typeof PRESET_TERMS)[number];
+type TermOption = PresetTerm | 'custom';
+
+const normalizeTerm = (value: unknown) => {
+  const term = typeof value === 'string' ? value.trim() : '';
+  return term ? term.slice(0, MAX_TERM_LENGTH) : DEFAULT_TERM;
+};
+
+const readStoredTerm = () => {
+  if (typeof window === 'undefined') {
+    return DEFAULT_TERM;
+  }
+  return normalizeTerm(window.localStorage.getItem(TERM_STORAGE_KEY));
+};
+
+const isPresetTerm = (term: string): term is PresetTerm => {
+  return PRESET_TERMS.includes(term as PresetTerm);
+};
+
+const ladleTerm = ref(readStoredTerm());
+const termModalVisible = ref(false);
+const termSettingOption = ref<TermOption>(
+  isPresetTerm(ladleTerm.value) ? ladleTerm.value : 'custom',
+);
+const customTerm = ref(isPresetTerm(ladleTerm.value) ? '' : ladleTerm.value);
+
+const createSearchSchema = (term: string): VbenFormProps['schema'] => [
+  {
+    component: 'Input',
+    componentProps: {
+      placeholder: `${term}名称`,
+    },
+    fieldName: 'ironName',
+    label: `${term}名称`,
+  },
+  {
+    component: 'InputNumber',
+    componentProps: {
+      min: 1,
+      placeholder: '标识器ID',
+    },
+    fieldName: 'tagSn',
+    label: '标识器ID',
+  },
+];
+
+const createColumns = (term: string): VxeGridProps<IronItem>['columns'] => [
+  { type: 'checkbox', width: 50 },
+  { type: 'seq', minWidth: 80, title: '序号' },
+  { field: 'ironName', minWidth: 180, title: `${term}名称` },
+  { field: 'tagSn1', minWidth: 120, title: '标识器ID1' },
+  { field: 'tagSn2', minWidth: 120, title: '标识器ID2' },
+  {
+    fixed: 'right',
+    slots: { default: 'action' },
+    title: '操作',
+    width: 200,
+  },
+];
+
+const createEditSchema = (term: string): VbenFormProps['schema'] => [
+  {
+    component: 'Input',
+    componentProps: {
+      placeholder: `请输入${term}名称`,
+    },
+    fieldName: 'ironName',
+    label: `${term}名称`,
+    rules: 'required',
+  },
+  {
+    component: 'InputNumber',
+    componentProps: {
+      class: 'w-full',
+      min: 1,
+      placeholder: '请输入标识器ID1',
+    },
+    fieldName: 'tagSn1',
+    label: '标识器ID1',
+  },
+  {
+    component: 'InputNumber',
+    componentProps: {
+      class: 'w-full',
+      min: 1,
+      placeholder: '请输入标识器ID2',
+    },
+    fieldName: 'tagSn2',
+    label: '标识器ID2',
+  },
+];
+
 const formOptions: VbenFormProps = {
   collapsed: false,
-  schema: [
-    {
-      component: 'Input',
-      componentProps: {
-        placeholder: '铁包名称',
-      },
-      fieldName: 'ironName',
-      label: '铁包名称',
-    },
-    {
-      component: 'InputNumber',
-      componentProps: {
-        min: 1,
-        placeholder: '标识器ID',
-      },
-      fieldName: 'tagSn',
-      label: '标识器ID',
-    },
-  ],
+  schema: createSearchSchema(ladleTerm.value),
   showCollapseButton: true,
   submitOnChange: false,
   submitOnEnter: false,
@@ -59,19 +150,7 @@ const gridOptions: VxeGridProps<IronItem> = {
   rowConfig: {
     keyField: 'id',
   },
-  columns: [
-    { type: 'checkbox', width: 50 },
-    { type: 'seq', minWidth: 80, title: '序号' },
-    { field: 'ironName', minWidth: 180, title: '铁包名称' },
-    { field: 'tagSn1', minWidth: 120, title: '标识器ID1' },
-    { field: 'tagSn2', minWidth: 120, title: '标识器ID2' },
-    {
-      fixed: 'right',
-      slots: { default: 'action' },
-      title: '操作',
-      width: 200,
-    },
-  ],
+  columns: createColumns(ladleTerm.value),
   height: '100%',
   pagerConfig: {},
   proxyConfig: {
@@ -104,39 +183,54 @@ const [EditForm, editFormApi] = useVbenForm({
     },
   },
   layout: 'vertical',
-  schema: [
-    {
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入铁包名称',
-      },
-      fieldName: 'ironName',
-      label: '铁包名称',
-      rules: 'required',
-    },
-    {
-      component: 'InputNumber',
-      componentProps: {
-        class: 'w-full',
-        min: 1,
-        placeholder: '请输入标识器ID1',
-      },
-      fieldName: 'tagSn1',
-      label: '标识器ID1',
-    },
-    {
-      component: 'InputNumber',
-      componentProps: {
-        class: 'w-full',
-        min: 1,
-        placeholder: '请输入标识器ID2',
-      },
-      fieldName: 'tagSn2',
-      label: '标识器ID2',
-    },
-  ],
+  schema: createEditSchema(ladleTerm.value),
   showDefaultActions: false,
 });
+
+const syncTermLabels = (term: string) => {
+  gridApi.setState({
+    formOptions: {
+      schema: createSearchSchema(term),
+    },
+    gridOptions: {
+      columns: createColumns(term),
+    },
+  });
+  editFormApi.setState({
+    schema: createEditSchema(term),
+  });
+};
+
+const handleOpenTermSetting = () => {
+  termSettingOption.value = isPresetTerm(ladleTerm.value)
+    ? ladleTerm.value
+    : 'custom';
+  customTerm.value = isPresetTerm(ladleTerm.value) ? '' : ladleTerm.value;
+  termModalVisible.value = true;
+};
+
+const handleTermSubmit = () => {
+  const nextTerm =
+    termSettingOption.value === 'custom'
+      ? customTerm.value.trim()
+      : termSettingOption.value;
+
+  if (!nextTerm) {
+    message.warning('自定义文案不能为空');
+    return;
+  }
+
+  if (nextTerm.length > MAX_TERM_LENGTH) {
+    message.warning(`自定义文案最多 ${MAX_TERM_LENGTH} 个字符`);
+    return;
+  }
+
+  ladleTerm.value = nextTerm;
+  syncTermLabels(nextTerm);
+  window.localStorage.setItem(TERM_STORAGE_KEY, nextTerm);
+  termModalVisible.value = false;
+  message.success('文案设置已保存');
+};
 
 const handleAdd = () => {
   isEditMode.value = false;
@@ -158,7 +252,7 @@ const handleEdit = (record: IronItem) => {
 
 const handleDelete = (record: IronItem) => {
   Modal.confirm({
-    content: `确定要删除铁包"${record.ironName}"吗？`,
+    content: `确定要删除${ladleTerm.value}"${record.ironName}"吗？`,
     title: '确认删除',
     async onOk() {
       try {
@@ -180,7 +274,7 @@ const handleBatchDelete = () => {
   }
 
   Modal.confirm({
-    content: `确定要删除选中的 ${selectedRecords.length} 条铁包数据吗？`,
+    content: `确定要删除选中的 ${selectedRecords.length} 条${ladleTerm.value}数据吗？`,
     title: '确认批量删除',
     async onOk() {
       try {
@@ -235,7 +329,7 @@ const handleDownloadTemplate = async () => {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = '铁包导入模板.xlsx';
+    a.download = `${ladleTerm.value}导入模板.xlsx`;
     document.body.append(a);
     a.click();
     window.URL.revokeObjectURL(url);
@@ -277,7 +371,7 @@ const handleExport = async () => {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `铁包数据_${Date.now()}.xlsx`;
+    a.download = `${ladleTerm.value}数据_${Date.now()}.xlsx`;
     document.body.append(a);
     a.click();
     window.URL.revokeObjectURL(url);
@@ -294,7 +388,9 @@ const handleExport = async () => {
     <Grid>
       <template #toolbar_buttons>
         <Space>
-          <Button type="primary" @click="handleAdd">新增铁包</Button>
+          <Button type="primary" @click="handleAdd">
+            新增{{ ladleTerm }}
+          </Button>
           <Button danger type="primary" @click="handleBatchDelete">
             批量删除
           </Button>
@@ -304,9 +400,21 @@ const handleExport = async () => {
             :show-upload-list="false"
             accept=".xls,.xlsx"
           >
-            <Button>导入铁包</Button>
+            <Button>导入{{ ladleTerm }}</Button>
           </Upload>
-          <Button @click="handleExport">导出铁包</Button>
+          <Button @click="handleExport">导出{{ ladleTerm }}</Button>
+          <Tooltip title="文案设置">
+            <Button
+              aria-label="文案设置"
+              size="small"
+              type="text"
+              @click="handleOpenTermSetting"
+            >
+              <template #icon>
+                <SettingOutlined />
+              </template>
+            </Button>
+          </Tooltip>
         </Space>
       </template>
 
@@ -324,7 +432,7 @@ const handleExport = async () => {
 
     <Drawer
       :open="drawerVisible"
-      :title="isEditMode ? '编辑铁包' : '新增铁包'"
+      :title="isEditMode ? `编辑${ladleTerm}` : `新增${ladleTerm}`"
       :width="600"
       @close="handleCancel"
     >
@@ -336,5 +444,31 @@ const handleExport = async () => {
         </Space>
       </template>
     </Drawer>
+
+    <Modal
+      v-model:open="termModalVisible"
+      ok-text="保存"
+      title="文案设置"
+      @cancel="termModalVisible = false"
+      @ok="handleTermSubmit"
+    >
+      <Form layout="vertical">
+        <Form.Item label="对象名称">
+          <Radio.Group v-model:value="termSettingOption">
+            <Radio value="铁包">铁包</Radio>
+            <Radio value="钢包">钢包</Radio>
+            <Radio value="custom">自定义</Radio>
+          </Radio.Group>
+        </Form.Item>
+        <Form.Item v-if="termSettingOption === 'custom'" label="自定义文案">
+          <Input
+            v-model:value="customTerm"
+            :maxlength="12"
+            placeholder="例如：钢包"
+            @press-enter="handleTermSubmit"
+          />
+        </Form.Item>
+      </Form>
+    </Modal>
   </Page>
 </template>
